@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Action Form</title>
+		<script type="module" src="/src/main.ts"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
+		<link rel="stylesheet" href="/src/styles.css" />
+		<style>
+			fieldset {
+				display: grid;
+				gap: 0.5em;
+			}
+			fieldset > * {
+				width: -moz-fit-content;
+				width: fit-content;
+			}
+			:where(h1, h2, h3, h4, h5, h6):first-child {
+				margin-block-start: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Action Form</h1>
+		<p>HTML web component for forms</p>
+		<section>
+			<action-form>
+				<form>
+					<form-progress></form-progress>
+					<form-step show>
+						<fieldset>
+							<label>First Name: <input type="text" name="first-name" id="first-name" required /></label>
+							<error-msg for="first-name">First Name is required</error-msg>
+							<label>Last Name: <input type="text" name="last-name" id="last-name" required /></label>
+							<error-msg for="last-name">Last Name is required</error-msg>
+						</fieldset>
+						<fieldset>
+							<label>Email: <input type="email" name="email" id="email" required /></label>
+							<error-msg for="email">Email is required</error-msg>
+							<label>Phone Number: <input type="tel" name="phone" id="phone" required pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<error-msg for="phone">Phone Number is required</error-msg>
+						</fieldset>
+					</form-step>
+					<form-step>
+						<fieldset id="animals" min="2" max="4">
+							<h2>Favorite Animals (Pick Minimum 2; Maximum 4)</h2>
+							<label><input type="checkbox" name="animal" value="dog" /> Dog </label>
+							<label><input type="checkbox" name="animal" value="cat" /> Cat </label>
+							<label><input type="checkbox" name="animal" value="bunny" /> Bunny </label>
+							<label><input type="checkbox" name="animal" value="possum" /> Possum </label>
+							<label><input type="checkbox" name="animal" value="bird" /> Bird </label>
+							<label><input type="checkbox" name="animal" value="fish" /> Fish </label>
+							<label><input type="checkbox" name="animal" value="snake" /> Snake </label>
+							<error-msg for="animals">2-4 animals is required</error-msg>
+						</fieldset>
+					</form-step>
+					<form-step>
+						<fieldset>
+							<!-- Form fields -->
+							<button type="reset">Reset</button>
+							<button type="submit">Submit</button>
+						</fieldset>
+					</form-step>
+				</form>
+			</action-form>
+		</section>
+	</body>
+</html>

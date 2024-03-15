@@ -1,0 +1,8 @@
+error-msg {
+	display: none;
+	color: var(--error-text, red);
+}
+
+error-msg[show] {
+	display: block;
+}
