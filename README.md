@@ -1,6 +1,13 @@
 ## Action Form
 
-Need to look into proper ARIA for error messages. 
+HTML light DOM web component to add useful functionality to forms
+
+### TODO
+
+- [ ] Add ARIA to error messages. Need to sort out the best way to do this.
+- [ ] Get form-group working to hide/show based on other fields value
+- [ ] Get form-step working to hide/show based on if prior steps are completed
+- [ ] Make sure that resetting the form also hides all error messages
 
 ### Resources
 

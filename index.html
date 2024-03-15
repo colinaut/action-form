@@ -52,7 +52,11 @@
 							<label><input type="checkbox" name="animal" value="bird" /> Bird </label>
 							<label><input type="checkbox" name="animal" value="fish" /> Fish </label>
 							<label><input type="checkbox" name="animal" value="snake" /> Snake </label>
+							<label><input type="checkbox" name="animal" value="other" id="animal-other" /> Other </label>
 							<error-msg for="animals">2-4 animals is required</error-msg>
+							<form-group watch="animal-other" showIf="checked">
+								<label>Other: <input type="text" name="animal-other" required /></label>
+							</form-group>
 						</fieldset>
 					</form-step>
 					<form-step>

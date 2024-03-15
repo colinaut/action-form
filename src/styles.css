@@ -1,8 +1,13 @@
-error-msg {
+error-msg,
+form-group {
 	display: none;
-	color: var(--error-text, red);
 }
 
-error-msg[show] {
+error-msg[show],
+form-group[show] {
 	display: block;
+}
+
+error-msg {
+	color: var(--error-text, red);
 }

@@ -3,6 +3,8 @@ export default class ErrorMsg extends HTMLElement {
 		super();
 	}
 
+	// TODO: Clean up this code
+	// TODO: add ARIA for error messages
 	public connectedCallback(): void {
 		console.log("connected");
 		const form = this.closest("form");
