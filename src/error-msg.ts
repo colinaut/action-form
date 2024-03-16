@@ -16,6 +16,8 @@ export default class ErrorMsg extends HTMLElement {
 		super();
 	}
 
+	private hiddenRequired = document.createElement("input");
+
 	private checkElementValidity(el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) {
 		if (!el.checkValidity()) {
 			this.setAttribute("show", "");
@@ -41,6 +43,15 @@ export default class ErrorMsg extends HTMLElement {
 		// If no form or fields then return
 		if (!form || !fields || fields.length === 0) return;
 
+		if (isCheckboxOrRadio(fields[0]) && (min || max)) {
+			// Add hidden checkbox for required
+			this.hiddenRequired.type = "checkbox";
+			this.hiddenRequired.name = `${watch}-isvalid`;
+			this.hiddenRequired.setAttribute("required", "");
+			this.hiddenRequired.style.display = "none";
+			this.append(this.hiddenRequired);
+		}
+
 		fields.forEach((field) => {
 			// If field is not an input, textarea, or select then return
 			if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement)) return;
@@ -58,10 +69,13 @@ export default class ErrorMsg extends HTMLElement {
 					// If this is a checkbox or radio and min or max set then grab all of them and compare min and max values
 					if (isCheckboxOrRadio(field) && (min || max)) {
 						const inputsChecked = Array.from(fields).filter((input) => input instanceof HTMLInputElement && input.checked);
+
 						if ((min && inputsChecked.length < parseInt(min)) || (max && inputsChecked.length > parseInt(max))) {
 							this.setAttribute("show", "");
+							this.hiddenRequired.checked = false;
 						} else {
 							this.removeAttribute("show");
+							this.hiddenRequired.checked = true;
 						}
 					} else {
 						this.checkElementValidity(field);
