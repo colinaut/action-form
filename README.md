@@ -1,6 +1,6 @@
 # Action Form
 
-HTML light DOM web component to add useful functionality to forms.
+HTML light DOM web component to add useful functionality to forms. This is still in beta. Use at your own risk and expect changes.
 
 ## `<action-form>`
 
