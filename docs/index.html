@@ -3,25 +3,104 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Web Component Starter</title>
-		<script type="module" crossorigin src="/web-component-light-dom-ts.js"></script>
-		<script type="module" crossorigin src="/web-component-shadow-dom-ts.js"></script>
-		<script type="module" crossorigin src="/web-component-light-dom-js.js"></script>
-		<script type="module" crossorigin src="/web-component-shadow-dom-js.js"></script>
+		<title>Action Form</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
+		<style>
+			fieldset {
+				display: grid;
+				gap: 0.5em;
+			}
+			action-fieldset:not([hidden]) {
+				display: grid;
+				gap: 0.5em;
+				border: 1px #0096bfab solid;
+				border: 1px var(--focus) solid;
+				border-radius: 6px;
+				margin: 0;
+				margin-bottom: 12px;
+				padding: 10px;
+			}
+			:where(fieldset, action-fieldset) > * {
+				width: -moz-fit-content;
+				width: fit-content;
+			}
+			:where(h1, h2, h3, h4, h5, h6):first-child {
+				margin-block-start: 0;
+			}
+			.grid {
+				display: grid;
+			}
+			.grid-cols-2 {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+			.grid-cols-4 {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+			}
+			.grid-col-full-width {
+				grid-column: 1 / -1;
+			}
+			:where(action-fieldset):has(*:invalid) {
+				outline: 2px solid red;
+			}
+			:invalid {
+				outline: 2px solid red;
+			}
+		</style>
+		<script type="module" crossorigin src="/action-form.js"></script>
+		<script type="module" crossorigin src="/error-msg.js"></script>
+		<script type="module" crossorigin src="/action-fieldset.js"></script>
+		<script type="module" crossorigin src="/form-step.js"></script>
+		<script type="module" crossorigin src="/form-progress.js"></script>
+		<link rel="stylesheet" crossorigin href="/assets/main.css">
 	</head>
 	<body>
-		<h1>Web Component Starter</h1>
-		<p>
-			Basic bare bones native web component starter without a framework. Uses Vite. Includes examples for Light DOM and Shadow DOM web components using Typescript or vanilla
-			JavaScript.
-		</p>
-		<h2>Light DOM Web Component (Typescript)</h2>
-		<web-component-light-dom-ts></web-component-light-dom-ts>
-		<h2>Shadow DOM Web Component (Typescript)</h2>
-		<web-component-shadow-dom-ts></web-component-shadow-dom-ts>
-		<h2>Light DOM Web Component (Javascript)</h2>
-		<web-component-light-dom-js></web-component-light-dom-js>
-		<h2>Shadow DOM Web Component (Javascript)</h2>
-		<web-component-shadow-dom-js></web-component-shadow-dom-js>
+		<h1>Action Form</h1>
+		<p>HTML web component for forms</p>
+		<section>
+			<action-form>
+				<form>
+					<form-progress></form-progress>
+					<form-step show>
+						<fieldset>
+							<label>First Name: <input type="text" name="first-name" id="first-name" required /></label>
+							<error-msg watch="first-name">First Name is required</error-msg>
+							<label>Last Name: <input type="text" name="last-name" id="last-name" required /></label>
+							<error-msg watch="last-name">Last Name is required</error-msg>
+						</fieldset>
+						<fieldset>
+							<label>Email: <input type="email" name="email" id="email" required /></label>
+							<error-msg watch="email">Email is required</error-msg>
+							<label>Phone Number: <input type="tel" name="phone" id="phone" required pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<error-msg watch="phone">Phone Number is required</error-msg>
+						</fieldset>
+					</form-step>
+					<form-step>
+						<h2>Favorite Animals (Pick Minimum 2; Maximum 4)</h2>
+						<fieldset name="animals" min="2" max="4" class="grid grid-cols-4">
+							<label><input type="checkbox" name="animal" value="dog" /> Dog </label>
+							<label><input type="checkbox" name="animal" value="cat" /> Cat </label>
+							<label><input type="checkbox" name="animal" value="bunny" /> Bunny </label>
+							<label><input type="checkbox" name="animal" value="possum" /> Possum </label>
+							<label><input type="checkbox" name="animal" value="bird" /> Bird </label>
+							<label><input type="checkbox" name="animal" value="fish" /> Fish </label>
+							<label><input type="checkbox" name="animal" value="snake" /> Snake </label>
+							<label><input type="checkbox" name="animal" value="other" /> Other </label>
+							<error-msg class="grid-col-full-width" watch="animals">2-4 animals is required</error-msg>
+						</fieldset>
+						<action-fieldset watch="animal" showIf="other" hidden>
+							<label>Other Animal: <input type="text" name="animal-other" required /></label>
+							<error-msg watch="animal-other">other is required</error-msg>
+						</action-fieldset>
+					</form-step>
+					<form-step>
+						<fieldset>
+							<!-- Form fields -->
+							<button type="reset">Reset</button>
+							<button type="submit">Submit</button>
+						</fieldset>
+					</form-step>
+				</form>
+			</action-form>
+		</section>
 	</body>
 </html>
