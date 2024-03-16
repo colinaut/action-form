@@ -67,13 +67,21 @@
 						<fieldset>
 							<label>Email: <input type="email" name="email" id="email" required /></label>
 							<error-msg watch="email">Email is required</error-msg>
-							<label>Phone Number: <input type="tel" name="phone" id="phone" required pattern="\d{3}-?\d{3}-?\d{4}" /></label>
-							<error-msg watch="phone">Phone Number is required</error-msg>
+						</fieldset>
+						<fieldset name="tel" min="1">
+							<h3>Phone Numbers (at least 1 required)</h3>
+							<label>Home Number: <input type="tel" name="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<error-msg watch="home-phone">phone number must have 7 digits</error-msg>
+							<label>Work Number: <input type="tel" name="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<error-msg watch="work-phone">phone number must have 7 digits</error-msg>
+							<label>Mobile Number: <input type="tel" name="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<error-msg watch="mobile-phone">phone number must have 7 digits</error-msg>
+							<error-msg watch="tel">At least one phone number is required and all numbers must be valid</error-msg>
 						</fieldset>
 					</form-step>
 					<form-step>
-						<h2>Favorite Animals (Pick Minimum 2; Maximum 4)</h2>
 						<fieldset name="animals" min="2" max="4" class="grid grid-cols-4">
+							<h3 class="grid-col-full-width">Favorite Animals (Pick Minimum 2; Maximum 4)</h3>
 							<label><input type="checkbox" name="animal" value="dog" /> Dog </label>
 							<label><input type="checkbox" name="animal" value="cat" /> Cat </label>
 							<label><input type="checkbox" name="animal" value="bunny" /> Bunny </label>
