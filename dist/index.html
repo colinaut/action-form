@@ -43,7 +43,7 @@
 				outline: 2px solid red;
 			}
 			:invalid {
-				outline: 2px solid red;
+				outline: 1px solid coral;
 			}
 		</style>
 		<script type="module" crossorigin src="/action-form.js"></script>
@@ -61,22 +61,31 @@
 				<form>
 					<form-progress></form-progress>
 					<form-step show>
-						<fieldset>
+						<fieldset name="names">
 							<label>First Name: <input type="text" name="first-name" id="first-name" required /></label>
 							<error-msg watch="first-name">First Name is required</error-msg>
 							<label>Last Name: <input type="text" name="last-name" id="last-name" required /></label>
 							<error-msg watch="last-name">Last Name is required</error-msg>
 						</fieldset>
+						<error-msg watch="names">Full Name is required</error-msg>
 						<fieldset>
 							<label>Email: <input type="email" name="email" id="email" required /></label>
 							<error-msg watch="email">Email is required</error-msg>
-							<label>Phone Number: <input type="tel" name="phone" id="phone" required pattern="\d{3}-?\d{3}-?\d{4}" /></label>
-							<error-msg watch="phone">Phone Number is required</error-msg>
+						</fieldset>
+						<fieldset name="tel" min="1">
+							<h3>Phone Numbers (at least 1 required)</h3>
+							<label>Home Number: <input type="tel" name="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<error-msg watch="home-phone">phone number must have 7 digits</error-msg>
+							<label>Work Number: <input type="tel" name="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<error-msg watch="work-phone">phone number must have 7 digits</error-msg>
+							<label>Mobile Number: <input type="tel" name="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<error-msg watch="mobile-phone">phone number must have 7 digits</error-msg>
+							<error-msg watch="tel">At least one phone number is required and all numbers must be valid</error-msg>
 						</fieldset>
 					</form-step>
 					<form-step>
-						<h2>Favorite Animals (Pick Minimum 2; Maximum 4)</h2>
 						<fieldset name="animals" min="2" max="4" class="grid grid-cols-4">
+							<h3 class="grid-col-full-width">Favorite Animals (Pick Minimum 2; Maximum 4)</h3>
 							<label><input type="checkbox" name="animal" value="dog" /> Dog </label>
 							<label><input type="checkbox" name="animal" value="cat" /> Cat </label>
 							<label><input type="checkbox" name="animal" value="bunny" /> Bunny </label>
@@ -93,7 +102,7 @@
 						</action-fieldset>
 					</form-step>
 					<form-step>
-						<fieldset>
+						<fieldset id="test">
 							<!-- Form fields -->
 							<button type="reset">Reset</button>
 							<button type="submit">Submit</button>
