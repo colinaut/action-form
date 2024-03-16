@@ -1,16 +1,15 @@
 {
 	"name": "@colinaut/action-form",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "",
 	"keywords": [
 		"web component",
 		"typescript"
 	],
-	"repository": "",
+	"repository": "https://github.com/colinaut/action-form",
 	"license": "MIT",
 	"author": "Colin Fahrion",
 	"homepage": "https://colinaut.github.io/action-form/",
-	"repository": "https://github.com/colinaut/action-form",
 	"type": "module",
 	"main": "dist/index.js",
 	"exports": {
