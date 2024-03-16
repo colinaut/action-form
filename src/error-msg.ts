@@ -1,9 +1,7 @@
 function isChangeField(field: Element): boolean {
 	return (field instanceof HTMLInputElement && ["radio", "checkbox", "range", "color", "file"].includes(field.type)) || field instanceof HTMLSelectElement;
 }
-function isCheckboxOrRadio(field: Element): boolean {
-	return field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type);
-}
+
 function isBlurField(field: Element): boolean {
 	return (
 		(field instanceof HTMLInputElement && ["text", "email", "tel", "password", "date", "month", "number", "datetime-local", "time", "url", "week"].includes(field.type)) ||
@@ -16,13 +14,13 @@ export default class ErrorMsg extends HTMLElement {
 		super();
 	}
 
-	private hiddenRequired = document.createElement("input");
+	private hiddenValid = document.createElement("input");
 
-	private checkElementValidity(el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) {
-		if (!el.checkValidity()) {
-			this.setAttribute("show", "");
-		} else {
+	private hide(boolean: boolean) {
+		if (boolean) {
 			this.removeAttribute("show");
+		} else {
+			this.setAttribute("show", "");
 		}
 	}
 
@@ -31,58 +29,85 @@ export default class ErrorMsg extends HTMLElement {
 	public connectedCallback(): void {
 		// attributes
 		const watch = this.getAttribute("watch") || "";
-		console.log("connected", watch);
-
-		const min = this.getAttribute("min");
-		const max = this.getAttribute("max");
 
 		// parent form
 		const form = this.closest("form");
 		// Get all fields that match the name in this form
-		const fields = form?.querySelectorAll(`[name=${watch}]`);
-		// If no form or fields then return
-		if (!form || !fields || fields.length === 0) return;
+		const el = form?.querySelector(`:where(input, select, textarea, fieldset)[name=${watch}]`) as HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement;
 
-		if (isCheckboxOrRadio(fields[0]) && (min || max)) {
-			// Add hidden checkbox for required
-			this.hiddenRequired.type = "checkbox";
-			this.hiddenRequired.name = `${watch}-isvalid`;
-			this.hiddenRequired.setAttribute("required", "");
-			this.hiddenRequired.style.display = "none";
-			this.append(this.hiddenRequired);
+		// If no form or fields then return
+		if (!el) return;
+
+		console.log(`watching ${watch}`);
+
+		if (isBlurField(el)) {
+			el.addEventListener("blur", () => {
+				console.log("blur", el);
+
+				this.hide(el.checkValidity());
+			});
 		}
 
-		fields.forEach((field) => {
-			// If field is not an input, textarea, or select then return
-			if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement)) return;
+		if (isChangeField(el)) {
+			el.addEventListener("change", () => {
+				this.hide(el.checkValidity());
+			});
+		}
 
-			if (isBlurField(field)) {
-				field.addEventListener("blur", () => {
-					console.log("blur", field);
+		if (el instanceof HTMLFieldSetElement) {
+			// get all child fields
+			const fieldsetFields = el.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+			// add extra hidden checkbox to set validity for the fieldset element and form
+			this.addValidityField(el, watch);
+			const min = Number(el.getAttribute("min") || 1);
+			const max = Number(el.getAttribute("max") || fieldsetFields.length);
+			if (min || max) {
+				el.addEventListener("change", (event) => {
+					const target = event.target;
+					// if target is not an element
+					if (!(target instanceof HTMLSelectElement || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
 
-					this.checkElementValidity(field);
-				});
-			}
+					if (target.matches(`input[name="action-fieldset-${watch}"]`)) {
+						console.log("change", target);
 
-			if (isChangeField(field)) {
-				field.addEventListener("change", () => {
-					// If this is a checkbox or radio and min or max set then grab all of them and compare min and max values
-					if (isCheckboxOrRadio(field) && (min || max)) {
-						const inputsChecked = Array.from(fields).filter((input) => input instanceof HTMLInputElement && input.checked);
-
-						if ((min && inputsChecked.length < parseInt(min)) || (max && inputsChecked.length > parseInt(max))) {
-							this.setAttribute("show", "");
-							this.hiddenRequired.checked = false;
+						this.hide(target.checkValidity());
+					} else if (Array.from(fieldsetFields).includes(target)) {
+						console.log("change array", target);
+						const checked = Array.from(fieldsetFields).filter((field) => {
+							if (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type)) {
+								return field.checked;
+							}
+							return field.value;
+						});
+						if (checked.length >= min && checked.length <= max) {
+							this.hiddenValid.checked = true;
+							this.dispatchHiddenValid(true);
 						} else {
-							this.removeAttribute("show");
-							this.hiddenRequired.checked = true;
+							console.error(`${watch} invalid (min: ${min} max: ${max} checked: ${checked.length})`);
+							this.dispatchHiddenValid(false);
 						}
-					} else {
-						this.checkElementValidity(field);
 					}
 				});
 			}
-		});
+		}
+	}
+
+	private dispatchHiddenValid(checked: boolean) {
+		this.hiddenValid.checked = checked;
+		this.hiddenValid.dispatchEvent(new Event("change", { bubbles: true }));
+	}
+
+	/**
+	 * Adds a hidden validity field to the DOM element.
+	 */
+	private addValidityField(el: HTMLFieldSetElement, name: string) {
+		const hiddenValid = this.hiddenValid;
+		hiddenValid.type = "checkbox";
+		hiddenValid.name = `action-fieldset-${name}`;
+		hiddenValid.setAttribute("required", "");
+		hiddenValid.style.display = "none";
+		hiddenValid.value = "valid";
+		el.append(hiddenValid);
 	}
 
 	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {

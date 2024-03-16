@@ -8,7 +8,7 @@ function isBlurField(field: Element): boolean {
 	);
 }
 
-export default class FormGroup extends HTMLElement {
+export default class ActionFieldSet extends HTMLElement {
 	constructor() {
 		super();
 	}
@@ -16,34 +16,39 @@ export default class FormGroup extends HTMLElement {
 	private groupFields = this.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 
 	public connectedCallback(): void {
-		console.log("connected");
-
 		const form = this.closest("form");
 		const watch = this.getAttribute("watch");
 		if (form && watch) {
+			console.log(`watching ${watch}`);
 			// disable all fields in the group
 			this.groupFields.forEach((field) => {
 				field.setAttribute("disabled", "");
 			});
 			// Set up event listeners for field matching the name
-			const namedFields = form.querySelectorAll(`:where(input, select, textarea)[name=${watch}]`) as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+			const namedFields = form.querySelectorAll(`:where(input, select, textarea, fieldset)[name=${watch}]`) as NodeListOf<
+				HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | HTMLFieldSetElement
+			>;
+
 			if (namedFields.length === 0) return;
 
+			console.log(namedFields);
+
+			// allow watching fieldset for validity changes
 			namedFields.forEach((field) => {
-				if (isBlurField(field)) {
+				if (field instanceof HTMLFieldSetElement) {
+					// check if the fieldset is valid
+					this.show(field.checkValidity());
+				} else if (isBlurField(field)) {
 					field.addEventListener("blur", () => {
-						this.show(field.value);
+						this.show(this.checkMatches(field.value));
 					});
-				}
-				if (isChangeField(field)) {
+				} else if (isChangeField(field)) {
 					field.addEventListener("change", () => {
 						if (field.matches("[type=checkbox], [type=radio]")) {
-							const values = Array.from(namedFields)
-								.filter((el) => el instanceof HTMLInputElement && el.checked)
-								.map((el) => el.value);
-							this.show(values);
+							const checkedFields = Array.from(namedFields).filter((el) => el instanceof HTMLInputElement && el.checked) as HTMLInputElement[];
+							this.show(this.checkMatches(checkedFields.map((el) => el.value)));
 						} else {
-							this.show(field.value);
+							this.show(this.checkMatches(field.value));
 						}
 					});
 				}
@@ -55,21 +60,23 @@ export default class FormGroup extends HTMLElement {
 		const showIf = this.getAttribute("showIf") || "";
 		if (Array.isArray(value)) {
 			return value.includes(showIf);
+		} else if (this.hasAttribute("regex")) {
+			const regex = new RegExp(value);
+			return regex.test(showIf);
 		} else {
 			return showIf === value;
 		}
 	}
 
-	private show(value: string | string[]): void {
+	private show(show: boolean): void {
 		// TODO: add regex support and or includes support
-		// TODO: change for checked to showIfChecked
-		if (this.checkMatches(value)) {
-			this.setAttribute("show", "");
+		if (show) {
+			this.removeAttribute("hidden");
 			this.groupFields.forEach((field) => {
 				field.removeAttribute("disabled");
 			});
 		} else {
-			this.removeAttribute("show");
+			this.setAttribute("hidden", "");
 			this.groupFields.forEach((field) => {
 				field.setAttribute("disabled", "");
 			});
@@ -80,4 +87,4 @@ export default class FormGroup extends HTMLElement {
 	// 	console.log("changed", name, oldValue, newValue);
 	// }
 }
-customElements.define("form-group", FormGroup);
+customElements.define("action-fieldset", ActionFieldSet);

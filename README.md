@@ -8,6 +8,7 @@ HTML light DOM web component to add useful functionality to forms
 - [ ] Get form-group working to hide/show based on other fields value
 - [ ] Get form-step working to hide/show based on if prior steps are completed
 - [ ] Make sure that resetting the form also hides all error messages
+- [ ] Need to test submitting the form and triggering errors
 
 ### Resources
 

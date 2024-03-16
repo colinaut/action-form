@@ -1,17 +1,11 @@
-error-msg,
-form-group:defined {
+error-msg {
 	display: none;
 }
 
-error-msg[show],
-form-group[show] {
+error-msg[show] {
 	display: block;
 }
 
 error-msg {
 	color: var(--error-text, red);
-}
-
-:invalid {
-	outline: 2px solid red;
 }

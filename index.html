@@ -12,12 +12,40 @@
 				display: grid;
 				gap: 0.5em;
 			}
-			fieldset > * {
+			action-fieldset:not([hidden]) {
+				display: grid;
+				gap: 0.5em;
+				border: 1px #0096bfab solid;
+				border: 1px var(--focus) solid;
+				border-radius: 6px;
+				margin: 0;
+				margin-bottom: 12px;
+				padding: 10px;
+			}
+			:where(fieldset, action-fieldset) > * {
 				width: -moz-fit-content;
 				width: fit-content;
 			}
 			:where(h1, h2, h3, h4, h5, h6):first-child {
 				margin-block-start: 0;
+			}
+			.grid {
+				display: grid;
+			}
+			.grid-cols-2 {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+			.grid-cols-4 {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+			}
+			.grid-col-full-width {
+				grid-column: 1 / -1;
+			}
+			:where(action-fieldset):has(*:invalid) {
+				outline: 2px solid red;
+			}
+			:invalid {
+				outline: 2px solid red;
 			}
 		</style>
 	</head>
@@ -43,8 +71,8 @@
 						</fieldset>
 					</form-step>
 					<form-step>
-						<fieldset>
-							<h2>Favorite Animals (Pick Minimum 2; Maximum 4)</h2>
+						<h2>Favorite Animals (Pick Minimum 2; Maximum 4)</h2>
+						<fieldset name="animals" min="2" max="4" class="grid grid-cols-4">
 							<label><input type="checkbox" name="animal" value="dog" /> Dog </label>
 							<label><input type="checkbox" name="animal" value="cat" /> Cat </label>
 							<label><input type="checkbox" name="animal" value="bunny" /> Bunny </label>
@@ -52,13 +80,13 @@
 							<label><input type="checkbox" name="animal" value="bird" /> Bird </label>
 							<label><input type="checkbox" name="animal" value="fish" /> Fish </label>
 							<label><input type="checkbox" name="animal" value="snake" /> Snake </label>
-							<label><input type="checkbox" name="animal" value="other" id="animal-other" /> Other </label>
-							<error-msg watch="animal" min="2" max="4">2-4 animals is required</error-msg>
-							<form-group watch="animal" showIf="other">
-								<label>Other: <input type="text" name="animal-other" required /></label>
-								<error-msg watch="animal-other">other is required</error-msg>
-							</form-group>
+							<label><input type="checkbox" name="animal" value="other" /> Other </label>
+							<error-msg class="grid-col-full-width" watch="animals">2-4 animals is required</error-msg>
 						</fieldset>
+						<action-fieldset watch="animal" showIf="other" hidden>
+							<label>Other Animal: <input type="text" name="animal-other" required /></label>
+							<error-msg watch="animal-other">other is required</error-msg>
+						</action-fieldset>
 					</form-step>
 					<form-step>
 						<fieldset>
