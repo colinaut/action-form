@@ -11,3 +11,7 @@ form-group[show] {
 error-msg {
 	color: var(--error-text, red);
 }
+
+:invalid {
+	outline: 2px solid red;
+}
