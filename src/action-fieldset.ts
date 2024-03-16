@@ -31,13 +31,13 @@ export default class ActionFieldSet extends HTMLElement {
 
 			if (namedFields.length === 0) return;
 
-			console.log(namedFields);
-
 			// allow watching fieldset for validity changes
 			namedFields.forEach((field) => {
 				if (field instanceof HTMLFieldSetElement) {
-					// check if the fieldset is valid
-					this.show(field.checkValidity());
+					// check if the field in the fieldset are valid
+					field.addEventListener("change", () => {
+						this.show(field.querySelectorAll(":invalid").length === 0);
+					});
 				} else if (isBlurField(field)) {
 					field.addEventListener("blur", () => {
 						this.show(this.checkMatches(field.value));

@@ -45,7 +45,7 @@
 				outline: 2px solid red;
 			}
 			:invalid {
-				outline: 2px solid red;
+				outline: 1px solid coral;
 			}
 		</style>
 	</head>
@@ -57,12 +57,13 @@
 				<form>
 					<form-progress></form-progress>
 					<form-step show>
-						<fieldset>
+						<fieldset name="names">
 							<label>First Name: <input type="text" name="first-name" id="first-name" required /></label>
 							<error-msg watch="first-name">First Name is required</error-msg>
 							<label>Last Name: <input type="text" name="last-name" id="last-name" required /></label>
 							<error-msg watch="last-name">Last Name is required</error-msg>
 						</fieldset>
+						<error-msg watch="names">Full Name is required</error-msg>
 						<fieldset>
 							<label>Email: <input type="email" name="email" id="email" required /></label>
 							<error-msg watch="email">Email is required</error-msg>
@@ -89,7 +90,7 @@
 						</action-fieldset>
 					</form-step>
 					<form-step>
-						<fieldset>
+						<fieldset id="test">
 							<!-- Form fields -->
 							<button type="reset">Reset</button>
 							<button type="submit">Submit</button>

@@ -61,17 +61,17 @@ export default class ErrorMsg extends HTMLElement {
 			this.addValidityField(el, watch);
 			const min = Number(el.getAttribute("min") || 1);
 			const max = Number(el.getAttribute("max") || fieldsetFields.length);
-			if (min || max) {
-				el.addEventListener("change", (event) => {
+
+			el.addEventListener("change", (event) => {
+				if (min || max) {
+					// if min or max set then update validity hidden field based the fields in the fieldset
 					const target = event.target;
+
 					// if target is not an element
 					if (!(target instanceof HTMLSelectElement || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
 
-					if (target.matches(`input[name="action-fieldset-${watch}"]`)) {
-						console.log("change", target);
-
-						this.hide(target.checkValidity());
-					} else if (Array.from(fieldsetFields).includes(target)) {
+					// TODO: test this with a mix of fields like fill in at least one tel field
+					if (Array.from(fieldsetFields).includes(target)) {
 						console.log("change array", target);
 						const checked = Array.from(fieldsetFields).filter((field) => {
 							if (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type)) {
@@ -87,8 +87,11 @@ export default class ErrorMsg extends HTMLElement {
 							this.dispatchHiddenValid(false);
 						}
 					}
-				});
-			}
+				}
+
+				// Check all elements in fieldset are valid
+				this.hide(el.querySelectorAll(":invalid").length === 0);
+			});
 		}
 	}
 
