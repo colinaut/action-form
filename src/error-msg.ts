@@ -16,13 +16,23 @@ export default class ErrorMsg extends HTMLElement {
 
 	private hiddenValid = document.createElement("input");
 
-	private hide(boolean: boolean) {
-		if (boolean) {
+	private hide(valid: boolean, el: HTMLElement): void {
+		if (valid) {
 			this.removeAttribute("show");
+			el.removeAttribute("aria-invalid");
 		} else {
 			this.setAttribute("show", "");
+			el.setAttribute("aria-invalid", "true");
 		}
 	}
+
+	private getMakeId = (watch: string) => {
+		const id = this.getAttribute("id");
+		if (id) return id;
+		const randomId = `${watch}-${Math.random().toString(36).substring(2, 9)}`;
+		this.setAttribute("id", randomId);
+		return randomId;
+	};
 
 	// TODO: Clean up this code
 	// TODO: add ARIA for error messages
@@ -38,19 +48,22 @@ export default class ErrorMsg extends HTMLElement {
 		// If no form or fields then return
 		if (!el) return;
 
+		// Add random id to error message
+		const id = this.getMakeId(watch);
+		el.setAttribute("aria-describedby", id);
+
 		console.log(`watching ${watch}`);
 
 		if (isBlurField(el)) {
 			el.addEventListener("blur", () => {
 				console.log("blur", el);
-
-				this.hide(el.checkValidity());
+				this.hide(el.checkValidity(), el);
 			});
 		}
 
 		if (isChangeField(el)) {
 			el.addEventListener("change", () => {
-				this.hide(el.checkValidity());
+				this.hide(el.checkValidity(), el);
 			});
 		}
 
@@ -90,7 +103,7 @@ export default class ErrorMsg extends HTMLElement {
 				}
 
 				// Check all elements in fieldset are valid
-				this.hide(el.querySelectorAll(":invalid").length === 0);
+				this.hide(el.querySelectorAll(":invalid").length === 0, el);
 			});
 		}
 	}

@@ -1,6 +1,6 @@
 {
-	"name": "web-component-starter",
-	"version": "1.0.0",
+	"name": "@colinaut/action-form",
+	"version": "0.1.0",
 	"description": "",
 	"keywords": [
 		"web component",
@@ -10,7 +10,7 @@
 	"license": "MIT",
 	"author": "",
 	"type": "module",
-	"main": "dist/web-component-light-dom-ts.js",
+	"main": "dist/index.js",
 	"scripts": {
 		"build": "tsc && vite build && rm -rf docs && cp -r dist docs",
 		"dev": "vite",
