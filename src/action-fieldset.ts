@@ -40,7 +40,7 @@ export default class ActionFieldSet extends HTMLElement {
 					});
 				} else if (isBlurField(field)) {
 					field.addEventListener("blur", () => {
-						this.show(this.checkMatches(field.value));
+						this.show(this.checkMatches([field.value]));
 					});
 				} else if (isChangeField(field)) {
 					field.addEventListener("change", () => {
@@ -48,7 +48,7 @@ export default class ActionFieldSet extends HTMLElement {
 							const checkedFields = Array.from(namedFields).filter((el) => el instanceof HTMLInputElement && el.checked) as HTMLInputElement[];
 							this.show(this.checkMatches(checkedFields.map((el) => el.value)));
 						} else {
-							this.show(this.checkMatches(field.value));
+							this.show(this.checkMatches([field.value]));
 						}
 					});
 				}
@@ -56,20 +56,20 @@ export default class ActionFieldSet extends HTMLElement {
 		}
 	}
 
-	private checkMatches(value: string | string[]): boolean {
+	private checkMatches(values: string[]): boolean {
 		const showIf = this.getAttribute("showIf") || "";
-		if (Array.isArray(value)) {
-			return value.includes(showIf);
-		} else if (this.hasAttribute("regex")) {
-			const regex = new RegExp(value);
-			return regex.test(showIf);
-		} else {
-			return showIf === value;
-		}
+		return values.some((value) => {
+			// TODO: test the regex pattern
+			if (this.hasAttribute("regex")) {
+				const regex = new RegExp(value);
+				return regex.test(showIf);
+			} else {
+				return showIf === value;
+			}
+		});
 	}
 
 	private show(show: boolean): void {
-		// TODO: add regex support and or includes support
 		if (show) {
 			this.removeAttribute("hidden");
 			this.groupFields.forEach((field) => {
