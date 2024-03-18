@@ -73,6 +73,8 @@ export default class ErrorMsg extends HTMLElement {
 		}
 
 		if (el instanceof HTMLFieldSetElement) {
+			// add attribute to fieldset
+			el.setAttribute("has-error", "");
 			// get all child fields
 			const fieldsetFields = el.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 			// add extra hidden checkbox to set validity for the fieldset element and form
@@ -80,39 +82,51 @@ export default class ErrorMsg extends HTMLElement {
 			const min = Number(el.getAttribute("min") || 1);
 			const max = Number(el.getAttribute("max") || fieldsetFields.length);
 
+			// TODO: allow for this to change on input event after initial error state
 			el.addEventListener("change", (event) => {
-				if (min || max) {
-					// if min or max set then update validity hidden field based the fields in the fieldset
-					const target = event.target;
-
-					// if target is not an element
-					if (!(target instanceof HTMLSelectElement || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
-
-					// TODO: Does this need to be input (with a long debounce; longer if it has a pattern?) for groups of text input elements?
-					// TODO: maybe if it's just a basic required with no pattern then it's just input event and not change or blur?
-					if (Array.from(fieldsetFields).includes(target)) {
-						console.log("change array", target);
-						const checked = Array.from(fieldsetFields).filter((field) => {
-							if (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type)) {
-								return field.checked;
-							}
-							return field.value;
-						});
-						if (checked.length >= min && checked.length <= max) {
-							this.hiddenValid.checked = true;
-							this.dispatchHiddenValid(true);
-						} else {
-							console.error(`${watch} invalid (min: ${min} max: ${max} checked: ${checked.length})`);
-							this.dispatchHiddenValid(false);
-						}
-					}
-				}
-
-				// Check all elements in fieldset are valid
+				this.fieldSetEventHandler(event, fieldsetFields, min, max);
+				this.hide(el.querySelectorAll(":invalid").length === 0, el);
+			});
+			el.addEventListener("toggle-error", (event) => {
+				this.fieldSetEventHandler(event, fieldsetFields, min, max);
 				this.hide(el.querySelectorAll(":invalid").length === 0, el);
 			});
 		}
 	}
+	// TODO: Clean up this code
+	private fieldSetEventHandler = (event: Event, fieldsetFields: NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, min: number, max: number) => {
+		console.log("fieldset event", event, min, max);
+
+		if (min || max) {
+			// if min or max set then update validity hidden field based the fields in the fieldset
+			const target = event.target;
+
+			// if target is not an element
+			if (!(target instanceof HTMLSelectElement || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
+
+			// TODO: Does this need to be input (with a long debounce; longer if it has a pattern?) for groups of text input elements?
+			// TODO: maybe if it's just a basic required with no pattern then it's just input event and not change or blur?
+
+			if (Array.from(fieldsetFields).includes(target)) {
+				console.log("change array", target);
+				const checked = Array.from(fieldsetFields).filter((field) => {
+					if (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type)) {
+						return field.checked;
+					}
+					return field.value;
+				});
+				if (checked.length >= min && checked.length <= max) {
+					this.hiddenValid.checked = true;
+					this.dispatchHiddenValid(true);
+				} else {
+					console.error(`invalid (min: ${min} max: ${max} checked: ${checked.length})`);
+					this.dispatchHiddenValid(false);
+				}
+			}
+		}
+
+		// Check all elements in fieldset are valid
+	};
 
 	private dispatchHiddenValid(checked: boolean) {
 		this.hiddenValid.checked = checked;

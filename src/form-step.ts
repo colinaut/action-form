@@ -26,11 +26,19 @@ export default class FormStep extends HTMLElement {
 		const invalidElements = this.querySelectorAll(":invalid");
 		if (direction === "next" && this.querySelectorAll(":invalid").length > 0) {
 			Array.from(invalidElements).some((element) => {
-				if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
+				if (
+					element instanceof HTMLInputElement ||
+					element instanceof HTMLSelectElement ||
+					element instanceof HTMLTextAreaElement ||
+					(element instanceof HTMLFieldSetElement && element.hasAttribute("has-error"))
+				) {
 					element.focus();
+					console.log("invalid element", element);
 					element.dispatchEvent(new CustomEvent("toggle-error"));
 					return true;
 				}
+				console.log("invalid unknown element", element);
+
 				return false;
 			});
 			return;
