@@ -25,17 +25,20 @@ export default class FormProgress extends HTMLElement {
 		if (!form) return;
 		const steps = form.querySelectorAll("form-step");
 		const currentStep = form.querySelector("form-step[show]");
+		const index = (currentStep && Array.from(steps).indexOf(currentStep)) || 0;
+		const progressPercentage = (index / (steps.length - 1)) * 100;
 		this.innerHTML = `
-        <div class="progress-bar"></div>
-        <ul class="progress-num">
+        <div class="progress-bg"></div>
+        <div class="progress-bar" style="--progress: ${progressPercentage}%"></div>
+        <nav class="progress-num">
         ${Array.from(steps)
 			.map((step, index) => {
 				const active = step === currentStep ? "active" : "";
 				const completed = step.hasAttribute("completed") ? "completed" : "";
-				return `<li class="step ${active} ${completed}">${index + 1}</li>`;
+				return `<button type="button" class="step ${active} ${completed}" aria-current="${active && "step"}" aria-label="Step ${index + 1}">${index + 1}</button>`;
 			})
 			.join("")}
-        </ul>
+        </nav>
         `;
 	}
 }

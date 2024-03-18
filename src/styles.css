@@ -17,18 +17,18 @@ form-step {
 }
 
 form-progress {
-	display: block;
+	display: grid;
 	position: relative;
 	margin-bottom: 30px;
+	align-items: center;
 }
 
 .progress-bar {
-	position: absolute;
 	background: lightseagreen;
-	height: 5px;
-	width: 0%;
-	top: 50%;
-	left: 0;
+	height: 0.5em;
+	width: var(--progress, 0%);
+	grid-row: -1/1;
+	grid-column: -1/1;
 }
 
 .progress-num {
@@ -37,30 +37,30 @@ form-progress {
 	list-style: none;
 	display: flex;
 	justify-content: space-between;
+	grid-row: -1/1;
+	grid-column: -1/1;
 }
 
-.progress-num::before {
-	content: "";
+.progress-bg {
 	background-color: lightgray;
-	position: absolute;
-	top: 50%;
-	left: 0;
-	height: 5px;
-	width: 100%;
-	z-index: -1;
+	height: 0.5em;
+	grid-row: -1/1;
+	grid-column: -1/1;
 }
 .progress-num .step {
 	border: 3px solid lightgray;
 	border-radius: 100%;
-	width: 25px;
-	height: 25px;
-	line-height: 25px;
+	width: 2em;
+	height: 2em;
+	line-height: 1.65em;
 	text-align: center;
 	background-color: #fff;
 	font-family: sans-serif;
-	font-size: 14px;
+	font-size: 0.9em;
 	position: relative;
 	z-index: 1;
+	padding: 0;
+	margin: 0;
 }
 .progress-num .step.completed {
 	border-color: rgb(80, 86, 85);
