@@ -38,6 +38,7 @@ export default class FormStep extends HTMLElement {
 		if (el?.matches("form-step")) {
 			this.show = false;
 			el.setAttribute("show", "");
+			this.dispatchEvent(new CustomEvent("step", { bubbles: true, detail: el }));
 		}
 	}
 
