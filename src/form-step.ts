@@ -8,18 +8,23 @@ export default class FormStep extends HTMLElement {
 		});
 		this.addEventListener("click", (e) => {
 			const target = e.target;
+			console.log("🚀 ~ FormStep ~ this.addEventListener ~ target:", target);
 			if (!(target instanceof HTMLButtonElement)) return;
 			if (target.matches(".form-step-next")) {
-				this.step(this.nextElementSibling);
-			} else if (target.matches("form-step-prev")) {
-				this.step(this.previousElementSibling);
+				this.step("next");
+			} else if (target.matches(".form-step-prev")) {
+				console.log("prev");
+				this.step("prev");
 			}
 		});
 	}
 
-	public step(el: Element | null) {
+	public step(direction: "prev" | "next" = "next") {
+		console.log(direction);
+
+		const el = direction === "next" ? this.nextElementSibling : this.previousElementSibling;
 		const invalidElements = this.querySelectorAll(":invalid");
-		if (this.querySelectorAll(":invalid").length > 0) {
+		if (direction === "next" && this.querySelectorAll(":invalid").length > 0) {
 			Array.from(invalidElements).some((element) => {
 				if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
 					element.focus();
