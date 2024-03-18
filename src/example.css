@@ -1,0 +1,52 @@
+fieldset {
+	display: grid;
+	gap: 0.5em;
+	margin: 0;
+}
+action-fieldset:not([hidden]) {
+	display: grid;
+	gap: 0.5em;
+	border: 1px #0096bfab solid;
+	border: 1px var(--focus) solid;
+	border-radius: 6px;
+	margin: 0;
+	margin-bottom: 12px;
+	padding: 10px;
+}
+form-step {
+	--display: grid;
+	gap: 1em;
+}
+:where(fieldset, action-fieldset) > * {
+	width: -moz-fit-content;
+	width: fit-content;
+}
+:where(h1, h2, h3, h4, h5, h6):first-child {
+	margin-block-start: 0;
+}
+.grid {
+	display: grid;
+}
+.grid-cols-2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid-cols-4 {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.grid-col-full-width {
+	grid-column: 1 / -1;
+}
+:where(action-fieldset):has(*:invalid) {
+	outline: 2px solid red;
+}
+:invalid::after {
+	content: "invalid";
+	color: white;
+	float: right;
+	background-color: coral;
+	font-size: 0.8em;
+	width: max-content;
+	padding: 0.25em 0.5em;
+	border-radius: 0.25em;
+	margin: 0.5em 0 0;
+}

@@ -83,7 +83,8 @@ export default class ErrorMsg extends HTMLElement {
 					// if target is not an element
 					if (!(target instanceof HTMLSelectElement || target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) return;
 
-					// TODO: test this with a mix of fields like fill in at least one tel field
+					// TODO: Does this need to be input (with a long debounce; longer if it has a pattern?) for groups of text input elements?
+					// TODO: maybe if it's just a basic required with no pattern then it's just input event and not change or blur?
 					if (Array.from(fieldsetFields).includes(target)) {
 						console.log("change array", target);
 						const checked = Array.from(fieldsetFields).filter((field) => {
@@ -110,7 +111,7 @@ export default class ErrorMsg extends HTMLElement {
 
 	private dispatchHiddenValid(checked: boolean) {
 		this.hiddenValid.checked = checked;
-		this.hiddenValid.dispatchEvent(new Event("change", { bubbles: true }));
+		this.hiddenValid.dispatchEvent(new Event("input", { bubbles: true }));
 	}
 
 	/**

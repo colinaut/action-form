@@ -9,3 +9,9 @@ error-msg[show] {
 error-msg {
 	color: var(--error-text, red);
 }
+
+form-step {
+	padding: 1em;
+	border-radius: 1em;
+	border: 1px solid #0096bfab;
+}
