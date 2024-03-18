@@ -8,6 +8,8 @@ export default class FormProgress extends HTMLElement {
 				this.render();
 			});
 		}
+
+		// TODO: add event listener to allow user switch to any step that is valid (usually previous step)
 	}
 
 	public connectedCallback(): void {
@@ -29,7 +31,8 @@ export default class FormProgress extends HTMLElement {
         ${Array.from(steps)
 			.map((step, index) => {
 				const active = step === currentStep ? "active" : "";
-				return `<li class="step ${active}">${index + 1}</li>`;
+				const completed = step.hasAttribute("completed") ? "completed" : "";
+				return `<li class="step ${active} ${completed}">${index + 1}</li>`;
 			})
 			.join("")}
         </ul>

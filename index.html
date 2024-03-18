@@ -28,6 +28,9 @@
 						<fieldset>
 							<label>Email: <input type="email" name="email" id="email" required /></label>
 							<error-msg watch="email">Email is required</error-msg>
+
+							<label>Message: <textarea name="message" required></textarea></label>
+							<error-msg watch="message">message is required</error-msg>
 						</fieldset>
 					</form-step>
 					<form-step>
@@ -59,6 +62,11 @@
 							<label>Other Animal: <input type="text" name="animal-other" required /></label>
 							<error-msg watch="animal-other">other is required</error-msg>
 						</action-fieldset>
+					</form-step>
+					<form-step>
+						<fieldset>
+							<label>Optional Comments: <textarea name="comments" placeholder="Comments"></textarea></label>
+						</fieldset>
 					</form-step>
 					<form-step>
 						<fieldset id="submit">

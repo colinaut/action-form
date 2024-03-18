@@ -47,6 +47,7 @@ Field group which allows for hiding or showing based on watched fields or fields
 - [x] Add ARIA to error messages. Need to sort out the best way to do this.
 - [x] Get form-step working to hide/show based on if prior steps are completed
 - [x] Get progress bar working
+- [ ] Make progress bar clickable
 - [ ] Make it so that once invalid is triggered it then checks validation on input event
 - [ ] Make sure that resetting the form also hides all error messages
 - [ ] Need to test submitting the form and triggering errors

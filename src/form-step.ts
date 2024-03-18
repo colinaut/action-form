@@ -25,6 +25,7 @@ export default class FormStep extends HTMLElement {
 		const el = direction === "next" ? this.nextElementSibling : this.previousElementSibling;
 		const invalidElements = this.querySelectorAll(":invalid");
 		if (direction === "next" && this.querySelectorAll(":invalid").length > 0) {
+			// If any are invalid then focus on first invalid
 			Array.from(invalidElements).some((element) => {
 				if (
 					element instanceof HTMLInputElement ||
@@ -35,13 +36,18 @@ export default class FormStep extends HTMLElement {
 					element.focus();
 					console.log("invalid element", element);
 					element.dispatchEvent(new CustomEvent("toggle-error"));
+					// return true on first matching element. This ends the loop
 					return true;
 				}
 				console.log("invalid unknown element", element);
-
+				// ignore non matching elements
 				return false;
 			});
+			// this return stops the step event from advancing
 			return;
+		}
+		if (direction === "next") {
+			this.setAttribute("completed", "");
 		}
 		if (el?.matches("form-step")) {
 			this.show = false;
