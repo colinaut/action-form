@@ -9,26 +9,31 @@ export default class FormStep extends HTMLElement {
 		this.addEventListener("click", (e) => {
 			const target = e.target;
 			if (!(target instanceof HTMLButtonElement)) return;
-			if (target.classList.contains("form-step-next")) {
-				console.log("next");
-				this.show = false;
-				const nextStep = this.nextElementSibling;
-				console.log("nextStep", nextStep);
-
-				if (nextStep?.matches("form-step")) {
-					nextStep.setAttribute("show", "");
-				}
-			} else if (target.classList.contains("form-step-prev")) {
-				console.log("prev");
-				this.show = false;
-				const prevStep = this.previousElementSibling;
-				console.log("prevStep", prevStep);
-
-				if (prevStep?.matches("form-step")) {
-					prevStep.setAttribute("show", "");
-				}
+			if (target.matches(".form-step-next")) {
+				this.step(this.nextElementSibling);
+			} else if (target.matches("form-step-prev")) {
+				this.step(this.previousElementSibling);
 			}
 		});
+	}
+
+	public step(el: Element | null) {
+		const invalidElements = this.querySelectorAll(":invalid");
+		if (this.querySelectorAll(":invalid").length > 0) {
+			Array.from(invalidElements).some((element) => {
+				if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
+					element.focus();
+					element.dispatchEvent(new CustomEvent("toggle-error"));
+					return true;
+				}
+				return false;
+			});
+			return;
+		}
+		if (el?.matches("form-step")) {
+			this.show = false;
+			el.setAttribute("show", "");
+		}
 	}
 
 	get show(): boolean {

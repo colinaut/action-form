@@ -54,6 +54,11 @@ export default class ErrorMsg extends HTMLElement {
 
 		console.log(`watching ${watch}`);
 
+		el.addEventListener("toggle-error", () => {
+			console.log("toggle-error", el);
+			this.hide(el.checkValidity(), el);
+		});
+
 		if (isBlurField(el)) {
 			el.addEventListener("blur", () => {
 				console.log("blur", el);
