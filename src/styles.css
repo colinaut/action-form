@@ -72,3 +72,6 @@ form-progress {
 	background-color: lightseagreen;
 	color: #fff;
 }
+.progress-num .step:disabled {
+	opacity: 1;
+}

@@ -4,11 +4,11 @@ export default class FormStep extends HTMLElement {
 		this.render();
 		this.addEventListener("input", () => {
 			this.valid = this.isValid;
-			console.log(this.isValid);
+			// console.log(this.isValid);
 		});
 		this.addEventListener("click", (e) => {
 			const target = e.target;
-			console.log("🚀 ~ FormStep ~ this.addEventListener ~ target:", target);
+			// console.log("🚀 ~ FormStep ~ this.addEventListener ~ target:", target);
 			if (!(target instanceof HTMLButtonElement)) return;
 			if (target.matches(".form-step-next")) {
 				this.step("next");
@@ -19,6 +19,7 @@ export default class FormStep extends HTMLElement {
 		});
 	}
 
+	// TODO: if someone goes back here and changes anything it needs to be retested for validation!!!
 	public step(direction: "prev" | "next" = "next") {
 		console.log(direction);
 
@@ -34,12 +35,12 @@ export default class FormStep extends HTMLElement {
 					(element instanceof HTMLFieldSetElement && element.hasAttribute("has-error"))
 				) {
 					element.focus();
-					console.log("invalid element", element);
+					// console.log("invalid element", element);
 					element.dispatchEvent(new CustomEvent("toggle-error"));
 					// return true on first matching element. This ends the loop
 					return true;
 				}
-				console.log("invalid unknown element", element);
+				// console.log("invalid unknown element", element);
 				// ignore non matching elements
 				return false;
 			});
@@ -77,9 +78,9 @@ export default class FormStep extends HTMLElement {
 	}
 
 	public connectedCallback(): void {
-		console.log("connected");
+		// console.log("connected");
 		this.valid = this.isValid;
-		console.log(this.isValid);
+		// console.log(this.isValid);
 	}
 
 	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -91,7 +92,6 @@ export default class FormStep extends HTMLElement {
 		div.classList.add("form-step-nav");
 		const prev = `<button type="button" class="form-step-prev">Previous</button>`;
 		const next = `<button type="button" class="form-step-next">Next</button>`;
-		console.log(this.previousElementSibling);
 
 		const html = this.previousElementSibling?.matches("form-step") ? prev + next : next;
 		const css = `<style>form-step {
