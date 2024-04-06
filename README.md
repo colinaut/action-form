@@ -48,9 +48,10 @@ Field group which allows for hiding or showing based on watched fields or fields
 - [x] Get form-step working to hide/show based on if prior steps are completed
 - [x] Get progress bar working
 - [x] Make progress bar clickable
-- [ ] Make sure that if someone unvalidates a form-step it is set to incomplete
-- [ ] Maybe move functionality to action-form parent element
-- [ ] Make it so that once invalid is triggered it then checks validation on input event
+- [x] Make sure that if someone unvalidates a form-step it is set to incomplete
+- [x] Maybe move functionality to action-form parent element
+- [x] Make it so that once invalid is triggered it then checks validation on input event
+- [ ] Maybe allow declarative shadow dom? https://developer.chrome.com/docs/css-ui/declarative-shadow-dom
 - [ ] Make sure that resetting the form also hides all error messages
 - [ ] Need to test submitting the form and triggering errors
 - [ ] QA all of it
@@ -62,3 +63,4 @@ Field group which allows for hiding or showing based on watched fields or fields
 * https://www.smashingmagazine.com/2023/02/guide-accessible-form-validation/
 * https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-errormessage
 * https://www.davidmacd.com/blog/test-aria-describedby-errormessage-aria-live.html
+* https://web.dev/articles/more-capable-form-controls

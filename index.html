@@ -4,6 +4,9 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Action Form</title>
+		<script>
+			document.documentElement.classList.add("js");
+		</script>
 		<script type="module" src="/src/main.ts"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
 		<link rel="stylesheet" href="/src/example.css" />
@@ -12,42 +15,75 @@
 	<body>
 		<h1>Action Form</h1>
 		<p>HTML web component for forms</p>
+		<my-component my-attribute="juicy"></my-component>
 		<section>
 			<action-form>
-				<form>
-					<form-progress></form-progress>
-					<form-step show>
+				<form novalidate>
+					<af-progress enable-all></af-progress>
+					<af-step progress-title="Your Name">
+						<template shadowrootmode="open">
+							<style>
+								:host {
+									display: none;
+								}
+								:host([active]) {
+									display: var(--display, block);
+								}
+							</style>
+							<slot></slot>
+						</template>
 						<fieldset name="names">
-							<label>First Name: <input type="text" name="first-name" id="first-name" required /></label>
-							<error-msg watch="first-name">First Name is required</error-msg>
-							<label>Last Name: <input type="text" name="last-name" id="last-name" required /></label>
-							<error-msg watch="last-name">Last Name is required</error-msg>
+							<legend>Your Name</legend>
+							<label>First Name: <input type="text" name="first-name" required /> <af-error>First Name is required</af-error></label>
+							<label>Last Name: <input type="text" name="last-name" required /> <af-error>Last Name is required</af-error></label>
 						</fieldset>
-					</form-step>
-					<form-step>
+					</af-step>
+					<af-step>
+						<template shadowrootmode="open">
+							<style>
+								:host {
+									display: none;
+								}
+								:host([active]) {
+									display: var(--display, block);
+								}
+							</style>
+							<slot></slot>
+						</template>
+						<div slot="header">Contact Information</div>
 						<fieldset>
 							<label>Email: <input type="email" name="email" id="email" required /></label>
-							<error-msg watch="email">Email is required</error-msg>
-
-							<label>Message: <textarea name="message" required></textarea></label>
-							<error-msg watch="message">message is required</error-msg>
+							<af-error for="email">Email is required</af-error>
+							<div>
+								<label for="message"
+									>Message:
+									<div class="instructions">Character length: <af-text-count></af-text-count></div>
+									<textarea name="message" id="message" required></textarea>
+									<af-error>message is required</af-error>
+								</label>
+							</div>
 						</fieldset>
-					</form-step>
-					<form-step>
-						<fieldset name="tel" min="1">
-							<h3>Phone Numbers (at least 1 required)</h3>
+					</af-step>
+					<af-step>
+						<fieldset id="phones">
+							<legend>Phone Numbers</legend>
+							<div class="instructions col-span-full flex justify-between items-center">At least one phone number is required</div>
 							<label>Home Number: <input type="tel" name="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
-							<error-msg watch="home-phone">phone number must have 7 digits</error-msg>
+							<af-error for="home-phone">phone number must have 7 digits</af-error>
 							<label>Work Number: <input type="tel" name="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
-							<error-msg watch="work-phone">phone number must have 7 digits</error-msg>
+							<af-error for="work-phone">phone number must have 7 digits</af-error>
 							<label>Mobile Number: <input type="tel" name="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
-							<error-msg watch="mobile-phone">phone number must have 7 digits</error-msg>
-							<error-msg watch="tel">At least one phone number is required and all numbers must be valid</error-msg>
+							<af-error for="mobile-phone">phone number must have 7 digits</af-error>
+							<af-error for="phones">At least one phone number is required</af-error>
 						</fieldset>
-					</form-step>
-					<form-step>
-						<fieldset name="animals" min="2" max="4" class="grid grid-cols-4">
-							<h3 class="grid-col-full-width">Favorite Animals (Pick Minimum 2; Maximum 4)</h3>
+					</af-step>
+					<af-step>
+						<fieldset id="animals" class="grid grid-cols-4">
+							<legend>Favorite Animals</legend>
+							<div class="instructions col-span-full flex justify-between items-center">
+								Required (min 1, max 3)
+								<span>Animals selected: <af-group-count></af-group-count></span>
+							</div>
 							<label><input type="checkbox" name="animal" value="dog" /> Dog </label>
 							<label><input type="checkbox" name="animal" value="cat" /> Cat </label>
 							<label><input type="checkbox" name="animal" value="bunny" /> Bunny </label>
@@ -56,27 +92,27 @@
 							<label><input type="checkbox" name="animal" value="fish" /> Fish </label>
 							<label><input type="checkbox" name="animal" value="snake" /> Snake </label>
 							<label><input type="checkbox" name="animal" value="other" /> Other </label>
-							<error-msg class="grid-col-full-width" watch="animals">2-4 animals is required</error-msg>
+							<af-error class="col-span-full" for="animals" max="3">1-3 animals is required.</af-error>
 						</fieldset>
-						<action-fieldset watch="animal" showIf="other" hidden>
+						<fieldset name="fieldset-animal-other" data-watch="animal" data-value="other" hidden>
+							<legend>Other Animal</legend>
 							<label>Other Animal: <input type="text" name="animal-other" required /></label>
-							<error-msg watch="animal-other">other is required</error-msg>
-						</action-fieldset>
-					</form-step>
-					<form-step>
+							<af-error for="animal-other">other is required</af-error>
+						</fieldset>
+					</af-step>
+					<af-step>
 						<fieldset>
 							<label>Optional Comments: <textarea name="comments" placeholder="Comments"></textarea></label>
 						</fieldset>
-					</form-step>
-					<form-step>
+					</af-step>
+					<af-step>
 						<fieldset id="submit">
 							<label><input type="checkbox" name="terms" required /> I agree to the terms and conditions</label>
-
+							<af-error for="terms">other is required</af-error>
 							<!-- Form fields -->
-							<button type="reset">Reset</button>
-							<button type="submit">Submit</button>
 						</fieldset>
-					</form-step>
+						<div slot="footer"><button type="reset">Reset</button> <button type="submit">Submit</button></div>
+					</af-step>
 				</form>
 			</action-form>
 		</section>

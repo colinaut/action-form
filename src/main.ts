@@ -1,5 +1,6 @@
 import "./action-form";
-import "./error-msg";
-import "./action-fieldset";
-import "./form-step";
-import "./form-progress";
+import "./af-error";
+import "./af-step";
+import "./af-progress";
+import "./af-group-count";
+import "./af-text-count";

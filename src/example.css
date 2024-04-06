@@ -1,23 +1,34 @@
-fieldset {
+fieldset:not([hidden]),
+af-fieldset:not([hidden]) {
 	display: grid;
 	gap: 0.5em;
 	margin: 0;
+	padding: 1em;
 }
-action-fieldset:not([hidden]) {
+af-fieldset:not([hidden]) {
 	display: grid;
 	gap: 0.5em;
 	border: 1px #0096bfab solid;
-	border: 1px var(--focus) solid;
 	border-radius: 6px;
 	margin: 0;
 	margin-bottom: 12px;
 	padding: 10px;
 }
-form-step {
-	--display: grid;
-	gap: 1em;
+.js af-step {
+	display: none;
 }
-:where(fieldset, action-fieldset) > * {
+.js af-step[active] {
+	display: grid;
+}
+af-step {
+	--display: grid;
+	gap: 0.5em;
+}
+af-step af-error {
+	margin-block-start: -0.2em;
+	font-size: 0.9em;
+}
+:where(fieldset, af-fieldset) > * {
 	width: -moz-fit-content;
 	width: fit-content;
 }
@@ -33,14 +44,26 @@ form-step {
 .grid-cols-4 {
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-.grid-col-full-width {
+.col-span-full {
 	grid-column: 1 / -1;
 }
-:where(action-fieldset):has(*:invalid) {
-	outline: 2px solid red;
+.flex {
+	display: flex;
 }
-:invalid::after {
-	content: "invalid";
+.justify-between {
+	justify-content: space-between;
+}
+.items-center {
+	align-items: center;
+}
+
+:not(fieldset, af-fieldset, form):invalid {
+	outline: 1px solid coral;
+	outline-offset: 2px;
+}
+fieldset:invalid::after,
+af-fieldset:invalid::after {
+	content: "incomplete";
 	color: white;
 	float: right;
 	background-color: coral;
@@ -49,4 +72,35 @@ form-step {
 	padding: 0.25em 0.5em;
 	border-radius: 0.25em;
 	margin: 0.5em 0 0;
+}
+
+.m-0 {
+	margin: 0;
+}
+
+.instructions {
+	margin-bottom: 0.5em;
+	color: rgb(108, 108, 108);
+	width: 100%;
+}
+
+.fieldset-validity {
+	display: none;
+}
+
+input,
+textarea {
+	margin-block: 0.4em 0;
+}
+
+label {
+	margin-block: 0;
+}
+af-step div[slot="footer"] {
+	display: flex;
+	justify-content: space-between;
+	margin-block-start: 0.5em;
+}
+af-progress {
+	margin-block-end: 1em;
 }

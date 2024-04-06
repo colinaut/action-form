@@ -1,77 +1,50 @@
-error-msg {
-	display: none;
+af-error {
+	visibility: hidden;
 }
 
-error-msg[show] {
-	display: block;
+af-error[show] {
+	visibility: visible;
 }
 
-error-msg {
+af-error {
 	color: var(--error-text, red);
 }
 
-form-step {
+af-step {
 	padding: 1em;
 	border-radius: 1em;
 	border: 1px solid #0096bfab;
 }
 
-form-progress {
-	display: grid;
-	position: relative;
-	margin-bottom: 30px;
-	align-items: center;
-}
-
-.progress-bar {
-	background: lightseagreen;
-	height: 0.5em;
-	width: var(--progress, 0%);
-	grid-row: -1/1;
-	grid-column: -1/1;
-}
-
-.progress-num {
-	margin: 0;
-	padding: 0;
-	list-style: none;
+af-step::part(step-nav),
+af-step .af-step-nav {
 	display: flex;
 	justify-content: space-between;
-	grid-row: -1/1;
-	grid-column: -1/1;
+	padding-block: 1em 0;
+}
+af-step::part(step-btn) {
+	color: #1d1d1d;
+	color: var(--form-text);
+	font-family: inherit;
+	font-size: inherit;
+	margin-right: 6px;
+	margin-bottom: 6px;
+	padding: 10px;
+	border: none;
+	border-radius: 6px;
+	outline: none;
+	background-color: #d0cfcf;
+	background-color: var(--button-base);
+	padding-right: 30px;
+	padding-left: 30px;
+	cursor: pointer;
+}
+af-step::part(step-btn):focus-visible {
+	outline: 2px solid #0096bfab;
+	outline-offset: 1px;
 }
 
-.progress-bg {
-	background-color: lightgray;
-	height: 0.5em;
-	grid-row: -1/1;
-	grid-column: -1/1;
-}
-.progress-num .step {
-	border: 3px solid lightgray;
-	border-radius: 100%;
-	width: 2em;
-	height: 2em;
-	line-height: 1.65em;
-	text-align: center;
-	background-color: #fff;
-	font-family: sans-serif;
-	font-size: 0.9em;
-	position: relative;
-	z-index: 1;
-	padding: 0;
-	margin: 0;
-}
-.progress-num .step.completed {
-	border-color: rgb(80, 86, 85);
-	background-color: rgb(80, 86, 85);
-	color: #fff;
-}
-.progress-num .step.active {
-	border-color: lightseagreen;
-	background-color: lightseagreen;
-	color: #fff;
-}
-.progress-num .step:disabled {
-	opacity: 1;
+af-step::part(step-btn):hover {
+	background: #9b9b9b;
+	background: var(--button-hover);
 }
