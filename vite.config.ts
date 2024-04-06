@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
-import minifyHTML from "rollup-plugin-minify-html-literals";
+import minifyHTML from "rollup-plugin-minify-html-literals-v3";
+import { defaultShouldMinify } from "minify-html-literals";
 import eslint from "vite-plugin-eslint";
 
 // TODO: auto remove console.log from build
@@ -37,13 +38,16 @@ export default defineConfig(({ mode }) => {
 				],
 				plugins: [
 					eslint(),
-					minifyHTML.default({
+					minifyHTML({
 						options: {
 							shouldMinify(template) {
-								return template.parts.some((part) => {
-									// Matches Polymer templates that are not tagged
-									return part.text.includes("<style") || part.text.includes("<div");
-								});
+								return (
+									defaultShouldMinify(template) ||
+									template.parts.some((part) => {
+										// Matches Polymer templates that are not tagged
+										return part.text.includes("<style");
+									})
+								);
 							},
 						},
 					}),
