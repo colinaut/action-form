@@ -30,8 +30,7 @@ export default class ActionFormError extends HTMLElement {
 		target.setAttribute("aria-describedby", id);
 	};
 
-	// TODO: Clean up this code
-	// TODO: add ARIA for error messages
+	// TODO: QA aria is done right
 	public connectedCallback(): void {
 		// get field ID from attribute
 		const targetId = this.getAttribute("for") || "";

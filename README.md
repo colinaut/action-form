@@ -73,7 +73,8 @@ Displays the number of characters in a text input field or textarea
 - [x] Allow declarative shadow dom? https://developer.chrome.com/docs/css-ui/declarative-shadow-dom
 - [x] Add helpers functions for attribute getters and setters
 - [x] Add character counter element
-- [ ] Add ability to add/remove steps (steps could watch like fieldsets)
+- [x] Need to sort out multiple versions of same field and grabbing data from it. Test event listener on form that grabs value from that
+- [x] Add ability to add/remove steps (steps could watch like fieldsets)
 - [ ] Ability to switch between stepped and long form for users
 - [ ] Make sure that resetting the form also hides all error messages
 - [ ] Need to test submitting the form and triggering errors

@@ -35,6 +35,23 @@ export default class ActionForm extends HTMLElement {
 					step.active = i === this.stepIndex;
 				});
 			});
+
+			this.addEventListener("change", () => {
+				const formData = this.form && new FormData(this.form);
+				if (!formData) return;
+
+				this.watchers.forEach((watcher) => {
+					const values = formData.getAll(watcher.name);
+					const valid = values.some((value) => typeof value === "string" && (value === watcher.value || (watcher.regex && watcher.regex.test(value))));
+					// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
+					if (watcher.el.hasAttribute("hidden") !== valid) return;
+					console.log("watcher", watcher.name, valid);
+					// Else show/hide it
+					this.show(watcher.el, valid);
+					// if this is af-step then trigger event to update progress bar
+					if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
+				});
+			});
 		}
 	}
 
@@ -46,63 +63,27 @@ export default class ActionForm extends HTMLElement {
 	public stepIndex: number = 0; // current step
 	public fieldsets: NodeListOf<HTMLFieldSetElement> = this.querySelectorAll("fieldset, af-step");
 	public formElements: NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> = this.querySelectorAll("input, select, textarea");
+
+	private watchers: { name: string; el: HTMLElement; value?: string; regex?: RegExp }[] = [];
+
 	private enhanceFieldsets() {
 		this.fieldsets.forEach((fieldset) => {
 			const watch = fieldset.dataset.watch;
-			const watchValue = fieldset.dataset.value;
-			const watchRegex = fieldset.dataset.regex;
+			const value = fieldset.dataset.value;
+			const regex = fieldset.dataset.regex ? new RegExp(fieldset.dataset.regex) : undefined;
 			if (watch) {
-				// Get watched fields in form based on name
-				const fields = Array.from(this.formElements).filter((field) => field.name.toLowerCase() === watch.toLowerCase());
-
-				if (fields.length === 0) return;
-				console.log(fieldset.name, "watching", watch, fields);
-
-				fields.forEach((field) => {
-					field.addEventListener("change", () => {
-						if (!watchValue && !watchRegex) {
-							// if there is no value or regex to check then show the fieldset based on validity
-							console.log("change no value", field.value);
-							this.show(fieldset, field.checkValidity());
-						} else if (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type)) {
-							// if is an input of type radio or checkbox then make sure the value matches and show based on checkbox status
-							console.log("change checkbox", field.value);
-							if (this.checkMatches(field.value, watchValue, watchRegex)) {
-								this.show(fieldset, field.checked);
-							}
-						} else {
-							// else show based on value
-							console.log("change else", field.value);
-							this.show(fieldset, this.checkMatches(field.value, watchValue, watchRegex));
-						}
-
-						// if this af-step dispatch event to rerender the progress bar
-						if (fieldset.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
-						// this.show(field.value, regex);
-					});
-				});
+				this.watchers.push({ name: watch, value, regex, el: fieldset });
 			}
 		});
 	}
 
-	private checkMatches(value: string, watchValue: string = "", watchRegex: string | undefined): boolean {
-		if (watchRegex) {
-			const regex = new RegExp(watchRegex);
-			// if regex matches then return true
-			return regex.test(value);
-		} else {
-			// if values match then return true
-			return watchValue === value;
-		}
-	}
-
-	private show(fieldset: HTMLFieldSetElement, show: boolean): void {
+	private show(el: HTMLElement, show: boolean): void {
 		if (show) {
-			fieldset.removeAttribute("hidden");
-			fieldset.removeAttribute("disabled");
+			el.removeAttribute("hidden");
+			el.removeAttribute("disabled");
 		} else {
-			fieldset.setAttribute("hidden", "");
-			fieldset.setAttribute("disabled", "");
+			el.setAttribute("hidden", "");
+			el.setAttribute("disabled", "");
 		}
 	}
 
