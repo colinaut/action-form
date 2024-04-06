@@ -57,7 +57,6 @@ export default class ActionFormProgress extends HTMLElement {
         .progress {
             background: var(--active);
             height: 0.5em;
-            width: var(--progress, 0%);
             grid-row: -1/1;
             grid-column: -1/1;
         }
@@ -114,7 +113,7 @@ export default class ActionFormProgress extends HTMLElement {
 		const progressPercentage = (this.stepIndex / (this.steps.length - 1)) * 100;
 		this.shadow.innerHTML = `${style}
         <div class="bg" part="bg"></div>
-        <div class="progress" style="--progress: ${progressPercentage}%" part="progress"></div>
+        <div class="progress" style="width: ${progressPercentage}%" part="progress"></div>
         <nav part="nav">
         ${Array.from(this.steps)
 			.map((step, index) => {
