@@ -60,11 +60,20 @@
 						<fieldset>
 							<label>Email: <input type="email" name="email" id="email" required /></label>
 							<af-error for="email">Email is required</af-error>
+							<label
+								>Subject:
+								<select id="subject" name="subject">
+									<option value="general">General</option>
+									<option value="sales">Sales</option>
+									<option value="support">Support</option>
+								</select>
+							</label>
+							<fieldset data-watch="subject" data-regex="sales|support" hidden>This is sales or support!!!</fieldset>
 							<div>
 								<label for="message"
 									>Message:
-									<div class="instructions">Character length: <af-text-count></af-text-count></div>
-									<textarea name="message" id="message" required></textarea>
+									<div class="instructions">Characters remaining: <af-text-count remaining></af-text-count></div>
+									<textarea name="message" id="message" required maxlength="140"></textarea>
 									<af-error>message is required</af-error>
 								</label>
 							</div>
@@ -99,11 +108,11 @@
 							<label><input type="checkbox" name="animal" value="snake" /> Snake </label>
 							<label><input type="checkbox" name="animal" value="other" /> Other </label>
 							<af-error class="col-span-full" for="animals" max="3">1-3 animals is required.</af-error>
-						</fieldset>
-						<fieldset name="fieldset-animal-other" data-watch="animal" data-value="other" hidden>
-							<legend>Other Animal</legend>
-							<label>Other Animal: <input type="text" name="animal-other" required /></label>
-							<af-error for="animal-other">other is required</af-error>
+							<fieldset class="col-span-full" name="fieldset-animal-other" data-watch="animal" data-value="other" hidden>
+								<legend>Other Animal</legend>
+								<label>Other Animal: <input type="text" name="animal-other" required /></label>
+								<af-error for="animal-other">other is required</af-error>
+							</fieldset>
 						</fieldset>
 					</af-step>
 					<af-step>
