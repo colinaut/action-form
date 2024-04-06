@@ -38,6 +38,19 @@
 						</fieldset>
 					</af-step>
 					<af-step>
+						<fieldset id="phones">
+							<legend>Phone Numbers</legend>
+							<div class="instructions col-span-full flex justify-between items-center">At least one phone number is required</div>
+							<label>Home Number: <input type="tel" name="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<af-error for="home-phone">phone number must have 7 digits</af-error>
+							<label>Work Number: <input type="tel" name="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<af-error for="work-phone">phone number must have 7 digits</af-error>
+							<label>Mobile Number: <input type="tel" name="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<af-error for="mobile-phone">phone number must have 7 digits</af-error>
+							<af-error for="phones">At least one phone number is required</af-error>
+						</fieldset>
+					</af-step>
+					<af-step>
 						<template shadowrootmode="open">
 							<style>
 								:host {
@@ -73,19 +86,6 @@
 						</fieldset>
 					</af-step>
 					<af-step>
-						<fieldset id="phones">
-							<legend>Phone Numbers</legend>
-							<div class="instructions col-span-full flex justify-between items-center">At least one phone number is required</div>
-							<label>Home Number: <input type="tel" name="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
-							<af-error for="home-phone">phone number must have 7 digits</af-error>
-							<label>Work Number: <input type="tel" name="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
-							<af-error for="work-phone">phone number must have 7 digits</af-error>
-							<label>Mobile Number: <input type="tel" name="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
-							<af-error for="mobile-phone">phone number must have 7 digits</af-error>
-							<af-error for="phones">At least one phone number is required</af-error>
-						</fieldset>
-					</af-step>
-					<af-step>
 						<fieldset id="animals" class="grid grid-cols-4">
 							<legend>Favorite Animals</legend>
 							<div class="instructions col-span-full flex justify-between items-center">
@@ -111,9 +111,10 @@
 					<af-step>
 						<fieldset>
 							<label>Optional Comments: <textarea name="comments" placeholder="Comments"></textarea></label>
+							<label>Add another comment? <input type="checkbox" name="comments-add" /> Yes</label>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-watch="comments-add" data-value="on" hidden>
 						<fieldset>
 							<label>Optional Comments2: <textarea name="comments" placeholder="Comments"></textarea></label>
 						</fieldset>

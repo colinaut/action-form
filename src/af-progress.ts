@@ -9,6 +9,7 @@ export default class ActionFormProgress extends HTMLElement {
 		if (!this.actionForm || !this.steps) return;
 
 		this.actionForm.addEventListener("af-step", () => {
+			console.log("af-step listener called");
 			this.render();
 		});
 
@@ -35,9 +36,9 @@ export default class ActionFormProgress extends HTMLElement {
 	}
 
 	private render() {
-		if (!this.form || !this.steps) return;
+		if (!this.form || !this.actionForm?.steps) return;
 
-		const progressPercentage = (this.stepIndex / (this.steps.length - 1)) * 100;
+		const progressPercentage = (this.stepIndex / (this.actionForm?.steps.length - 1)) * 100;
 
 		// TODO: simplify this
 		const style = `
@@ -116,7 +117,7 @@ export default class ActionFormProgress extends HTMLElement {
         <div class="bg" part="bg"></div>
         <div class="progress" part="progress" style="width: ${progressPercentage}%;"></div>
         <nav part="nav">
-        ${Array.from(this.steps)
+        ${Array.from(this.actionForm?.steps)
 			.map((step, index) => {
 				const active = index === this.stepIndex ? "active" : "";
 				const completed = step.completed ? "completed" : "";

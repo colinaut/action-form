@@ -24,8 +24,9 @@ export default class ActionForm extends HTMLElement {
 			});
 
 			this.addEventListener("af-step", (event) => {
-				const customEvent = event as CustomEvent<{ step: number }>;
-				console.log("af-step", customEvent.detail.step);
+				const customEvent = event as CustomEvent<{ step: number | undefined }>;
+				console.log("af-step", customEvent.detail?.step);
+				if (customEvent.detail?.step === undefined) return;
 				this.stepIndex = customEvent.detail.step;
 				this.steps.forEach((step, i) => {
 					// if current step is valid, set completed
@@ -37,10 +38,13 @@ export default class ActionForm extends HTMLElement {
 		}
 	}
 
+	get steps(): NodeListOf<ActionFormStep> {
+		return this.querySelectorAll("af-step:not([hidden])") as NodeListOf<ActionFormStep>;
+	}
+
 	public form = this.querySelector("form");
 	public stepIndex: number = 0; // current step
-	public steps: NodeListOf<ActionFormStep> = this.querySelectorAll("af-step");
-	public fieldsets: NodeListOf<HTMLFieldSetElement> = this.querySelectorAll("fieldset");
+	public fieldsets: NodeListOf<HTMLFieldSetElement> = this.querySelectorAll("fieldset, af-step");
 	public formElements: NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> = this.querySelectorAll("input, select, textarea");
 	private enhanceFieldsets() {
 		this.fieldsets.forEach((fieldset) => {
@@ -65,6 +69,7 @@ export default class ActionForm extends HTMLElement {
 							console.log("change checkbox", field.value);
 							if (this.checkMatches(field.value, watchValue, watchRegex)) {
 								this.show(fieldset, field.checked);
+								if (fieldset.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
 							}
 						} else {
 							// else show based on value

@@ -17,7 +17,7 @@ af-fieldset:not([hidden]) {
 .js af-step {
 	display: none;
 }
-.js af-step[active] {
+.js af-step[active]:not([hidden]) {
 	display: grid;
 }
 af-step {
