@@ -21,10 +21,11 @@ export default defineConfig(({ mode }) => {
 				input: {
 					main: resolve(__dirname, "index.html"),
 					"action-form": resolve(__dirname, "src/action-form.ts"),
-					"action-fieldset": resolve(__dirname, "src/action-fieldset.ts"),
-					"form-step": resolve(__dirname, "src/form-step.ts"),
-					"form-progress": resolve(__dirname, "src/form-progress.ts"),
-					"error-msg": resolve(__dirname, "src/error-msg.ts"),
+					"af-step": resolve(__dirname, "src/af-step.ts"),
+					"af-progress": resolve(__dirname, "src/af-progress.ts"),
+					"af-error": resolve(__dirname, "src/af-error.ts"),
+					"af-text-count": resolve(__dirname, "src/af-text-count.ts"),
+					"af-group-count": resolve(__dirname, "src/af-group-count.ts"),
 				},
 				output: [
 					{

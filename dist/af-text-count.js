@@ -1,0 +1,2 @@
+class o extends HTMLElement{constructor(){super()}connectedCallback(){var n;const e=this.getAttribute("for"),t=e?document.getElementById(e):(n=this.closest("label"))==null?void 0:n.querySelector("input, textarea");(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement)&&t.addEventListener("input",()=>{this.textContent=t.value.length.toString()})}}customElements.define("af-text-count",o);
+//# sourceMappingURL=af-text-count.js.map
