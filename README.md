@@ -4,40 +4,59 @@ HTML light DOM web component to add useful functionality to forms. This is still
 
 ## `<action-form>`
 
-Base wrapper. Currently just to dynamically set novalidate. This is where submit validation functionality will be added.
+Base wrapper. This wrapper enhances fieldsets with the ability to show and hide and disable based on the value of a field.
 
 ### Attributes
 
 * novalidate - sets novalidate on form when defined
 
-## `<error-msg>`
+## Enhanced Fieldset
+
+To enhance a fieldset use the following data attributes.
+
+### Attributes
+
+* data-watch - name of the field to watch
+* data-value - value to match against the field's value
+* data-regex - regex to use for testing against the field's value
+
+## `<af-error>`
 
 Error message element which watches fields or fieldsets to see if they are invalid and displays the error if so. It will set the proper aria-labelledby attribute and aria-invalid attribute.
 
-This element also allows checking groups of fields in a fieldset to see if a minimum number of of them are checked or have values filled in. For this you will need to add min or max attributes to the fieldset.
+This element also allows checking groups of fields in a fieldset to see if a minimum number of of them are checked or have values filled in. When watching a fieldset the element will automatically add `<af-group-count>` element unless it already exists in the fieldset.
 
 ### Attributes
 
-* watch - name of the field or fieldset to watch for changes
+* for - (optional) the id of the field or fieldset to watch for changes; if not specified then it finds the field within the parent `<label>`
+* min - (optional) Only for fieldsets; defaults to 1
+* max - (optional) Only for fieldsets; defaults to Infinity
 
-## `<action-fieldset>`
+## `<af-group-count>`
 
-Field group which allows for hiding or showing based on watched fields or fieldsets. The showIf attribute watches for exact values unless regex is specified. If a group of named checkboxes, it will match as long as one checked checkbox matches.
+Shadow DOM element that displays the number of checked or valid fields in a fieldset. It also indicates validity based on the min or max value.
+
+
+## `<af-step>`
+
+Form step wrapper. Automatically adds previous and next buttons unless footer is overridden. This element is light DOM unless you add a declarative shadow DOM template.
+
+
+## `<af-progress>`
+
+Shadow DOM progress bar for stepped forms. Only previous steps are clickable unless enable-all attribute is added. If the af-step has progress-title attribute it will use this is a title attribute for the step button. Uses parts and css variables for styling.
 
 ### Attributes
 
-* watch - name of the field or fieldset to watch for changes
-* hidden - set initial display state to hidden
-* showIf - value to watch for and if it matches then it will remove the hidden attribute
-* regex - use regex for matching
+* enable-all - enables the ability to click on any step even if not completed.
 
-## `<form-step>`
+## `<af-text-count>`
 
-**TBD** - Create stepped forms
+Displays the number of characters in a text input field or textarea
 
-## `<form-progress>`
+### Attributes
 
-**TBD** - Progress bar for stepped forms
+* for - (optional) the id of the input or textarea; if not specified then it finds the field within the parent `<label>`
 
 ### TODO
 
@@ -51,7 +70,9 @@ Field group which allows for hiding or showing based on watched fields or fields
 - [x] Make sure that if someone unvalidates a form-step it is set to incomplete
 - [x] Maybe move functionality to action-form parent element
 - [x] Make it so that once invalid is triggered it then checks validation on input event
-- [ ] Maybe allow declarative shadow dom? https://developer.chrome.com/docs/css-ui/declarative-shadow-dom
+- [x] Allow declarative shadow dom? https://developer.chrome.com/docs/css-ui/declarative-shadow-dom
+- [x] Add helpers functions for attribute getters and setters
+- [x] Add character counter element
 - [ ] Make sure that resetting the form also hides all error messages
 - [ ] Need to test submitting the form and triggering errors
 - [ ] QA all of it
