@@ -10,7 +10,7 @@ import eslint from "vite-plugin-eslint";
 export default defineConfig(({ mode }) => {
 	return {
 		esbuild: {
-			drop: mode === "production" ? ["console", "debugger"] : [],
+			// drop: mode === "production" ? ["console", "debugger"] : [],
 		},
 		build: {
 			sourcemap: true,
