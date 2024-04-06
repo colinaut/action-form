@@ -3,13 +3,23 @@ export default class ActionFormTextCount extends HTMLElement {
 		super();
 	}
 
+	private getNumber(field: HTMLInputElement | HTMLTextAreaElement) {
+		const maxlength = field.getAttribute("maxlength");
+		let text!: string;
+		if (maxlength && this.hasAttribute("remaining")) {
+			text = String(Number(maxlength) - field.value.length);
+		} else {
+			text = String(field.value.length);
+		}
+		this.textContent = text;
+	}
+
 	connectedCallback() {
 		const targetId = this.getAttribute("for");
 		const input = targetId ? document.getElementById(targetId) : this.closest("label")?.querySelector(`input, textarea`);
 		if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
-			input.addEventListener("input", () => {
-				this.textContent = input.value.length.toString();
-			});
+			this.getNumber(input);
+			input.addEventListener("input", () => this.getNumber(input));
 		}
 	}
 }
