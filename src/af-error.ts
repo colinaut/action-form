@@ -25,11 +25,9 @@ export default class ActionFormError extends HTMLElement {
 	}
 
 	private addAria = (target: HTMLFormElement) => {
-		const id = this.getAttribute("id");
-		if (id) return id;
-		const randomId = `${target.id || target.name || target.tagName.toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`;
-		this.setAttribute("id", randomId);
-		target.setAttribute("aria-describedby", randomId);
+		const id = this.getAttribute("id") || `${target.id || target.name || target.tagName.toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`;
+		this.setAttribute("id", id);
+		target.setAttribute("aria-describedby", id);
 	};
 
 	// TODO: Clean up this code

@@ -40,8 +40,6 @@ export function makeAttribute(target: HTMLElement, attr: string, type: "string" 
 		},
 	});
 
-	console.log(`makeAttribute: ${attr}`, target[attr]);
-
 	// Add default value if attribute is not already defined
 	// @ts-expect-error: "This is a custom element so it should work"
 	if (target[attr] === null && defaultValue !== undefined) target[attr] = defaultValue;
