@@ -3,26 +3,37 @@ import { makeAttributes } from "./helpers";
 
 export default class ActionFormStep extends HTMLElement {
 	private shadow: ShadowRoot | null;
+	// this.this works if component uses Declarative Shadow DOM or not
+	// TODO: test this with a browser that does not have Declarative Shadow DOM
+	private this: this | ShadowRoot;
+
+	// properties grabbed from action-form
+	private actionForm!: ActionForm;
+	private numberOfSteps!: number;
 
 	// Attributes set up with get/set using makeAttributes
 	public valid!: boolean;
 	public completed!: boolean;
 	public active!: boolean;
-	public index!: number;
 
 	constructor() {
 		super();
+
+		const internals = this.attachInternals();
+		this.shadow = internals.shadowRoot;
+		this.this = this.shadow || this;
+
+		// af-step requires action-form wrapper. Exit if it is not found
+		const actionForm = this.closest("action-form") as ActionForm | null;
+		if (!actionForm) return;
+		this.actionForm = actionForm;
+		this.numberOfSteps = actionForm.steps?.length || 0;
 
 		makeAttributes(this, [
 			{ attr: "completed", type: "boolean" },
 			{ attr: "active", type: "boolean" },
 			{ attr: "valid", type: "boolean" },
-			{ attr: "index", type: "number" },
 		]);
-
-		const internals = this.attachInternals();
-		this.shadow = internals.shadowRoot;
-		this.this = this.shadow || this;
 
 		// update validity when input event is fired
 		this.this.addEventListener("input", () => {
@@ -40,7 +51,7 @@ export default class ActionFormStep extends HTMLElement {
 		this.this.addEventListener("click", (e) => {
 			const target = e.target;
 			if (!(target instanceof HTMLButtonElement)) return;
-			console.log("🚀 ~ FormStep ~ this.addEventListener ~ target:", target);
+			// console.log("🚀 ~ FormStep ~ this.addEventListener ~ target:", target);
 
 			if (target.matches(".af-step-next")) {
 				this.step("next");
@@ -50,26 +61,23 @@ export default class ActionFormStep extends HTMLElement {
 		});
 	}
 
-	// this.this works if component uses Declarative Shadow DOM or not
-	// TODO: test this with a browser that does not have Declarative Shadow DOM
-	private this: this | ShadowRoot;
-
-	private actionForm = this.closest("action-form") as ActionForm | null;
-	private numberOfSteps = this.actionForm?.steps?.length || 0;
-
 	get isValid(): boolean {
 		return this.querySelectorAll(":invalid").length === 0;
 	}
 
+	get thisStep(): number {
+		return (this.actionForm?.steps && Array.from(this.actionForm.steps).indexOf(this)) || 0;
+	}
+
 	get nextStep(): number | null {
-		return this.index + 1 < this.numberOfSteps ? this.index + 1 : null;
+		return this.thisStep + 1 < this.numberOfSteps ? this.thisStep + 1 : null;
 	}
 	get prevStep(): number | null {
-		return this.index - 1 >= 0 ? this.index - 1 : null;
+		return this.thisStep - 1 >= 0 ? this.thisStep - 1 : null;
 	}
 
 	get isLastStep(): boolean {
-		return this.index === this.numberOfSteps - 1;
+		return this.thisStep === this.numberOfSteps - 1;
 	}
 
 	public step(direction: "prev" | "next" = "next") {

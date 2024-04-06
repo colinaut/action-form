@@ -20,7 +20,6 @@ export default class ActionForm extends HTMLElement {
 
 			this.steps.forEach((step, i) => {
 				// need to add as attribute rather than set directly as the setter is not called until element is loaded
-				step.setAttribute("index", String(i)); // index = i;
 				if (i === 0) step.setAttribute("active", ""); // active = i === 0;
 			});
 
@@ -43,7 +42,6 @@ export default class ActionForm extends HTMLElement {
 	public steps: NodeListOf<ActionFormStep> = this.querySelectorAll("af-step");
 	public fieldsets: NodeListOf<HTMLFieldSetElement> = this.querySelectorAll("fieldset");
 	public formElements: NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> = this.querySelectorAll("input, select, textarea");
-
 	private enhanceFieldsets() {
 		this.fieldsets.forEach((fieldset) => {
 			const watch = fieldset.dataset.watch;
