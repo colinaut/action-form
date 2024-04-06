@@ -69,13 +69,15 @@ export default class ActionForm extends HTMLElement {
 							console.log("change checkbox", field.value);
 							if (this.checkMatches(field.value, watchValue, watchRegex)) {
 								this.show(fieldset, field.checked);
-								if (fieldset.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
 							}
 						} else {
 							// else show based on value
 							console.log("change else", field.value);
 							this.show(fieldset, this.checkMatches(field.value, watchValue, watchRegex));
 						}
+
+						// if this af-step dispatch event to rerender the progress bar
+						if (fieldset.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
 						// this.show(field.value, regex);
 					});
 				});
