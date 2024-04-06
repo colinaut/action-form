@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
 			rollupOptions: {
 				input: {
 					main: resolve(__dirname, "index.html"),
+					index: resolve(__dirname, "src/main.ts"),
 					"action-form": resolve(__dirname, "src/action-form.ts"),
 					"af-step": resolve(__dirname, "src/af-step.ts"),
 					"af-progress": resolve(__dirname, "src/af-progress.ts"),
