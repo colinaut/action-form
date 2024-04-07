@@ -4,24 +4,20 @@ export default class ActionForm extends HTMLElement {
 		super();
 		document.documentElement.classList.add("js");
 
-		if (this.form) {
+		const form = this.querySelector("form");
+		if (form) {
 			/*
 			 * Set novalidate on the form if novalidate set on action-form.
 			 * This way novalidate is only set if javascript is loaded and form-action is defined.
 			 * We want to allow falling back to browser validation if javascript is not loaded.
 			 */
 			if (this.hasAttribute("novalidate")) {
-				this.form.setAttribute("novalidate", "");
+				form.setAttribute("novalidate", "");
 			}
 
-			this.setAttribute("loaded", "");
-
-			this.enhanceFieldsets();
-
-			this.steps.forEach((step, i) => {
-				// need to add as attribute rather than set directly as the setter is not called until element is loaded
-				if (i === 0) step.setAttribute("active", ""); // active = i === 0;
-			});
+			if (this.steps.length > 0) {
+				this.steps[0].setAttribute("active", "");
+			}
 
 			this.addEventListener("af-step", (event) => {
 				const customEvent = event as CustomEvent<{ step: number | undefined }>;
@@ -36,8 +32,10 @@ export default class ActionForm extends HTMLElement {
 				});
 			});
 
+			this.enhanceFieldsets();
+
 			this.addEventListener("change", () => {
-				const formData = this.form && new FormData(this.form);
+				const formData = new FormData(form);
 				if (!formData) return;
 
 				this.watchers.forEach((watcher) => {
@@ -59,15 +57,13 @@ export default class ActionForm extends HTMLElement {
 		return this.querySelectorAll("af-step:not([hidden])") as NodeListOf<ActionFormStep>;
 	}
 
-	public form = this.querySelector("form");
 	public stepIndex: number = 0; // current step
-	public fieldsets: NodeListOf<HTMLFieldSetElement> = this.querySelectorAll("fieldset, af-step");
-	public formElements: NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> = this.querySelectorAll("input, select, textarea");
 
-	private watchers: { name: string; el: HTMLElement; value?: string; regex?: RegExp }[] = [];
+	private watchers: { el: HTMLElement; name: string; value?: string; regex?: RegExp }[] = [];
 
 	private enhanceFieldsets() {
-		this.fieldsets.forEach((fieldset) => {
+		const elements = this.querySelectorAll("[data-watch]") as NodeListOf<HTMLElement>;
+		elements.forEach((fieldset) => {
 			const watch = fieldset.dataset.watch;
 			const value = fieldset.dataset.value;
 			const regex = fieldset.dataset.regex ? new RegExp(fieldset.dataset.regex) : undefined;
@@ -88,9 +84,9 @@ export default class ActionForm extends HTMLElement {
 		el.dispatchEvent(new CustomEvent("af-watcher", { bubbles: true, detail: { show: show } }));
 	}
 
-	public connectedCallback(): void {
-		console.log("connected");
-	}
+	// public connectedCallback(): void {
+	// 	console.log("connected");
+	// }
 
 	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
 	// 	console.log("changed", name, oldValue, newValue);
