@@ -16,8 +16,9 @@
 		<h1>Action Form</h1>
 		<p>HTML web component for forms</p>
 		<section>
-			<action-form>
-				<form novalidate>
+			<action-form novalidate>
+				<af-step-toggle></af-step-toggle>
+				<form>
 					<af-progress enable-all></af-progress>
 					<af-step progress-title="Your Name">
 						<template shadowrootmode="open">
@@ -41,11 +42,11 @@
 						<fieldset id="phones">
 							<legend>Phone Numbers</legend>
 							<div class="instructions col-span-full flex justify-between items-center">At least one phone number is required</div>
-							<label>Home Number: <input type="tel" name="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<label>Home Number: <input type="tel" name="home-phone" id="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="home-phone">phone number must have 7 digits</af-error>
-							<label>Work Number: <input type="tel" name="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<label>Work Number: <input type="tel" name="work-phone" id="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="work-phone">phone number must have 7 digits</af-error>
-							<label>Mobile Number: <input type="tel" name="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<label>Mobile Number: <input type="tel" name="mobile-phone" id="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="mobile-phone">phone number must have 7 digits</af-error>
 							<af-error for="phones">At least one phone number is required</af-error>
 						</fieldset>

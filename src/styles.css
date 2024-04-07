@@ -48,3 +48,17 @@ af-step::part(step-btn):hover {
 	background: #9b9b9b;
 	background: var(--button-hover);
 }
+
+.no-steps af-step {
+	display: block;
+	margin-block: 1em;
+}
+
+.no-steps af-step .af-step-nav,
+.no-steps af-step::part(step-nav) {
+	display: none;
+}
+
+.no-steps af-progress {
+	display: none;
+}

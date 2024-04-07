@@ -57,6 +57,10 @@ af-step af-error {
 	align-items: center;
 }
 
+form {
+	margin-block: 1em;
+}
+
 label:has(input[type="checkbox"]) {
 	align-items: center;
 	display: flex;
@@ -113,4 +117,8 @@ af-step div[slot="footer"] {
 }
 af-progress {
 	margin-block-end: 1em;
+}
+
+af-step[completed] {
+	outline: 2px solid #0096bfab;
 }
