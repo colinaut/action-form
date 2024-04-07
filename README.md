@@ -12,7 +12,7 @@ Base wrapper. This wrapper enhances fieldsets with the ability to show and hide 
 
 ## Enhanced Fieldset
 
-To enhance a fieldset use the following data attributes.
+To enhance a fieldset or an af-step so that it automatically show/hides and disables  use the following data attributes.
 
 ### Attributes
 

@@ -57,6 +57,16 @@ af-step af-error {
 	align-items: center;
 }
 
+label:has(input[type="checkbox"]) {
+	align-items: center;
+	display: flex;
+}
+
+label input[type="checkbox"] {
+	margin-inline: 0.5em;
+	margin-block: 0;
+}
+
 :not(fieldset, af-fieldset, form):invalid {
 	outline: 1px solid coral;
 	outline-offset: 2px;

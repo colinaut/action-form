@@ -111,7 +111,13 @@
 					<af-step>
 						<fieldset>
 							<label>Optional Comments: <textarea name="comments" placeholder="Comments"></textarea></label>
+
+							<label>Add required field? <input type="checkbox" name="add-required" />Yes</label>
 							<label>Add another comment? <input type="checkbox" name="comments-add" /> Yes</label>
+							<fieldset data-watch="add-required" data-value="on" hidden disabled>
+								<label>This is required <input type="checkbox" name="required-thing" id="required-thing" required /> Check Me! </label>
+								<af-error for="required-thing">Required</af-error>
+							</fieldset>
 						</fieldset>
 					</af-step>
 					<af-step data-watch="comments-add" data-value="on" hidden>

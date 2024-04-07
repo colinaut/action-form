@@ -37,7 +37,7 @@ export default class ActionFormStep extends HTMLElement {
 
 		// update validity when input event is fired
 		this.this.addEventListener("input", () => {
-			// console.log(this.isValid);
+			console.log("af-step input isValid", this.isValid);
 			this.valid = this.isValid;
 			this.completed = this.completed && this.valid;
 		});
@@ -57,6 +57,17 @@ export default class ActionFormStep extends HTMLElement {
 				this.step("next");
 			} else if (target.matches(".af-step-prev")) {
 				this.step("prev");
+			}
+		});
+
+		//TODO: maybe change this to a mutation observer?
+		this.this.addEventListener("af-watcher", () => {
+			this.valid = this.isValid;
+			const completed = this.completed;
+			if (completed) {
+				this.completed = completed && this.valid;
+				// send af-step o rerender progress bar if completed is changed
+				if (this.completed !== completed) this.dispatchEvent(new Event("af-step", { bubbles: true }));
 			}
 		});
 	}

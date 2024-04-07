@@ -85,6 +85,7 @@ export default class ActionForm extends HTMLElement {
 			el.setAttribute("hidden", "");
 			el.setAttribute("disabled", "");
 		}
+		el.dispatchEvent(new CustomEvent("af-watcher", { bubbles: true, detail: { show: show } }));
 	}
 
 	public connectedCallback(): void {
