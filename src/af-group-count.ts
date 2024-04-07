@@ -1,9 +1,10 @@
 import { makeAttributes } from "./helpers";
 export default class ActionFormGroupCount extends HTMLElement {
-	private shadow: ShadowRoot;
-
+	public shadow: ShadowRoot;
 	public min!: number;
 	public max!: number;
+
+	private fieldset: HTMLFieldSetElement | null = this.closest("fieldset");
 
 	constructor() {
 		super();
@@ -15,39 +16,44 @@ export default class ActionFormGroupCount extends HTMLElement {
 
 		this.shadow = this.attachShadow({ mode: "open" });
 		this.shadow.innerHTML = `${this.value}`;
-		this.setValidity();
+		this.checkValidity();
 	}
 
 	static formAssociated = true;
 
 	private internals = this.attachInternals();
 
-	get value(): number {
-		return Number(this.shadow.textContent || "0");
-	}
-
-	set value(value: number) {
-		this.shadow.textContent = value.toString();
-		this.setValidity();
-	}
-
 	attributeChangedCallback() {
 		// if min or max changes then setValidity
-		this.setValidity();
+		this.checkValidity();
 	}
 
 	public checkValidity(): boolean {
-		return this.value >= this.min && this.value <= this.max;
+		// get new value
+		const value = this.value;
+		console.log("🚀 ~ value:", value);
+		// update shadow DOM value
+		this.shadow.innerHTML = `${this.value}`;
+		// set validity
+		const valid = value >= this.min && value <= this.max;
+		this.setValidity(valid);
+		// return validity
+		return valid;
 	}
 
-	public setValidity(): void {
-		const valid = this.checkValidity();
-		if (valid) {
-			this.internals.setValidity({});
-		} else {
-			this.internals.setValidity({ customError: true }, "Value is out of range");
-			// console.error("out of range");
+	get value() {
+		if (!this.fieldset) {
+			throw new Error("no fieldset found");
 		}
+		const fields = this.fieldset.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+		const values = Array.from(fields).filter((field) => (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type) ? field.checked : field.value));
+		return values.length;
+	}
+
+	public setValidity(valid: boolean): void {
+		const flags = valid ? {} : { customError: true };
+		const message = valid ? "" : "Value is out of range";
+		this.internals.setValidity(flags, message);
 		this.dispatchEvent(new CustomEvent("count", { bubbles: true, composed: true, detail: { value: this.value, validity: valid } }));
 	}
 }

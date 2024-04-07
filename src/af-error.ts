@@ -35,7 +35,7 @@ export default class ActionFormError extends HTMLElement {
 		// get field ID from attribute
 		const targetId = this.getAttribute("for") || "";
 
-		const target = targetId ? document.getElementById(targetId) : this.closest("label")?.querySelector(`input, select, textarea, fieldset`);
+		const target = targetId ? document.getElementById(targetId) : this.closest("label")?.querySelector(`input, select, textarea`);
 
 		if (target?.matches("input, select, textarea, fieldset")) {
 			const el = target as HTMLFormElement;
@@ -95,9 +95,7 @@ export default class ActionFormError extends HTMLElement {
 		counter.setAttribute("max", String(max)); // max = max;
 
 		fieldset.addEventListener("change", () => {
-			const values = this.getValues(fields);
 			if (!counter) return;
-			counter.value = values.length;
 			const isValid = counter.checkValidity();
 			// console.log("🚀 ~ ErrorMsg ~ fieldset.addEventListener ~ isValid:", isValid);
 			this.show(fieldset, isValid);
