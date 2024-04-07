@@ -5,13 +5,17 @@ function isChangeField(field: Element): boolean {
 
 type HTMLFormElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLFieldSetElement;
 
+function isHTMLFormElement(el: Element): el is HTMLFormElement {
+	return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement || el instanceof HTMLFieldSetElement;
+}
+
 export default class ActionFormError extends HTMLElement {
 	constructor() {
 		super();
 	}
 
 	private show(el: HTMLElement, valid: boolean = false): boolean {
-		if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
+		if (isHTMLFormElement(el)) {
 			valid = valid || el.checkValidity();
 		}
 		if (valid) {
@@ -24,38 +28,44 @@ export default class ActionFormError extends HTMLElement {
 		return valid;
 	}
 
-	private addAria = (target: HTMLFormElement) => {
+	private addAria = (target: HTMLElement) => {
+		if (!isHTMLFormElement(target)) return;
 		const id = this.getAttribute("id") || `${target.id || target.name || target.tagName.toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`;
 		this.setAttribute("id", id);
 		target.setAttribute("aria-describedby", id);
 	};
 
+	get target() {
+		const targetId = this.getAttribute("for") || "";
+		const target = document.getElementById(targetId) || this.closest("label")?.querySelector(`input, select, textarea`);
+
+		return target && isHTMLFormElement(target) ? target : null;
+	}
+
 	// TODO: QA aria is done right
 	public connectedCallback(): void {
 		// get field ID from attribute
-		const targetId = this.getAttribute("for") || "";
-
-		const target = targetId ? document.getElementById(targetId) : this.closest("label")?.querySelector(`input, select, textarea`);
-
-		if (target?.matches("input, select, textarea, fieldset")) {
-			const el = target as HTMLFormElement;
-
-			console.log(`watching ${target.tagName.toLowerCase()} ${targetId}`);
+		if (this.target) {
+			const el = this.target;
+			console.log(`watching ${el.tagName.toLowerCase()} ${el.id}`);
 
 			// Make id and add aria-describedby attribute to the target element
 			this.addAria(el);
 
-			if (target instanceof HTMLFieldSetElement) {
+			if (el instanceof HTMLFieldSetElement) {
 				// add min and max attributes to the fieldset and event listener
-				this.addMinMaxField(target);
+				this.addMinMaxField(el);
 			} else {
 				// add event type as a data attribute
 				el.dataset.eventType = el.dataset.eventType || isChangeField(el) ? "change" : "blur";
 
 				// add toggle-error event listener which is used to hide/show error message by af-step
 				el.addEventListener("toggle-error", () => {
-					// console.log("toggle-error", el.checkValidity(), el.name);
+					console.log("toggle-error", el.name, el.checkValidity());
 					this.show(el);
+					if (!el.checkValidity()) {
+						el.focus();
+					}
 				});
 
 				this.eventHandler = this.eventHandler.bind(el);
@@ -82,9 +92,8 @@ export default class ActionFormError extends HTMLElement {
 
 	// TODO: maybe convert this to it's own element fieldset-group-error
 	private addMinMaxField(fieldset: HTMLFieldSetElement): void {
-		const fields = fieldset.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
-		const min = parseInt(this.getAttribute("min") || "1");
-		const max = parseInt(this.getAttribute("max") || "0") || fields.length;
+		const min = Number(this.getAttribute("min") || "1");
+		const max = Number(this.getAttribute("max") || Infinity);
 		let counter = fieldset.querySelector("af-group-count") as ActionFormGroupCount | null;
 		if (!counter) {
 			counter = document.createElement("af-group-count") as ActionFormGroupCount;
@@ -100,18 +109,6 @@ export default class ActionFormError extends HTMLElement {
 			// console.log("🚀 ~ ErrorMsg ~ fieldset.addEventListener ~ isValid:", isValid);
 			this.show(fieldset, isValid);
 		});
-	}
-
-	private getValues(fields: NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): string[] {
-		const values: string[] = [];
-		fields.forEach((field) => {
-			if (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type)) {
-				if (field.checked) values.push(field.value);
-			} else {
-				field.value && field.checkValidity() && values.push(field.value);
-			}
-		});
-		return values;
 	}
 
 	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
