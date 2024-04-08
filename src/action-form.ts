@@ -2,9 +2,6 @@ import type ActionFormStep from "./af-step";
 import type ActionFormError from "./af-error";
 import type ActionFormGroupCount from "./af-group-count";
 
-function isHTMLFieldElement(el: Element | EventTarget | null) {
-	return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement;
-}
 export default class ActionForm extends HTMLElement {
 	constructor() {
 		super();
@@ -38,7 +35,7 @@ export default class ActionForm extends HTMLElement {
 					});
 			});
 
-			this.enhanceFieldsets();
+			this.enhanceElements();
 
 			this.addEventListener("change", (event) => {
 				const target = event.target;
@@ -89,7 +86,7 @@ export default class ActionForm extends HTMLElement {
 
 	private watchers: { el: HTMLElement; name: string; value?: string; regex?: RegExp }[] = [];
 
-	private enhanceFieldsets() {
+	private enhanceElements() {
 		const elements = this.querySelectorAll("[data-watch]") as NodeListOf<HTMLElement>;
 		elements.forEach((fieldset) => {
 			const watch = fieldset.dataset.watch;
