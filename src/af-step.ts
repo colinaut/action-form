@@ -102,8 +102,18 @@ export default class ActionFormStep extends HTMLElement {
 
 			const allValid = Array.from(fields).every((field) => {
 				const valid = field.checkValidity();
+				// fire off change to trigger change listeners on action-form to update validity
 				field.dispatchEvent(new Event("change", { bubbles: true }));
 				console.log("🚀 ~ FormStep ~ step ~ allValid ~ field:", field, valid);
+				// ends every loop on first invalid field
+				if (!valid) {
+					if (field.matches("af-group-count")) {
+						const otherField = this.querySelector("input, select, textarea") as HTMLElement | null;
+						otherField?.focus();
+					} else {
+						field.focus();
+					}
+				}
 				return valid;
 			});
 
