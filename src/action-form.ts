@@ -1,4 +1,10 @@
-import ActionFormStep from "./af-step";
+import type ActionFormStep from "./af-step";
+import type ActionFormError from "./af-error";
+import type ActionFormGroupCount from "./af-group-count";
+
+function isHTMLFieldElement(el: Element | EventTarget | null) {
+	return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement;
+}
 export default class ActionForm extends HTMLElement {
 	constructor() {
 		super();
@@ -24,17 +30,33 @@ export default class ActionForm extends HTMLElement {
 				console.log("af-step", customEvent.detail?.step);
 				if (customEvent.detail?.step === undefined) return;
 				this.stepIndex = customEvent.detail.step;
-				this.steps.forEach((step, i) => {
-					// if current step is valid, set completed
-					if (step.active) step.completed = step.valid;
-					// set active based on index
-					step.active = i === this.stepIndex;
-				});
+				Array.from(this.steps)
+					.filter((step) => !step.hidden)
+					.forEach((step, i) => {
+						// if current step is valid, set completed
+						if (step.active) step.completed = step.valid;
+						// set active based on index
+						step.active = i === this.stepIndex;
+					});
 			});
 
 			this.enhanceFieldsets();
 
-			this.addEventListener("change", () => {
+			this.addEventListener("change", (event) => {
+				const target = event.target;
+				if (target.matches("input, textarea, select, af-group-count")) {
+					const field = target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | ActionFormGroupCount;
+					// if target has an error message, show/hide it
+					const errorId = field.getAttribute("aria-describedby");
+					if (!errorId) return;
+					const errorMsg = document.getElementById(errorId);
+					if (errorMsg?.matches("af-error")) {
+						const afError = errorMsg as ActionFormError;
+						const valid = field.checkValidity();
+						afError.showError(!valid);
+						console.log("target", target, errorId, valid);
+					}
+				}
 				const formData = new FormData(form);
 				if (!formData) return;
 
@@ -54,7 +76,7 @@ export default class ActionForm extends HTMLElement {
 	}
 
 	get steps(): NodeListOf<ActionFormStep> {
-		return this.querySelectorAll("af-step:not([hidden])") as NodeListOf<ActionFormStep>;
+		return this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	}
 
 	public stepIndex: number = 0; // current step

@@ -1,4 +1,5 @@
 import type ActionForm from "./action-form";
+import type ActionFormGroupCount from "./af-group-count";
 import { makeAttributes } from "./helpers";
 
 export default class ActionFormStep extends HTMLElement {
@@ -35,11 +36,14 @@ export default class ActionFormStep extends HTMLElement {
 			{ attr: "valid", type: "boolean" },
 		]);
 
-		// update validity when input event is fired
-		this.this.addEventListener("input", () => {
+		// update validity and completed when change event is fired
+		this.this.addEventListener("change", () => {
 			console.log("af-step input isValid", this.isValid);
 			this.valid = this.isValid;
-			this.completed = this.completed && this.valid;
+			if (this.completed !== this.valid) {
+				this.completed = this.valid;
+				this.dispatchEvent(new CustomEvent("af-step", { bubbles: true }));
+			}
 		});
 		// change validity when count event is fired from af-group-count
 		this.this.addEventListener("count", (event) => {
@@ -73,11 +77,18 @@ export default class ActionFormStep extends HTMLElement {
 	}
 
 	get isValid(): boolean {
+		// console.log("isValid", this.querySelectorAll(":invalid"));
 		return this.querySelectorAll(":invalid").length === 0;
 	}
 
 	get thisStep(): number {
-		return (this.actionForm?.steps && Array.from(this.actionForm.steps).indexOf(this)) || 0;
+		return (
+			(this.actionForm?.steps &&
+				Array.from(this.actionForm.steps)
+					.filter((step) => !step.hidden)
+					.indexOf(this)) ||
+			0
+		);
 	}
 
 	get nextStep(): number | null {
@@ -85,10 +96,6 @@ export default class ActionFormStep extends HTMLElement {
 	}
 	get prevStep(): number | null {
 		return this.thisStep - 1 >= 0 ? this.thisStep - 1 : null;
-	}
-
-	get isLastStep(): boolean {
-		return this.thisStep === this.numberOfSteps - 1;
 	}
 
 	public step(direction: "prev" | "next" = "next") {
@@ -99,40 +106,20 @@ export default class ActionFormStep extends HTMLElement {
 		console.log("🚀 ~ FormStep ~ step ~ directionIndex:", directionIndex);
 
 		// If button is next check if any elements are invalid before moving to next step
-		if (direction === "next" && this.querySelectorAll(":invalid").length > 0) {
-			const invalidElements = this.querySelectorAll(":invalid");
-
-			// If any are invalid then focus on first invalid
-			Array.from(invalidElements).some((element) => {
-				if (element instanceof HTMLInputElement || element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) {
-					console.log("af-step: invalid element", element);
-
-					element.focus();
-					element.dispatchEvent(new CustomEvent("toggle-error"));
-
-					// return true on first matching element. This ends the loop
-					return true;
-				}
-				// console.log("invalid unknown element", element);
-				// ignore non matching elements
-				return false;
-			});
-
-			// Search also for fieldset elements that are invalid
-			Array.from(invalidElements).some((element) => {
-				if (element instanceof HTMLFieldSetElement) {
-					console.log("af-step: invalid element", element);
-					element.dispatchEvent(new CustomEvent("toggle-error"));
-					const firstField = element.querySelector("input, select, textarea") as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-					if (firstField) {
-						firstField.focus();
-					}
-				}
-			});
-			// this return stops the step event from advancing
-			return;
-		}
 		if (direction === "next") {
+			const fields = this.querySelectorAll("input, select, textarea, af-group-count") as NodeListOf<
+				HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | ActionFormGroupCount
+			>;
+
+			const allValid = Array.from(fields).every((field) => {
+				const valid = field.checkValidity();
+				field.dispatchEvent(new Event("change", { bubbles: true }));
+				console.log("🚀 ~ FormStep ~ step ~ allValid ~ field:", field, valid);
+				return valid;
+			});
+
+			if (!allValid) return;
+
 			this.completed = true;
 		}
 
@@ -157,9 +144,9 @@ export default class ActionFormStep extends HTMLElement {
 			const stepButton = (direction: "Next" | "Prev") => {
 				return `<button type="button" class="af-step-${direction.toLowerCase()}" part="step-btn">${direction}</button>`;
 			};
-			const blank = `<span></span>`;
-			nav.innerHTML = `${this.prevStep !== null ? stepButton("Prev") : blank}
-            ${this.nextStep !== null ? stepButton("Next") : blank}`;
+			const submit = `<button type="submit" part="submit">Submit</button>`;
+			nav.innerHTML = `${this.prevStep !== null ? stepButton("Prev") : `<span></span>`}
+            ${this.nextStep !== null ? stepButton("Next") : submit}`;
 			this.this.appendChild(nav);
 		}
 	}

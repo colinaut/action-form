@@ -15,8 +15,8 @@ export default class ActionFormGroupCount extends HTMLElement {
 		]);
 
 		this.shadow = this.attachShadow({ mode: "open" });
-		this.shadow.innerHTML = `${this.value}`;
 		this.checkValidity();
+		this.shadow.innerHTML = `${this.value}`;
 	}
 
 	static formAssociated = true;
@@ -31,12 +31,12 @@ export default class ActionFormGroupCount extends HTMLElement {
 	public checkValidity(): boolean {
 		// get new value
 		const value = this.value;
-		console.log("🚀 ~ value:", value);
 		// update shadow DOM value
-		this.shadow.innerHTML = `${this.value}`;
+		this.shadow.innerHTML = `${value}`;
 		// set validity
 		const valid = value >= this.min && value <= this.max;
 		this.setValidity(valid);
+		console.log("🚀 ~ value:", value, valid);
 		// return validity
 		return valid;
 	}
@@ -46,7 +46,9 @@ export default class ActionFormGroupCount extends HTMLElement {
 			throw new Error("no fieldset found");
 		}
 		const fields = this.fieldset.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
-		const values = Array.from(fields).filter((field) => (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type) ? field.checked : field.value));
+		const values = Array.from(fields).filter((field) =>
+			field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type) ? field.checked : field.checkValidity() && field.value
+		);
 		return values.length;
 	}
 
