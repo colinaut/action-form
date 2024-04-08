@@ -49,10 +49,10 @@ export default class ActionFormProgress extends HTMLElement {
             --step-text: inherit;
             --inactive: lightgray;
             --active: lightseagreen;
-            --incomplete: coral;
-            --completed: var(--active);
-            --completed-bg: var(--active);
-            --completed-text: white;
+            --invalid: coral;
+            --valid: var(--active);
+            --valid-bg: var(--active);
+            --valid-text: white;
         }
         .progress {
             background: var(--active);
@@ -91,20 +91,20 @@ export default class ActionFormProgress extends HTMLElement {
             cursor: pointer;
             color: var(--step-text);
         }
-        .step.completed {
-            border-color: var(--completed);
-            background: var(--completed-bg);
-            color: var(--completed-text);
+        .valid:has(~ .active) {
+            border-color: var(--valid);
+            background: var(--valid-bg);
+            color: var(--valid-text);
         }
         .step:disabled {
             opacity: 1;
             cursor: not-allowed;
         }
-        .step[aria-current="step"] {
+        .active {
             border-color: var(--active);
         }
-        .step:not(.completed):has(~ .step[aria-current="step"]) {
-            border-color: var(--incomplete);
+        .step:not(.valid):has(~ .active) {
+            border-color: var(--invalid);
         }
         </style>
         `;
@@ -118,10 +118,10 @@ export default class ActionFormProgress extends HTMLElement {
 			.filter((step) => !step.hidden)
 			.map((step, index) => {
 				const active = index === this.stepIndex ? "active" : "";
-				const completed = step.completed ? "completed" : "";
+				const valid = step.valid ? "valid" : "";
 				const disabled = this.hasAttribute("enable-all") || this.stepIndex > index ? "" : "disabled";
 				const title = step.getAttribute("progress-title") || "";
-				return `<button type="button" part="step ${completed} ${active}" ${disabled} title="${title}" class="step ${completed}" ${
+				return `<button type="button" part="step ${valid} ${active}" ${disabled} title="${title}" class="step ${valid} ${active}" ${
 					active && `aria-current="step"`
 				} aria-label="Step ${index + 1}" data-index="${index}">${index + 1}</button>`;
 			})
