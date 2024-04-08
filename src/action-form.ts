@@ -48,13 +48,14 @@ export default class ActionForm extends HTMLElement {
 					const field = target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | ActionFormGroupCount;
 					// if target has an error message, show/hide it
 					const errorId = field.getAttribute("aria-describedby");
-					if (!errorId) return;
-					const errorMsg = document.getElementById(errorId);
-					if (errorMsg?.matches("af-error")) {
-						const afError = errorMsg as ActionFormError;
-						const valid = field.checkValidity();
-						afError.showError(!valid);
-						console.log("target", target, errorId, valid);
+					if (errorId) {
+						const errorMsg = document.getElementById(errorId);
+						if (errorMsg?.matches("af-error")) {
+							const afError = errorMsg as ActionFormError;
+							const valid = field.checkValidity();
+							afError.showError(!valid);
+							console.log("target", target, errorId, valid);
+						}
 					}
 				}
 				const formData = new FormData(form);
@@ -62,6 +63,9 @@ export default class ActionForm extends HTMLElement {
 
 				this.watchers.forEach((watcher) => {
 					const values = formData.getAll(watcher.name);
+					console.log("watchers values", values, watcher);
+
+					// typeof value === "string" is to ignore formData files
 					const valid = values.some((value) => typeof value === "string" && (value === watcher.value || (watcher.regex && watcher.regex.test(value))));
 					// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
 					if (watcher.el.hasAttribute("hidden") !== valid) return;
@@ -88,7 +92,9 @@ export default class ActionForm extends HTMLElement {
 		elements.forEach((fieldset) => {
 			const watch = fieldset.dataset.watch;
 			const value = fieldset.dataset.value;
-			const regex = fieldset.dataset.regex ? new RegExp(fieldset.dataset.regex) : undefined;
+			const regexStr = fieldset.dataset.regex;
+			// if neither watch nor value is set, assume that any value is valid. RegExp /./ tests for any value
+			const regex: RegExp | undefined = regexStr ? new RegExp(regexStr) : !regexStr && !value ? /./ : undefined;
 			if (watch) {
 				this.watchers.push({ name: watch, value, regex, el: fieldset });
 			}
@@ -103,6 +109,7 @@ export default class ActionForm extends HTMLElement {
 			el.setAttribute("hidden", "");
 			el.setAttribute("disabled", "");
 		}
+		// TODO: is this needed?
 		el.dispatchEvent(new CustomEvent("af-watcher", { bubbles: true, detail: { show: show } }));
 	}
 
