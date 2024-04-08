@@ -1,6 +1,5 @@
 import type ActionForm from "./action-form";
 import type ActionFormGroupCount from "./af-group-count";
-import { makeAttributes } from "./helpers";
 
 export default class ActionFormStep extends HTMLElement {
 	private shadow: ShadowRoot | null;
@@ -12,9 +11,30 @@ export default class ActionFormStep extends HTMLElement {
 	private actionForm!: ActionForm;
 	private numberOfSteps!: number;
 
-	// Attributes set up with get/set using makeAttributes
-	public valid!: boolean;
-	public active!: boolean;
+	// Attributes
+	get valid(): boolean {
+		return this.hasAttribute("valid");
+	}
+
+	set valid(value: boolean) {
+		if (value) {
+			this.setAttribute("valid", "");
+		} else {
+			this.removeAttribute("valid");
+		}
+	}
+
+	get active(): boolean {
+		return this.hasAttribute("active");
+	}
+
+	set active(value: boolean) {
+		if (value) {
+			this.setAttribute("active", "");
+		} else {
+			this.removeAttribute("active");
+		}
+	}
 
 	constructor() {
 		super();
@@ -28,11 +48,6 @@ export default class ActionFormStep extends HTMLElement {
 		if (!actionForm) return;
 		this.actionForm = actionForm;
 		this.numberOfSteps = actionForm.steps?.length || 0;
-
-		makeAttributes(this, [
-			{ attr: "active", type: "boolean" },
-			{ attr: "valid", type: "boolean" },
-		]);
 
 		// update validity and completed when change event is fired
 		this.this.addEventListener("change", () => {

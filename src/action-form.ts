@@ -57,9 +57,12 @@ export default class ActionForm extends HTMLElement {
 						}
 					}
 				}
-				const formData = new FormData(form);
-				if (!formData) return;
 
+				// Get FormData for watchers
+				const formData = new FormData(form);
+				if (!formData || this.watchers.length === 0) return;
+
+				// Loop through watchers
 				this.watchers.forEach((watcher) => {
 					const values = formData.getAll(watcher.name);
 					// console.log("watchers values", values, watcher);
