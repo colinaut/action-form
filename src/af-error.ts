@@ -1,8 +1,3 @@
-import type ActionFormGroupCount from "./af-group-count";
-function isChangeField(field: Element): boolean {
-	return (field instanceof HTMLInputElement && ["radio", "checkbox", "range", "color", "file"].includes(field.type)) || field instanceof HTMLSelectElement;
-}
-
 type HTMLFormElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLFieldSetElement;
 
 function isHTMLFormElement(el: Element): el is HTMLFormElement {
@@ -52,27 +47,8 @@ export default class ActionFormError extends HTMLElement {
 
 			// Make id and add aria-describedby attribute to the target element
 			this.addAria(el);
-
-			if (el instanceof HTMLFieldSetElement) {
-				// add min and max attributes to the fieldset and event listener
-				console.log("🚀 ~ is fieldset", el.id, el.dataset.group);
-			}
 		}
 	}
-
-	private eventHandler = (event: Event) => {
-		const target = event.target;
-		if (!target) return;
-		const el = target as HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement;
-		// console.log("eventHandler", this, el);
-		const valid = this.showError();
-		if (!valid && el.dataset.eventType !== "input") {
-			el.dataset.eventType = el.dataset.eventType || isChangeField(el) ? "change" : "blur";
-			el.removeEventListener(el.dataset.eventType, this.eventHandler);
-			el.dataset.eventType = "input";
-			el.addEventListener(el.dataset.eventType, this.eventHandler);
-		}
-	};
 
 	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
 	// 	console.log("changed", name, oldValue, newValue);
