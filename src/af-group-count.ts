@@ -4,7 +4,7 @@ export default class ActionFormGroupCount extends HTMLElement {
 	public min!: number;
 	public max!: number;
 	public value: number = 0;
-	public validity!: boolean;
+	public validity: boolean = false;
 
 	private fieldset: HTMLFieldSetElement | null = this.closest("fieldset");
 
@@ -60,10 +60,10 @@ export default class ActionFormGroupCount extends HTMLElement {
 			this.value = value;
 			this.shadow.innerHTML = `${value}`;
 			this.validity = value >= this.min && value <= this.max;
-			// console.log("🚀 ~ value:", value, this.value, this.validity);
-			this.setValidity();
+			console.log("🚀 ~ value:", value, this.value, this.validity);
 			this.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
 		}
+		this.setValidity();
 		return this.validity;
 	}
 

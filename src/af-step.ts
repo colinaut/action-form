@@ -14,7 +14,6 @@ export default class ActionFormStep extends HTMLElement {
 
 	// Attributes set up with get/set using makeAttributes
 	public valid!: boolean;
-	public completed!: boolean;
 	public active!: boolean;
 
 	constructor() {
@@ -31,21 +30,15 @@ export default class ActionFormStep extends HTMLElement {
 		this.numberOfSteps = actionForm.steps?.length || 0;
 
 		makeAttributes(this, [
-			{ attr: "completed", type: "boolean" },
 			{ attr: "active", type: "boolean" },
 			{ attr: "valid", type: "boolean" },
 		]);
 
 		// update validity and completed when change event is fired
 		this.this.addEventListener("change", () => {
-			// console.log("af-step input isValid", this.isValid);
+			console.log("af-step change isValid", this.isValid);
 			this.valid = this.isValid;
-			if (this.completed !== this.valid) {
-				this.completed = this.valid;
-				this.dispatchEvent(new CustomEvent("af-step", { bubbles: true }));
-			}
 		});
-		// change validity when count event is fired from af-group-count
 
 		// trigger next or prev step
 		this.this.addEventListener("click", (e) => {
@@ -63,17 +56,17 @@ export default class ActionFormStep extends HTMLElement {
 		//TODO: maybe change this to a mutation observer?
 		this.this.addEventListener("af-watcher", () => {
 			this.valid = this.isValid;
-			const completed = this.completed;
-			if (completed) {
-				this.completed = completed && this.valid;
-				// send af-step o rerender progress bar if completed is changed
-				if (this.completed !== completed) this.dispatchEvent(new Event("af-step", { bubbles: true }));
-			}
 		});
 	}
 
 	get isValid(): boolean {
 		// console.log("isValid", this.querySelectorAll(":invalid"));
+		const afGroupCount = this.querySelector("af-group-count") as ActionFormGroupCount | null;
+		if (afGroupCount) {
+			console.log("afGroupCount", afGroupCount.value, afGroupCount.validity);
+			return afGroupCount.validity;
+		}
+
 		return this.querySelectorAll(":invalid").length === 0;
 	}
 
@@ -115,8 +108,6 @@ export default class ActionFormStep extends HTMLElement {
 			});
 
 			if (!allValid) return;
-
-			this.completed = true;
 		}
 
 		this.active = false;
@@ -126,7 +117,6 @@ export default class ActionFormStep extends HTMLElement {
 	public connectedCallback(): void {
 		// console.log("connected");
 		this.valid = this.isValid;
-		this.completed = false;
 
 		// check for footer
 		const footer = this.this.querySelector("slot[name=footer]") || this.this.querySelector("[slot=footer]");

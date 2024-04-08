@@ -33,8 +33,6 @@ export default class ActionForm extends HTMLElement {
 				Array.from(this.steps)
 					.filter((step) => !step.hidden)
 					.forEach((step, i) => {
-						// if current step is valid, set completed
-						if (step.active) step.completed = step.valid;
 						// set active based on index
 						step.active = i === this.stepIndex;
 					});
@@ -73,7 +71,7 @@ export default class ActionForm extends HTMLElement {
 					// console.log("watcher", watcher.name, valid);
 					// Else show/hide it
 					this.show(watcher.el, valid);
-					// if this is af-step then trigger event to update progress bar
+					// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
 					if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
 				});
 			});
