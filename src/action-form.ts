@@ -44,8 +44,9 @@ export default class ActionForm extends HTMLElement {
 
 			this.addEventListener("change", (event) => {
 				const target = event.target;
-				if (target.matches("input, textarea, select, af-group-count")) {
+				if (target instanceof HTMLElement && target.matches("input, textarea, select, af-group-count")) {
 					const field = target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | ActionFormGroupCount;
+
 					// if target has an error message, show/hide it
 					const errorId = field.getAttribute("aria-describedby");
 					if (errorId) {
@@ -54,7 +55,7 @@ export default class ActionForm extends HTMLElement {
 							const afError = errorMsg as ActionFormError;
 							const valid = field.checkValidity();
 							afError.showError(!valid);
-							console.log("target", target, errorId, valid);
+							// console.log("target", target, errorId, valid);
 						}
 					}
 				}
@@ -63,13 +64,13 @@ export default class ActionForm extends HTMLElement {
 
 				this.watchers.forEach((watcher) => {
 					const values = formData.getAll(watcher.name);
-					console.log("watchers values", values, watcher);
+					// console.log("watchers values", values, watcher);
 
 					// typeof value === "string" is to ignore formData files
 					const valid = values.some((value) => typeof value === "string" && (value === watcher.value || (watcher.regex && watcher.regex.test(value))));
 					// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
 					if (watcher.el.hasAttribute("hidden") !== valid) return;
-					console.log("watcher", watcher.name, valid);
+					// console.log("watcher", watcher.name, valid);
 					// Else show/hide it
 					this.show(watcher.el, valid);
 					// if this is af-step then trigger event to update progress bar

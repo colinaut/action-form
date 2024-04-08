@@ -24,7 +24,7 @@ export default class ActionFormError extends HTMLElement {
 	public showError(invalid: boolean = true): void {
 		const el = this.target;
 		if (!el) return;
-		console.log("🚀 ~ file: af-error.ts:ActionFormError.showError ~ el", el);
+		// console.log("🚀 ~ file: af-error.ts:ActionFormError.showError ~ el", el);
 
 		if (invalid) {
 			this.setAttribute("show", "");
@@ -51,40 +51,12 @@ export default class ActionFormError extends HTMLElement {
 			console.log(`watching ${el.tagName.toLowerCase()} ${el.id}`);
 
 			// Make id and add aria-describedby attribute to the target element
-			const errorId = this.addAria(el);
+			this.addAria(el);
 
 			if (el instanceof HTMLFieldSetElement) {
 				// add min and max attributes to the fieldset and event listener
-				this.addMinMaxField(el, errorId);
+				console.log("🚀 ~ is fieldset", el.id, el.dataset.group);
 			}
-			// else {
-			// 	// add event type as a data attribute
-			// 	el.dataset.eventType = el.dataset.eventType || isChangeField(el) ? "change" : "blur";
-
-			// 	// add toggle-error event listener which is used to hide/show error message by af-step
-			// 	// el.addEventListener("toggle-error", () => {
-			// 	// 	console.log("toggle-error", el.name, el.checkValidity());
-			// 	// 	this.show();
-			// 	// 	if (!el.checkValidity()) {
-			// 	// 		el.focus();
-			// 	// 	}
-			// 	// });
-
-			// 	this.eventHandler = this.eventHandler.bind(el);
-
-			// 	// add event listeners for change and blur
-			// 	el.addEventListener(el.dataset.eventType, this.eventHandler);
-			// }
-
-			// el.addEventListener("invalid", () => {
-			// 	console.log("❗ invalid", el.name, el.id);
-			// 	this.showError(true);
-			// 	el.focus();
-			// });
-			// el.addEventListener("valid", (event) => {
-			// 	console.log("✅ valid", event.target);
-			// 	this.showError(false);
-			// });
 		}
 	}
 
@@ -101,29 +73,6 @@ export default class ActionFormError extends HTMLElement {
 			el.addEventListener(el.dataset.eventType, this.eventHandler);
 		}
 	};
-
-	// TODO: maybe convert this to it's own element fieldset-group-error
-	private addMinMaxField(fieldset: HTMLFieldSetElement, errorId): void {
-		const min = Number(this.getAttribute("min") || "1");
-		const max = Number(this.getAttribute("max") || Infinity);
-		let counter = fieldset.querySelector("af-group-count") as ActionFormGroupCount | null;
-		if (!counter) {
-			counter = document.createElement("af-group-count") as ActionFormGroupCount;
-			counter.setAttribute("hidden", "");
-			fieldset.append(counter);
-		}
-		counter.setAttribute("min", String(min)); // min = min;
-		counter.setAttribute("max", String(max)); // max = max;
-		counter.setAttribute("aria-describedby", errorId);
-
-		// TODO: move this to action-form?
-		fieldset.addEventListener("change", () => {
-			if (!counter) return;
-			const isValid = counter.checkValidity();
-			// console.log("🚀 ~ ErrorMsg ~ fieldset.addEventListener ~ isValid:", isValid);
-			this.showError(!isValid);
-		});
-	}
 
 	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
 	// 	console.log("changed", name, oldValue, newValue);

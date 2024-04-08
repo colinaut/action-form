@@ -38,7 +38,7 @@ export default class ActionFormStep extends HTMLElement {
 
 		// update validity and completed when change event is fired
 		this.this.addEventListener("change", () => {
-			console.log("af-step input isValid", this.isValid);
+			// console.log("af-step input isValid", this.isValid);
 			this.valid = this.isValid;
 			if (this.completed !== this.valid) {
 				this.completed = this.valid;
@@ -46,10 +46,6 @@ export default class ActionFormStep extends HTMLElement {
 			}
 		});
 		// change validity when count event is fired from af-group-count
-		this.this.addEventListener("count", (event) => {
-			const customEvent = event as CustomEvent<{ validity: boolean; value: number }>;
-			this.valid = customEvent.detail.validity;
-		});
 
 		// trigger next or prev step
 		this.this.addEventListener("click", (e) => {
