@@ -2,7 +2,7 @@ af-error {
 	visibility: hidden;
 }
 
-af-error[show] {
+af-error[invalid] {
 	visibility: visible;
 }
 

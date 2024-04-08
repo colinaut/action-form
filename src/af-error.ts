@@ -22,10 +22,10 @@ export default class ActionFormError extends HTMLElement {
 		// console.log("🚀 ~ file: af-error.ts:ActionFormError.showError ~ el", el);
 
 		if (invalid) {
-			this.setAttribute("show", "");
+			this.setAttribute("invalid", "");
 			el.setAttribute("aria-invalid", "true");
 		} else {
-			this.removeAttribute("show");
+			this.removeAttribute("invalid");
 			el.removeAttribute("aria-invalid");
 		}
 	}
