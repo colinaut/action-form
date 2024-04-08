@@ -1,12 +1,29 @@
-import { makeAttributes } from "./helpers";
 export default class ActionFormGroupCount extends HTMLElement {
-	public shadow: ShadowRoot;
-	public min!: number;
-	public max!: number;
-	public value: number = 0;
-	public validity: boolean = false;
-
 	private fieldset: HTMLFieldSetElement | null = this.closest("fieldset");
+	// Needed for validity
+	private internals = this.attachInternals();
+
+	// Public properties
+	public shadow: ShadowRoot;
+	public value: number = this.getValue();
+	public validity: boolean = this.checkValidity();
+
+	// Reflected attribute properties
+	get min(): number {
+		return Number(this.getAttribute("min") || 1);
+	}
+
+	set min(value: number) {
+		this.setAttribute("min", String(value));
+	}
+
+	get max(): number {
+		return Number(this.getAttribute("max") || Infinity);
+	}
+
+	set max(value: number) {
+		this.setAttribute("max", String(value));
+	}
 
 	constructor() {
 		super();
@@ -16,16 +33,12 @@ export default class ActionFormGroupCount extends HTMLElement {
 			throw new Error("no fieldset found");
 		}
 
-		// get min and max from attributes from the closest fieldset
+		// Update min and max from attributes from the closest fieldset
 		const [minStr, maxStr] = this.fieldset.dataset.group?.split("-") || [];
-		const min = Number(minStr) || 1;
-		const max = Number(maxStr) || Infinity;
+		this.min = Number(minStr || this.min);
+		this.max = Number(maxStr || this.max);
 
-		// set up attributes
-		makeAttributes(this, [
-			{ attr: "min", type: "number", defaultValue: min },
-			{ attr: "max", type: "number", defaultValue: max },
-		]);
+		// console.log("🚀 ~ min/max", this.fieldset.id, this.min, this.max, Number(minStr), Number(maxStr));
 
 		// set up shadow DOM
 		this.shadow = this.attachShadow({ mode: "open" });
@@ -45,8 +58,6 @@ export default class ActionFormGroupCount extends HTMLElement {
 
 	static formAssociated = true;
 
-	private internals = this.attachInternals();
-
 	attributeChangedCallback() {
 		// if min or max changes then setValidity
 		this.checkValidity();
@@ -59,15 +70,15 @@ export default class ActionFormGroupCount extends HTMLElement {
 		if (value !== this.value) {
 			this.value = value;
 			this.shadow.innerHTML = `${value}`;
-			this.validity = value >= this.min && value <= this.max;
-			console.log("🚀 ~ value:", value, this.value, this.validity);
+			console.log("🚀 ~ value:", value, this.value, this.min, this.max, this.validity);
 			this.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
 		}
+		this.validity = value >= this.min && value <= this.max;
 		this.setValidity();
 		return this.validity;
 	}
 
-	public getValue() {
+	private getValue() {
 		if (!this.fieldset) {
 			throw new Error("no fieldset found");
 		}
