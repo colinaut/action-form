@@ -77,12 +77,12 @@ export default class ActionFormStep extends HTMLElement {
 	get isValid(): boolean {
 		// console.log("isValid", this.querySelectorAll(":invalid"));
 		const afGroupCount = this.querySelector("af-group-count") as ActionFormGroupCount | null;
+		let valid = true;
 		if (afGroupCount) {
-			console.log("afGroupCount", afGroupCount.value, afGroupCount.validity);
-			return afGroupCount.validity;
+			valid = afGroupCount.validity;
 		}
 
-		return this.querySelectorAll(":invalid").length === 0;
+		return valid && this.querySelectorAll(":invalid").length === 0;
 	}
 
 	get thisStep(): number {
@@ -107,7 +107,7 @@ export default class ActionFormStep extends HTMLElement {
 		// guard against negative step
 		if (directionIndex === null) return;
 
-		console.log("🚀 ~ FormStep ~ step ~ directionIndex:", directionIndex);
+		// console.log("🚀 ~ FormStep ~ step ~ directionIndex:", directionIndex);
 
 		// If button is next check if any elements are invalid before moving to next step
 		if (direction === "next") {
@@ -119,7 +119,7 @@ export default class ActionFormStep extends HTMLElement {
 				const valid = field.checkValidity();
 				// fire off change to trigger change listeners on action-form to update validity
 				field.dispatchEvent(new Event("change", { bubbles: true }));
-				console.log("🚀 ~ FormStep ~ step ~ allValid ~ field:", field, valid);
+				// console.log("🚀 ~ FormStep ~ step ~ allValid ~ field:", field, valid);
 				// ends every loop on first invalid field
 				if (!valid) {
 					if (field.matches("af-group-count")) {

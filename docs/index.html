@@ -10,7 +10,6 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" />
 		<script type="module" crossorigin src="/action-form.js"></script>
 		<script type="module" crossorigin src="/af-error.js"></script>
-		<script type="module" crossorigin src="/assets/helpers-BDWkIbAD.js"></script>
 		<script type="module" crossorigin src="/af-step.js"></script>
 		<script type="module" crossorigin src="/af-progress.js"></script>
 		<script type="module" crossorigin src="/af-group-count.js"></script>
@@ -22,8 +21,9 @@
 		<h1>Action Form</h1>
 		<p>HTML web component for forms</p>
 		<section>
-			<action-form>
-				<form novalidate>
+			<action-form novalidate>
+				<af-step-toggle></af-step-toggle>
+				<form>
 					<af-progress enable-all></af-progress>
 					<af-step progress-title="Your Name">
 						<template shadowrootmode="open">
@@ -44,14 +44,16 @@
 						</fieldset>
 					</af-step>
 					<af-step>
-						<fieldset id="phones">
+						<fieldset id="phones" data-group>
 							<legend>Phone Numbers</legend>
-							<div class="instructions col-span-full flex justify-between items-center">At least one phone number is required</div>
-							<label>Home Number: <input type="tel" name="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<div class="instructions col-span-full flex justify-between items-center">
+								At least one phone number is required <span>Phones filled: <af-group-count></af-group-count></span>
+							</div>
+							<label>Home Number: <input type="tel" name="home-phone" id="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="home-phone">phone number must have 7 digits</af-error>
-							<label>Work Number: <input type="tel" name="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<label>Work Number: <input type="tel" name="work-phone" id="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="work-phone">phone number must have 7 digits</af-error>
-							<label>Mobile Number: <input type="tel" name="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
+							<label>Mobile Number: <input type="tel" name="mobile-phone" id="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="mobile-phone">phone number must have 7 digits</af-error>
 							<af-error for="phones">At least one phone number is required</af-error>
 						</fieldset>
@@ -92,7 +94,7 @@
 						</fieldset>
 					</af-step>
 					<af-step>
-						<fieldset id="animals" class="grid grid-cols-4">
+						<fieldset id="animals" class="grid grid-cols-4" data-group="1-3">
 							<legend>Favorite Animals</legend>
 							<div class="instructions col-span-full flex justify-between items-center">
 								Required (min 1, max 3)
@@ -106,10 +108,10 @@
 							<label><input type="checkbox" name="animal" value="fish" /> Fish </label>
 							<label><input type="checkbox" name="animal" value="snake" /> Snake </label>
 							<label><input type="checkbox" name="animal" value="other" /> Other </label>
-							<af-error class="col-span-full" for="animals" max="3">1-3 animals is required.</af-error>
-							<fieldset class="col-span-full" name="fieldset-animal-other" data-watch="animal" data-value="other" hidden>
+							<af-error class="col-span-full" for="animals">1-3 animals is required.</af-error>
+							<fieldset class="col-span-full" name="fieldset-animal-other" data-watch="animal" data-value="other" hidden disabled>
 								<legend>Other Animal</legend>
-								<label>Other Animal: <input type="text" name="animal-other" required /></label>
+								<label>Other Animal: <input type="text" name="animal-other" id="animal-other" required /></label>
 								<af-error for="animal-other">other is required</af-error>
 							</fieldset>
 						</fieldset>
@@ -117,10 +119,16 @@
 					<af-step>
 						<fieldset>
 							<label>Optional Comments: <textarea name="comments" placeholder="Comments"></textarea></label>
-							<label>Add another comment? <input type="checkbox" name="comments-add" /> Yes</label>
+
+							<label>Add required field to this step? <input type="checkbox" name="add-required" />Yes</label>
+							<label>Add another comment step? <input type="checkbox" name="comments-add" /> Yes</label>
+							<fieldset data-watch="add-required" hidden disabled>
+								<label>This is required <input type="checkbox" name="required-thing" id="required-thing" required /> Check Me! </label>
+								<af-error for="required-thing">Required</af-error>
+							</fieldset>
 						</fieldset>
 					</af-step>
-					<af-step data-watch="comments-add" data-value="on" hidden>
+					<af-step data-watch="comments-add" hidden>
 						<fieldset>
 							<label>Optional Comments2: <textarea name="comments2" placeholder="Comments"></textarea></label>
 						</fieldset>
@@ -131,7 +139,6 @@
 							<af-error for="terms">other is required</af-error>
 							<!-- Form fields -->
 						</fieldset>
-						<div slot="footer"><button type="reset">Reset</button> <button type="submit">Submit</button></div>
 					</af-step>
 				</form>
 			</action-form>

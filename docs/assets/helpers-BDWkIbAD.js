@@ -1,2 +1,0 @@
-function u(r,i){i.forEach(e=>{o(r,e.attr,e.type,e.defaultValue)})}function o(r,i,e="string",s){const n=i.replace(/([a-z])([A-Z])/g,"$1-$2").toLowerCase();Object.defineProperty(r,i,{get(){if(e==="string")return this.getAttribute(n)||"";if(e==="number"){const t=this.getAttribute(n);return t?Number(t):null}else if(e==="boolean")return this.hasAttribute(n)},set(t){t?(t=e==="boolean"?"":String(t),this.setAttribute(n,String(t))):this.removeAttribute(n)}}),r[i]===null&&s!==void 0&&(r[i]=s)}export{u as m};
-//# sourceMappingURL=helpers-BDWkIbAD.js.map

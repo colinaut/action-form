@@ -22,6 +22,9 @@ export default class ActionForm extends HTMLElement {
 				this.steps[0].setAttribute("active", "");
 			}
 
+			// const validationFields = this.querySelectorAll("[required],[pattern],[type=phone],[type=email],[type=url]");
+			// console.log("validationFields", validationFields.length);
+
 			this.addEventListener("af-step", (event) => {
 				const customEvent = event as CustomEvent<{ step: number | undefined }>;
 				console.log("af-step", customEvent.detail?.step);
@@ -88,14 +91,14 @@ export default class ActionForm extends HTMLElement {
 
 	private enhanceElements() {
 		const elements = this.querySelectorAll("[data-watch]") as NodeListOf<HTMLElement>;
-		elements.forEach((fieldset) => {
-			const watch = fieldset.dataset.watch;
-			const value = fieldset.dataset.value;
-			const regexStr = fieldset.dataset.regex;
+		elements.forEach((el) => {
+			const watch = el.dataset.watch;
+			const value = el.dataset.value;
+			const regexStr = el.dataset.regex;
 			// if neither watch nor value is set, assume that any value is valid. RegExp /./ tests for any value
 			const regex: RegExp | undefined = regexStr ? new RegExp(regexStr) : !regexStr && !value ? /./ : undefined;
 			if (watch) {
-				this.watchers.push({ name: watch, value, regex, el: fieldset });
+				this.watchers.push({ name: watch, value, regex, el: el });
 			}
 		});
 	}
