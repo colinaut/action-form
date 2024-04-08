@@ -31,12 +31,21 @@ export function makeAttribute(target: HTMLElement, attr: string, type: "string" 
 			}
 		},
 		set(value) {
-			if (!value) {
-				this.removeAttribute(attrKebab);
-			} else {
-				value = type === "boolean" ? "" : String(value);
-				this.setAttribute(attrKebab, String(value));
+			if (type === "number") {
+				if (typeof value === "number") {
+					value = String(value);
+				} else {
+					value = null;
+				}
 			}
+			if (type === "boolean") {
+				value = value ? "" : null;
+			}
+			if (value === null) {
+				this.removeAttribute(attrKebab);
+				return;
+			}
+			this.setAttribute(attrKebab, String(value));
 		},
 	});
 
