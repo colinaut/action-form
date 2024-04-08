@@ -1,4 +1,3 @@
-import type ActionFormStep from "./af-step";
 import type ActionForm from "./action-form";
 export default class ActionFormProgress extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -6,7 +5,7 @@ export default class ActionFormProgress extends HTMLElement {
 		super();
 		this.shadow = this.attachShadow({ mode: "open" });
 
-		if (!this.actionForm || !this.steps) return;
+		if (!this.actionForm?.steps) return;
 
 		this.actionForm.addEventListener("af-step", () => {
 			console.log("af-step listener called");
@@ -27,18 +26,16 @@ export default class ActionFormProgress extends HTMLElement {
 		});
 	}
 
-	private form = this.closest("form");
 	private actionForm = this.closest("action-form") as ActionForm | null;
-	private steps: NodeListOf<ActionFormStep> | undefined = this.actionForm?.steps;
 
 	get stepIndex(): number {
 		return this.actionForm?.stepIndex || 0;
 	}
 
 	private render() {
-		if (!this.form || !this.actionForm?.steps) return;
+		if (!this.actionForm?.steps) return;
 
-		const progressPercentage = (this.stepIndex / (this.actionForm?.steps.length - 1)) * 100;
+		const progressPercentage = (this.stepIndex / (Array.from(this.actionForm.steps).filter((step) => !step.hidden).length - 1)) * 100;
 
 		// TODO: simplify this
 		const style = `
@@ -118,6 +115,7 @@ export default class ActionFormProgress extends HTMLElement {
         <div class="progress" part="progress" style="width: ${progressPercentage}%;"></div>
         <nav part="nav">
         ${Array.from(this.actionForm?.steps)
+			.filter((step) => !step.hidden)
 			.map((step, index) => {
 				const active = index === this.stepIndex ? "active" : "";
 				const completed = step.completed ? "completed" : "";
