@@ -82,7 +82,11 @@
 									<option value="support">Support</option>
 								</select>
 							</label>
-							<fieldset data-watch="subject" data-regex="sales|support" hidden>This is sales or support!!!</fieldset>
+							<div>
+								<em data-watch="subject" data-value="general" hidden>Not sure what you want? Neither do we.</em>
+								<em data-watch="subject" data-value="sales" hidden>Thanks for contacting sales!!!</em>
+								<em data-watch="subject" data-value="support" hidden>Ok fine we will support you</em>
+							</div>
 							<div>
 								<label for="message"
 									>Message:
@@ -135,10 +139,13 @@
 					</af-step>
 					<af-step>
 						<fieldset id="submit">
-							<label><input type="checkbox" name="terms" required /> I agree to the terms and conditions</label>
-							<af-error for="terms">other is required</af-error>
+							<label><input type="checkbox" name="terms" id="terms" required /> I agree to the terms and conditions</label>
+							<af-error for="terms"></af-error>
 							<!-- Form fields -->
 						</fieldset>
+					</af-step>
+					<af-step>
+						<af-preview></af-preview>
 					</af-step>
 				</form>
 			</action-form>
