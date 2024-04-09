@@ -77,7 +77,9 @@
 									<option value="support">Support</option>
 								</select>
 							</label>
-							<fieldset data-watch="subject" data-regex="sales|support" hidden>This is sales or support!!!</fieldset>
+							<div data-watch="subject" data-value="general" hidden>Not sure what you want? Neither do we.</div>
+							<div data-watch="subject" data-value="sales" hidden>Thanks for contacting sales!!!</div>
+							<div data-watch="subject" data-value="support" hidden>Ok fine we will support you</div>
 							<div>
 								<label for="message"
 									>Message:
@@ -134,6 +136,9 @@
 							<af-error for="terms">other is required</af-error>
 							<!-- Form fields -->
 						</fieldset>
+					</af-step>
+					<af-step>
+						<af-preview></af-preview>
 					</af-step>
 				</form>
 			</action-form>
