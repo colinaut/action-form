@@ -18,23 +18,45 @@ export default class ActionForm extends HTMLElement {
 				form.setAttribute("novalidate", "");
 			}
 
-			if (this.steps.length > 0) {
-				this.steps[0].setAttribute("active", "");
-			}
+			this.steps.forEach((step, i) => {
+				step.setAttribute("index", String(i)); // step.index = i;
+				if (i === 0) {
+					step.classList.add("active");
+					step.classList.add("first");
+				}
+				if (i === this.steps.length - 1) {
+					step.classList.add("last");
+				}
+			});
 
 			// const validationFields = this.querySelectorAll("[required],[pattern],[type=phone],[type=email],[type=url]");
 			// console.log("validationFields", validationFields.length);
 
 			this.addEventListener("af-step", (event) => {
-				const customEvent = event as CustomEvent<{ step: number | undefined }>;
+				const customEvent = event as CustomEvent<{ step: number | undefined; direction: "next" | "prev" }>;
 				console.log("af-step", customEvent.detail?.step);
-				if (customEvent.detail?.step === undefined) return;
-				this.stepIndex = customEvent.detail.step;
+				let stepIndex = this.stepIndex;
+				if (typeof customEvent.detail?.step === "number") {
+					stepIndex = customEvent.detail.step;
+				} else if (customEvent.detail?.direction === "next") {
+					stepIndex++;
+				} else if (customEvent.detail?.direction === "prev") {
+					stepIndex--;
+				}
+				// make sure stepIndex is within bounds
+				stepIndex = Math.max(0, Math.min(stepIndex, this.steps.length - 1));
+				// set this.stepIndex
+				this.stepIndex = stepIndex;
+				// set active based on index
 				Array.from(this.steps)
 					.filter((step) => !step.hidden)
 					.forEach((step, i) => {
 						// set active based on index
-						step.active = i === this.stepIndex;
+						if (i === this.stepIndex) {
+							step.classList.add("active");
+						} else {
+							step.classList.remove("active");
+						}
 					});
 			});
 

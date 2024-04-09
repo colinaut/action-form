@@ -11,7 +11,7 @@ export default class ActionFormStep extends HTMLElement {
 	private actionForm!: ActionForm;
 	private numberOfSteps!: number;
 
-	// Attributes
+	// Reflected Attributes
 	get valid(): boolean {
 		return this.hasAttribute("valid");
 	}
@@ -24,16 +24,24 @@ export default class ActionFormStep extends HTMLElement {
 		}
 	}
 
-	get active(): boolean {
-		return this.hasAttribute("active");
+	get index(): number | undefined {
+		return Number(this.getAttribute("index") || 0);
 	}
 
-	set active(value: boolean) {
-		if (value) {
-			this.setAttribute("active", "");
-		} else {
-			this.removeAttribute("active");
+	set index(value: number) {
+		this.setAttribute("index", String(value));
+	}
+
+	// Method Getter
+	get isValid(): boolean {
+		// console.log("isValid", this.querySelectorAll(":invalid"));
+		const afGroupCount = this.querySelector("af-group-count") as ActionFormGroupCount | null;
+		let valid = true;
+		if (afGroupCount) {
+			valid = afGroupCount.validity;
 		}
+
+		return valid && this.querySelectorAll(":invalid").length === 0;
 	}
 
 	constructor() {
@@ -51,11 +59,9 @@ export default class ActionFormStep extends HTMLElement {
 
 		// update validity and completed when change event is fired
 		this.this.addEventListener("change", () => {
-			console.log("af-step change isValid", this.isValid);
+			// console.log("af-step change isValid", this.isValid);
 			this.valid = this.isValid;
 		});
-
-		this.setAttribute("index", String(this.thisStep));
 
 		// trigger next or prev step
 		this.this.addEventListener("click", (e) => {
@@ -76,53 +82,7 @@ export default class ActionFormStep extends HTMLElement {
 		});
 	}
 
-	get isValid(): boolean {
-		// console.log("isValid", this.querySelectorAll(":invalid"));
-		const afGroupCount = this.querySelector("af-group-count") as ActionFormGroupCount | null;
-		let valid = true;
-		if (afGroupCount) {
-			valid = afGroupCount.validity;
-		}
-
-		return valid && this.querySelectorAll(":invalid").length === 0;
-	}
-
-	// TODO: clean this up
-	get thisStep(): number {
-		return (
-			(this.actionForm?.steps &&
-				Array.from(this.actionForm.steps)
-					.filter((step) => !step.hidden)
-					.indexOf(this)) ||
-			0
-		);
-	}
-
-	get nextStep(): number | null {
-		return this.thisStep + 1 < this.numberOfSteps ? this.thisStep + 1 : null;
-	}
-	get prevStep(): number | null {
-		return this.thisStep - 1 >= 0 ? this.thisStep - 1 : null;
-	}
-
-	get thisAllStep(): number {
-		return (this.actionForm?.steps && Array.from(this.actionForm.steps).indexOf(this)) || 0;
-	}
-
-	get nextAllStep(): number | null {
-		return this.thisAllStep + 1 < this.numberOfSteps ? this.thisAllStep + 1 : null;
-	}
-	get prevAllStep(): number | null {
-		return this.thisAllStep - 1 >= 0 ? this.thisAllStep - 1 : null;
-	}
-
 	public step(direction: "prev" | "next" = "next") {
-		const directionIndex = direction === "next" ? this.nextStep : this.prevStep;
-		// guard against negative step
-		if (directionIndex === null) return;
-
-		// console.log("🚀 ~ FormStep ~ step ~ directionIndex:", directionIndex);
-
 		// If button is next check if any elements are invalid before moving to next step
 		if (direction === "next") {
 			const fields = this.querySelectorAll("input, select, textarea, af-group-count") as NodeListOf<
@@ -148,9 +108,7 @@ export default class ActionFormStep extends HTMLElement {
 
 			if (!allValid) return;
 		}
-
-		this.active = false;
-		this.dispatchEvent(new CustomEvent("af-step", { bubbles: true, detail: { step: directionIndex } }));
+		this.dispatchEvent(new CustomEvent("af-step", { bubbles: true, detail: { direction } }));
 	}
 
 	public connectedCallback(): void {
@@ -169,9 +127,9 @@ export default class ActionFormStep extends HTMLElement {
 			const stepButton = (direction: "Next" | "Prev") => {
 				return `<button type="button" class="af-step-${direction.toLowerCase()}" part="step-btn">${direction}</button>`;
 			};
-			const submit = `<button type="submit" part="submit">Submit</button>`;
-			nav.innerHTML = `${this.prevAllStep !== null ? stepButton("Prev") : `<span></span>`}
-            ${this.nextAllStep !== null ? stepButton("Next") : submit}`;
+			const leftBtn = this.classList.contains("first") ? `<span></span>` : stepButton("Prev");
+			const rightBtn = this.classList.contains("last") ? `<button type="submit" part="submit">Submit</button>` : stepButton("Next");
+			nav.innerHTML = `${leftBtn}${rightBtn}`;
 			this.this.appendChild(nav);
 		}
 	}
