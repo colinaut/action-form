@@ -80,27 +80,31 @@ export default class ActionForm extends HTMLElement {
 					}
 				}
 
-				// Get FormData for watchers
-				const formData = new FormData(form);
-				if (!formData || this.watchers.length === 0) return;
-
-				// Loop through watchers
-				this.watchers.forEach((watcher) => {
-					const values = formData.getAll(watcher.name);
-					// console.log("watchers values", values, watcher);
-
-					// typeof value === "string" is to ignore formData files
-					const valid = values.some((value) => typeof value === "string" && (value === watcher.value || (watcher.regex && watcher.regex.test(value))));
-					// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
-					if (watcher.el.hasAttribute("hidden") !== valid) return;
-					// console.log("watcher", watcher.name, valid);
-					// Else show/hide it
-					this.show(watcher.el, valid);
-					// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
-					if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
-				});
+				this.checkWatchers();
 			});
 		}
+	}
+
+	public checkWatchers() {
+		// Get FormData for watchers
+		const form = this.querySelector("form");
+		if (!form || this.watchers.length === 0) return;
+		const formData = new FormData(form);
+		// Loop through watchers
+		this.watchers.forEach((watcher) => {
+			const values = formData.getAll(watcher.name);
+			// console.log("watchers values", values, watcher);
+
+			// typeof value === "string" is to ignore formData files
+			const valid = values.some((value) => typeof value === "string" && (value === watcher.value || (watcher.regex && watcher.regex.test(value))));
+			// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
+			if (watcher.el.hasAttribute("hidden") !== valid) return;
+			// console.log("watcher", watcher.name, valid);
+			// Else show/hide it
+			this.show(watcher.el, valid);
+			// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
+			if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
+		});
 	}
 
 	get steps(): NodeListOf<ActionFormStep> {
@@ -123,6 +127,9 @@ export default class ActionForm extends HTMLElement {
 				this.watchers.push({ name: watch, value, regex, el: el });
 			}
 		});
+
+		// set Watchers from the start
+		this.checkWatchers();
 	}
 
 	private show(el: HTMLElement, show: boolean): void {
