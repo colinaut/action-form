@@ -77,6 +77,10 @@ Displays the number of characters in a text input field or textarea
 - [x] Add ability to add/remove steps (steps could watch like fieldsets)
 - [x] Ability to switch between stepped and long form for users
 - [x] Switch to using data-group="min,max" for fieldset groups
+- [x] Component that displays all of the FormData as a list. This can be used as a pre-submit to check everything.
+- [x] Make it so that the prev/next works with added steps and removed steps and that submit button is added at the end
+- [x] Clean up af-step code
+- [x] Make so watchers are set onload for form elements that have their values set initially
 - [ ] Automatically add af-error elements to form unless they exist already
 - [ ] Make sure that resetting the form also hides all error messages
 - [ ] Need to test submitting the form and triggering errors
