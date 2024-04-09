@@ -48,6 +48,10 @@ export default class ActionFormError extends HTMLElement {
 			// Make id and add aria-describedby attribute to the target element
 			this.addAria(el);
 		}
+		// Add "Required" text is there is no text
+		if (!this.textContent) {
+			this.textContent = "Required";
+		}
 	}
 
 	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
