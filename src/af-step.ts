@@ -7,10 +7,6 @@ export default class ActionFormStep extends HTMLElement {
 	// TODO: test this with a browser that does not have Declarative Shadow DOM
 	private this: this | ShadowRoot;
 
-	// properties grabbed from action-form
-	private actionForm!: ActionForm;
-	private numberOfSteps!: number;
-
 	// Reflected Attributes
 	get valid(): boolean {
 		return this.hasAttribute("valid");
@@ -54,8 +50,6 @@ export default class ActionFormStep extends HTMLElement {
 		// af-step requires action-form wrapper. Exit if it is not found
 		const actionForm = this.closest("action-form") as ActionForm | null;
 		if (!actionForm) return;
-		this.actionForm = actionForm;
-		this.numberOfSteps = actionForm.steps?.length || 0;
 
 		// update validity and completed when change event is fired
 		this.this.addEventListener("change", () => {
