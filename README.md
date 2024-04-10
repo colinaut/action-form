@@ -9,22 +9,25 @@ Base wrapper. This wrapper enhances fieldsets with the ability to show and hide 
 ### Attributes
 
 * novalidate - sets novalidate on form when defined
+* auto-error - automatically adds af-error elements for fields that require validation, unless there is already a matching af-error.
 
-## Enhanced Fieldset
+## Watchers
 
-To enhance a fieldset or an af-step so that it automatically show/hides and disables  use the following data attributes.
+Used to make any element automatically hide(add `disable` and `hidden` attributes) or show(remove `disable` and `hidden` attributes) based on the value of a field. 
+
+Use the following attributes on any element to have action-form turn them into watchers. This includes af-step, which allows you to show/hide steps. Note: `disable` only works to disable fields when set on the field itself or a parent fieldset. So if you need to hide a step and disable all fields in a step, the a watcher needs to be set on the fields or a parent fieldset as well.
 
 ### Attributes
 
-* data-watch - name of the field to watch
-* data-value - value to match against the field's value
+* data-watch - name of the field to watch for changes. _If set without value or regex it will match if there is any value or if it is checked._
+* data-value - value to exact match against the field's value
 * data-regex - regex to use for testing against the field's value
 
 ## `<af-error>`
 
-Error message element which watches fields or fieldsets to see if they are invalid and displays the error if so. It will set the proper aria-labelledby attribute and aria-invalid attribute.
+Error message element which watches fields or fieldsets to see if they are invalid and displays the error if so. It will set the proper aria-labelledby attribute and aria-invalid attribute. If the element has no content, then "Required" will automatically be added.
 
-This element also allows checking groups of fields in a fieldset to see if a minimum number of of them are checked or have values filled in. When watching a fieldset the element will automatically add `<af-group-count>` element unless it already exists in the fieldset.
+This element also allows checking groups of fields in a fieldset to see if a minimum number of of them are checked or have values filled in. When watching a fieldset the element will automatically add a hidden by default `<af-group-count>` element unless it already exists in the fieldset.
 
 ### Attributes
 
@@ -34,13 +37,11 @@ This element also allows checking groups of fields in a fieldset to see if a min
 
 ## `<af-group-count>`
 
-Shadow DOM element that displays the number of checked or valid fields in a fieldset. It also indicates validity based on the min or max value.
-
+Shadow DOM element that displays the number of checked or valid fields in a fieldset. It also indicates validity based on the min or max value. The af-error automatically adds this; however you can add your own instead if you want it to be visible.
 
 ## `<af-step>`
 
-Form step wrapper. Automatically adds previous and next buttons unless footer is overridden. This element is light DOM unless you add a declarative shadow DOM template.
-
+Form step wrapper. Automatically adds previous, next, and a final submit buttons unless footer is overridden. This element is light DOM unless you add a declarative shadow DOM template.
 
 ## `<af-progress>`
 
@@ -81,7 +82,7 @@ Displays the number of characters in a text input field or textarea
 - [x] Make it so that the prev/next works with added steps and removed steps and that submit button is added at the end
 - [x] Clean up af-step code
 - [x] Make so watchers are set onload for form elements that have their values set initially
-- [ ] Automatically add af-error elements to form unless they exist already
+- [x] Automatically add af-error elements to form unless they exist already
 - [ ] Make sure that resetting the form also hides all error messages
 - [ ] Need to test submitting the form and triggering errors
 - [ ] QA all of it

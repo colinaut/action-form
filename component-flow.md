@@ -11,23 +11,30 @@
 
 ### Methods
 
-* Step change functionality for `<af-step>`
-* Watcher functionality for show/hide and enable/disable of data-watch elements
+* Private Step change method for `<af-step>` triggered by "af-step" custom event listener
+  * The "af-step" custom event listener uses detail of either the index to change to or the direction from the current active step { step?: number, direction?: "next"|"prev" }
+  * NOTE: If you have hidden steps they will be skipped over. For instance if you have 6 steps (0-5 index) and index 3 is hidden then index 4 becomes index 3 for the purposes of this function.
+* checkWatchers() — Loops through watchers for show/hide and enable/disable of data-watch elements
 
 ### Constructor Init
 
-1. (optional) Sets novalidate on form if `novalidate` attribute is added
-2. If any `<af-step>` children exist, sets `active` attribute on first af-step element
+1. (optional) if `novalidate` attribute is added, sets novalidate on form 
+2. If any `<af-step>` children exist, sets `first active` classes on first af-step element and `last` class on last
 3. Adds listener for `af-step` custom event which changes which af-step is `active` based on step number event detail
-4. Queries for fieldsets and af-steps which have data-watch attribute
+4. (optional) if `auto-error` attribute is added, then it adds af-errors for fields that need them
+   1. Queries for fields with `[required],[pattern],[type=phone],[type=email],[type=url]`
+   2. Searches for `<af-error>` either by the field id or as siblings of parent `<label>` element.
+   3. If neither are found it adds an `<af-error>` element after the field.
+   4. If the field has data-error="error text" attribute then that is used for the textContent of the af-error.
+5. Queries for fieldsets and af-steps which have data-watch attribute
    1. Creates watchers array which allows hide/show functionality. Array has the following properties:
       1.  el: HTMLElement with data-watch attribute
       2.  name: value of data-watch attribute; name of form element to watch for changes
       3.  value: value of data-value attribute; value to match named form element's value
       4.  regex: value of data-regex attribute; regex to test named form element's value
       5.  Either value or regex is required, but not both
-  2.  _Currently hidden and disabled need to be set manually to hide on load. Maybe this should be automatically handled?_
-5. Adds listener for `change` event which show/hide and enable/disable based on watchers array
+  1.  _Currently hidden and disabled need to be set manually to hide on load. Maybe this should be automatically handled?_
+6. Adds listener for `change` event which show/hide and enable/disable based on watchers array
    1. If event target is a field or af-group-count element, check validity and update error visibility
    2. Loop through watchers array using FormData with getAll(watcher.name) and tests against it with either the value or regex
       1. If value matches or regex tests false, then the watcher element has hidden and disabled added
@@ -35,7 +42,7 @@
 
 ## `<af-error>`
 
-This is a light DOM element hide/showing any html content inside based on validation of the target field or fieldset. The af-error is hidden by default via css. The `invalid` attribute makes it visible.
+This is a light DOM element hide/showing based on validation of the target field or fieldset. The af-error is hidden by default via css. The `invalid` attribute makes it visible. If the element has no textContent then it automatically adds "Required".
 
 ### connectedCallback Init
 
@@ -91,14 +98,17 @@ Wrapper element for form steps. Works as either a light DOM or declarative shado
 ## Public Reflected Attribute Properties
 
 * valid: if all fields in step are valid
-* active: if this step is actively worked on
+* index: index of step
+
+## Classes
+
+* active: current active step
+* first: first step
+* last: last step
 
 ## Getters
 
 * isValid: is all fields valid
-* thisStep: index of this step based on indexOf from this.actionForm.steps
-* nextStep: next step index; null if on last step
-* prevStep: previous step index; null if on first step
 
 ## Constructor Init
 

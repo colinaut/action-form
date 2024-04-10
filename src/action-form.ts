@@ -3,6 +3,10 @@ import type ActionFormError from "./af-error";
 import type ActionFormGroupCount from "./af-group-count";
 
 export default class ActionForm extends HTMLElement {
+	public stepIndex: number = 0; // current step
+
+	private watchers: { el: HTMLElement; name: string; value?: string; regex?: RegExp }[] = [];
+
 	constructor() {
 		super();
 		document.documentElement.classList.add("js");
@@ -21,19 +25,17 @@ export default class ActionForm extends HTMLElement {
 			this.steps.forEach((step, i) => {
 				step.setAttribute("index", String(i)); // step.index = i;
 				if (i === 0) {
-					step.classList.add("active");
-					step.classList.add("first");
+					step.classList.add("first", "active");
 				}
 				if (i === this.steps.length - 1) {
 					step.classList.add("last");
 				}
 			});
 
-			// const validationFields = this.querySelectorAll("[required],[pattern],[type=phone],[type=email],[type=url]");
 			// console.log("validationFields", validationFields.length);
 
 			this.addEventListener("af-step", (event) => {
-				const customEvent = event as CustomEvent<{ step: number | undefined; direction: "next" | "prev" }>;
+				const customEvent = event as CustomEvent<{ step?: number; direction?: "next" | "prev" }>;
 				console.log("af-step", customEvent.detail?.step);
 				let stepIndex = this.stepIndex;
 				if (typeof customEvent.detail?.step === "number") {
@@ -59,6 +61,34 @@ export default class ActionForm extends HTMLElement {
 						}
 					});
 			});
+
+			// Find all fields that require validation error messages
+			if (this.hasAttribute("auto-error")) {
+				const validationFields = this.querySelectorAll("[required],[pattern],[type=phone],[type=email],[type=url]") as NodeListOf<
+					HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+				>;
+				validationFields.forEach((field) => {
+					let id = field.getAttribute("id") || "";
+					// Check if there is an af-error attribute for the field, either by id or withing parent label
+					const errorById = form.querySelector(`af-error[for="${id}"]`);
+					const errorByProximity = field.closest("label")?.querySelector(`af-error`);
+					if (!errorById && !errorByProximity) {
+						// if not then make one
+						const error = document.createElement("af-error");
+						// Use data-error for content
+						error.textContent = field.dataset.error || "";
+						// If there is no id attribute on field then make one just to make things easier
+						if (!id) {
+							id = `${field.id || field.name || field.tagName.toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`;
+							field.setAttribute("id", id);
+						}
+						error.setAttribute("for", id);
+						// add af-error after field
+						field.after(error);
+						console.log(`Added Error Message for ${field.tagName.toLowerCase()}[${field.name}] #${id}`);
+					}
+				});
+			}
 
 			this.enhanceElements();
 
@@ -110,10 +140,6 @@ export default class ActionForm extends HTMLElement {
 	get steps(): NodeListOf<ActionFormStep> {
 		return this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	}
-
-	public stepIndex: number = 0; // current step
-
-	private watchers: { el: HTMLElement; name: string; value?: string; regex?: RegExp }[] = [];
 
 	private enhanceElements() {
 		const elements = this.querySelectorAll("[data-watch]") as NodeListOf<HTMLElement>;

@@ -49,7 +49,6 @@ export default class ActionFormPreview extends HTMLElement {
 
 	render() {
 		const data = this.getFormData();
-		console.log("data", data);
 
 		this.innerHTML = `${data
 			?.map(
