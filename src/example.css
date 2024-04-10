@@ -122,3 +122,20 @@ af-progress {
 af-step[completed] {
 	outline: 2px solid #0096bfab;
 }
+
+label {
+	position: relative;
+}
+label:has(> [required])::after {
+	content: "*";
+	color: coral;
+	font-weight: bold;
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 1.2em;
+}
+.required {
+	color: coral;
+	font-weight: bold;
+}

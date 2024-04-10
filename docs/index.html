@@ -23,6 +23,7 @@
 		<section>
 			<action-form novalidate>
 				<af-step-toggle></af-step-toggle>
+				<p><span class="required">*</span> Required</p>
 				<form>
 					<af-progress enable-all></af-progress>
 					<af-step progress-title="Your Name">
@@ -39,8 +40,9 @@
 						</template>
 						<fieldset name="names">
 							<legend>Your Name</legend>
-							<label>First Name: <input type="text" name="first-name" required /> <af-error>First Name is required</af-error></label>
-							<label>Last Name: <input type="text" name="last-name" required /> <af-error>Last Name is required</af-error></label>
+							<label>First Name: <input type="text" name="first-name" required value="Sophia" /> <af-error>First Name is required</af-error></label>
+							<label>Last Name: <input type="text" name="lastName" required value="Lorem" /> <af-error>Last Name is required</af-error></label>
+							<label>Nick Name: <input type="text" name="nick_name" value="Puppy!" /></label>
 						</fieldset>
 					</af-step>
 					<af-step>
@@ -145,7 +147,7 @@
 						</fieldset>
 					</af-step>
 					<af-step>
-						<af-preview></af-preview>
+						<af-preview title-case></af-preview>
 					</af-step>
 				</form>
 			</action-form>

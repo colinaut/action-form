@@ -1,3 +1,13 @@
+function convertToTitleCase(str: string): string {
+	return str
+		.replace(/[-_](.)/g, function (match) {
+			return " " + match.charAt(1).toUpperCase();
+		})
+		.replace(/([a-z])([A-Z])/g, "$1 $2")
+		.replace(/^./, function (match) {
+			return match.toUpperCase();
+		});
+}
 export default class ActionFormPreview extends HTMLElement {
 	private form!: HTMLFormElement | null;
 
@@ -41,7 +51,14 @@ export default class ActionFormPreview extends HTMLElement {
 		const data = this.getFormData();
 		console.log("data", data);
 
-		this.innerHTML = `${data?.map((item) => `<p><strong>${item.key}</strong>: ${item.value.map((value) => `<span>${value}</span>`).join("")}</p>`).join("")}`;
+		this.innerHTML = `${data
+			?.map(
+				(item) =>
+					`<p><strong>${this.hasAttribute("title-case") ? convertToTitleCase(item.key) : item.key}</strong>: ${item.value
+						.map((value) => `<span>${value}</span>`)
+						.join("")}</p>`
+			)
+			.join("")}`;
 	}
 }
 
