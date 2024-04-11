@@ -55,7 +55,7 @@ export default class ActionFormPreview extends HTMLElement {
 				(item) =>
 					`<p><strong>${this.hasAttribute("title-case") ? convertToTitleCase(item.key) : item.key}</strong>: ${item.value
 						.map((value) => `<span>${value}</span>`)
-						.join("")}</p>`
+						.join(", ")}</p>`
 			)
 			.join("")}`;
 	}
