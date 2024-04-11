@@ -108,23 +108,26 @@ export default class ActionForm extends HTMLElement {
 							// console.log("target", target, errorId, valid);
 						}
 					}
-				}
 
-				this.checkWatchers();
+					// check if field has a name match in the watcher array
+					const watchers = this.watchers.filter((w) => w.name === field.name);
+					if (watchers.length > 0) {
+						this.checkWatchers(watchers);
+					}
+				}
 			});
 		}
 	}
 
-	public checkWatchers() {
+	public checkWatchers(watchers = this.watchers) {
 		// Get FormData for watchers
 		const form = this.querySelector("form");
-		if (!form || this.watchers.length === 0) return;
+		if (!form || watchers.length === 0) return;
 		const formData = new FormData(form);
 		// Loop through watchers
-		this.watchers.forEach((watcher) => {
+		watchers.forEach((watcher) => {
 			const values = formData.getAll(watcher.name);
 			// console.log("watchers values", values, watcher);
-
 			// typeof value === "string" is to ignore formData files
 			const valid = values.some((value) => typeof value === "string" && (value === watcher.value || (watcher.regex && watcher.regex.test(value))));
 			// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
@@ -155,7 +158,7 @@ export default class ActionForm extends HTMLElement {
 					if (parts.length > 1) {
 						const value = JSON.parse(ls)[parts[1]];
 						if (value) {
-							el.value = value;
+							el.value = String(value);
 						}
 					} else {
 						el.value = ls;

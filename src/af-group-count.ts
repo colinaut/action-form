@@ -7,6 +7,7 @@ export default class ActionFormGroupCount extends HTMLElement {
 	public shadow: ShadowRoot;
 	public value: number = this.getValue();
 	public validity: boolean = this.checkValidity();
+	public name: string = this.getAttribute("name") || "";
 
 	// Reflected attribute properties
 	get min(): number {
@@ -70,7 +71,7 @@ export default class ActionFormGroupCount extends HTMLElement {
 		if (value !== this.value) {
 			this.value = value;
 			this.shadow.innerHTML = `${value}`;
-			console.log("🚀 ~ value:", value, this.value, this.min, this.max, this.validity);
+			// console.log("🚀 ~ value:", value, this.value, this.min, this.max, this.validity);
 			this.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
 		}
 		this.validity = value >= this.min && value <= this.max;
