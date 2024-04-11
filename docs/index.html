@@ -25,6 +25,8 @@
 				<af-step-toggle></af-step-toggle>
 				<p><span class="required">*</span> Required</p>
 				<form>
+					<input type="hidden" name="token" data-stored="lilRedAuthToken" />
+					<input type="hidden" name="sort" data-stored="action-table-big-table.sort" />
 					<af-progress enable-all></af-progress>
 					<af-step progress-title="Your Name">
 						<template shadowrootmode="open">
