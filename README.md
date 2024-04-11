@@ -83,6 +83,7 @@ Displays the number of characters in a text input field or textarea
 - [x] Clean up af-step code
 - [x] Make so watchers are set onload for form elements that have their values set initially
 - [x] Automatically add af-error elements to form unless they exist already
+- [x] Add ability to grab values from localStorage data-get-ls="lsname" which can be used on hidden input fields
 - [ ] Make sure that resetting the form also hides all error messages
 - [ ] Need to test submitting the form and triggering errors
 - [ ] QA all of it

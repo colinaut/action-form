@@ -142,8 +142,31 @@ export default class ActionForm extends HTMLElement {
 	}
 
 	private enhanceElements() {
-		const elements = this.querySelectorAll("[data-watch]") as NodeListOf<HTMLElement>;
-		elements.forEach((el) => {
+		// TODO: see if there is a better way to do this
+		// find all elements with stored values and set value
+		const storedElements = this.querySelectorAll("input[data-stored]") as NodeListOf<HTMLElement>;
+		storedElements.forEach((el) => {
+			const stored = el.dataset.stored;
+			if (stored && el instanceof HTMLInputElement) {
+				// split stored by periods
+				const parts = stored.split(".");
+				const ls = localStorage.getItem(parts[0]);
+				if (ls) {
+					if (parts.length > 1) {
+						const value = JSON.parse(ls)[parts[1]];
+						if (value) {
+							el.value = value;
+						}
+					} else {
+						el.value = ls;
+					}
+				}
+			}
+		});
+
+		// find all watchers and create watcher array
+		const watchers = this.querySelectorAll("[data-watch]") as NodeListOf<HTMLElement>;
+		watchers.forEach((el) => {
 			const watch = el.dataset.watch;
 			const value = el.dataset.value;
 			const regexStr = el.dataset.regex;
