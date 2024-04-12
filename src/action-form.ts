@@ -149,6 +149,7 @@ export default class ActionForm extends HTMLElement {
 				if (this.hasAttribute("store")) {
 					localStorage.removeItem(`action-form-${this.id}`);
 				}
+				this.dispatchEvent(new CustomEvent("af-step", { detail: { step: 0 } }));
 			});
 
 			this.addEventListener("submit", () => {
