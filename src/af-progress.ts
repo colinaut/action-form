@@ -8,7 +8,6 @@ export default class ActionFormProgress extends HTMLElement {
 		if (!this.actionForm?.steps) return;
 
 		this.actionForm.addEventListener("af-step", () => {
-			console.log("af-step listener called");
 			this.render();
 		});
 
@@ -35,7 +34,7 @@ export default class ActionFormProgress extends HTMLElement {
 	private render() {
 		if (!this.actionForm?.steps) return;
 
-		const progressPercentage = (this.stepIndex / (Array.from(this.actionForm.steps).filter((step) => !step.hidden).length - 1)) * 100;
+		const progressPercentage = (this.stepIndex / (Array.from(this.actionForm.steps).filter((step) => !(step.style.display === "none")).length - 1)) * 100;
 
 		// TODO: simplify this
 		const style = `
@@ -115,7 +114,7 @@ export default class ActionFormProgress extends HTMLElement {
         <div class="progress" part="progress" style="width: ${progressPercentage}%;"></div>
         <nav part="nav">
         ${Array.from(this.actionForm?.steps)
-			.filter((step) => !step.hidden)
+			.filter((step) => !(step.style.display === "none"))
 			.map((step, index) => {
 				const active = index === this.stepIndex ? "active" : "";
 				const valid = step.valid ? "valid" : "";
@@ -123,7 +122,7 @@ export default class ActionFormProgress extends HTMLElement {
 				const title = step.getAttribute("progress-title") || "";
 				return `<button type="button" part="step ${valid} ${active}" ${disabled} title="${title}" class="step ${valid} ${active}" ${
 					active && `aria-current="step"`
-				} aria-label="Step ${index + 1}" data-index="${index}">${index + 1}</button>`;
+				} aria-label="Step ${index + 1}" data-index="${step.index}">${index + 1}</button>`;
 			})
 			.join("")}
         </nav>

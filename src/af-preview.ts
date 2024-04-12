@@ -30,7 +30,6 @@ export default class ActionFormPreview extends HTMLElement {
 	getFormData() {
 		if (!this.form) return;
 		const formData = new FormData(this.form);
-		console.log("formData", formData);
 
 		const keys = [...new Set(Array.from(formData.keys()))];
 		return keys

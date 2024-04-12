@@ -94,6 +94,7 @@ export default class ActionFormGroupCount extends HTMLElement {
 		const flags = this.validity ? {} : { customError: true };
 		const message = this.validity ? "" : "Value is out of range";
 		this.internals.setValidity(flags, message);
+		this.setAttribute("validity", String(this.validity));
 	}
 }
 

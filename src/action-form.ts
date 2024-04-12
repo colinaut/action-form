@@ -2,11 +2,14 @@ import type ActionFormStep from "./af-step";
 import type ActionFormError from "./af-error";
 import type ActionFormGroupCount from "./af-group-count";
 
-function isField(el: Element): el is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement {
+type FormField = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+
+function isField(el: Element): el is FormField {
 	return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement;
 }
 
 export default class ActionForm extends HTMLElement {
+	public steps = this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	public stepIndex: number = 0; // current step
 
 	private watchers: { el: HTMLElement; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
@@ -54,16 +57,14 @@ export default class ActionForm extends HTMLElement {
 				// set this.stepIndex
 				this.stepIndex = stepIndex;
 				// set active based on index
-				Array.from(this.steps)
-					.filter((step) => !step.hidden)
-					.forEach((step, i) => {
-						// set active based on index
-						if (i === this.stepIndex) {
-							step.classList.add("active");
-						} else {
-							step.classList.remove("active");
-						}
-					});
+				Array.from(this.steps).forEach((step, i) => {
+					// set active based on index
+					if (i === this.stepIndex) {
+						step.classList.add("active");
+					} else {
+						step.classList.remove("active");
+					}
+				});
 			});
 
 			// Find all fields that require validation error messages
@@ -99,7 +100,7 @@ export default class ActionForm extends HTMLElement {
 			this.addEventListener("change", (event) => {
 				const target = event.target;
 				if (target instanceof HTMLElement && target.matches("input, textarea, select, af-group-count")) {
-					const field = target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | ActionFormGroupCount;
+					const field = target as FormField | ActionFormGroupCount;
 
 					// if target has an error message, show/hide it
 					const errorId = field.getAttribute("aria-describedby");
@@ -161,21 +162,23 @@ export default class ActionForm extends HTMLElement {
 				if (!formValid) {
 					e.preventDefault();
 					console.error("Form validation failed");
-					// find first invalid field
-					// TODO: get working for af-group-count fieldset groups
-					const invalidField = form.querySelector("input:invalid, select:invalid, textarea:invalid");
+					// find first invalid field or invalid af-group-count
+					const invalidField = form.querySelector("input:invalid, select:invalid, textarea:invalid, af-group-count[validity=false]") as FormField | null;
 					if (invalidField) {
 						const parentStep = invalidField.closest("af-step") as null | ActionFormStep;
 						// check if that field is a child of an af-step element
 						if (parentStep) {
 							// move to that step
-							// TODO: test this with hidden steps
 							this.dispatchEvent(new CustomEvent("af-step", { detail: { step: parentStep.index } }));
 						}
 
 						console.log("invalidField", invalidField);
-
-						invalidField.focus();
+						if (invalidField.matches("af-group-count")) {
+							const otherField = invalidField.closest("fieldset")?.querySelector("input, select, textarea") as FormField | null;
+							otherField?.focus();
+						} else {
+							invalidField.focus();
+						}
 						invalidField.dispatchEvent(new Event("change", { bubbles: true }));
 					}
 				}
@@ -207,17 +210,13 @@ export default class ActionForm extends HTMLElement {
 				valid = values.every((value) => value !== watcher.notValue);
 			}
 			// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
-			if (watcher.el.hasAttribute("hidden") !== valid) return;
+			if ((watcher.el.style.display === "none") !== valid) return;
 			// console.log("watcher", watcher.name, valid);
 			// Else show/hide it
 			this.show(watcher.el, valid);
 			// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
 			if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
 		});
-	}
-
-	get steps(): NodeListOf<ActionFormStep> {
-		return this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	}
 
 	private enhanceElements() {
@@ -244,7 +243,7 @@ export default class ActionForm extends HTMLElement {
 			}
 		});
 
-		// If store then update all not hidden/disabled fields with stored values
+		// If store then update all fields (except type="hidden") with stored values
 		if (this.id && this.hasAttribute("store")) {
 			const ls = localStorage.getItem(`action-form-${this.id}`);
 			if (ls) {
@@ -286,13 +285,13 @@ export default class ActionForm extends HTMLElement {
 
 	private show(el: HTMLElement, show: boolean): void {
 		if (show) {
-			el.removeAttribute("hidden");
+			el.style.display = "";
 			el.removeAttribute("disabled");
 		} else {
-			el.setAttribute("hidden", "");
+			el.style.display = "none";
 			el.setAttribute("disabled", "");
 		}
-		// TODO: is this needed?
+		// TODO: is this needed? there is a listener in af-step
 		el.dispatchEvent(new CustomEvent("af-watcher", { bubbles: true, detail: { show: show } }));
 	}
 

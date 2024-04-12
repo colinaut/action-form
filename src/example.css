@@ -1,11 +1,11 @@
-fieldset:not([hidden]),
-af-fieldset:not([hidden]) {
+fieldset,
+af-fieldset {
 	display: grid;
 	gap: 0.5em;
 	margin: 0;
 	padding: 1em;
 }
-af-fieldset:not([hidden]) {
+af-fieldset {
 	display: grid;
 	gap: 0.5em;
 	border: 1px #0096bfab solid;
@@ -17,7 +17,7 @@ af-fieldset:not([hidden]) {
 .js af-step {
 	display: none;
 }
-.js af-step.active:not([hidden]) {
+.js af-step.active {
 	display: grid;
 }
 af-step {

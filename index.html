@@ -82,9 +82,9 @@
 								</select>
 							</label>
 							<div>
-								<em data-if="subject" data-if-value="general" hidden>Not sure what you want? Neither do we.</em>
-								<em data-if="subject" data-if-value="sales" hidden>Thanks for contacting sales!!!</em>
-								<em data-if="subject" data-if-value="support" hidden>Ok fine we will support you</em>
+								<em data-if="subject" data-if-value="general">Not sure what you want? Neither do we.</em>
+								<em data-if="subject" data-if-value="sales">Thanks for contacting sales!!!</em>
+								<em data-if="subject" data-if-value="support">Ok fine we will support you</em>
 							</div>
 							<div>
 								<label for="message"
@@ -113,7 +113,7 @@
 							<label><input type="checkbox" name="animal" value="other" /> Other </label>
 							<div data-if="animal" data-if-not-value="bunny" data-if-value="snake" class="col-span-full"><em>Snake? Why not bunny?!?</em></div>
 							<af-error class="col-span-full" for="animals">1-3 animals is required.</af-error>
-							<fieldset class="col-span-full" name="fieldset-animal-other" data-if="animal" data-if-value="other" hidden disabled>
+							<fieldset class="col-span-full" name="fieldset-animal-other" data-if="animal" data-if-value="other" disabled>
 								<legend>Other Animal</legend>
 								<label>Other Animal: <input type="text" name="animal-other" id="animal-other" required /></label>
 								<af-error for="animal-other">other is required</af-error>
@@ -126,13 +126,13 @@
 
 							<label>Add required field to this step? <input type="checkbox" name="add-required" />Yes</label>
 							<label>Add another comment step? <input type="checkbox" name="comments-add" /> Yes</label>
-							<fieldset data-if="add-required" hidden disabled>
+							<fieldset data-if="add-required" disabled>
 								<label>This is required <input type="checkbox" name="required-thing" id="required-thing" required /> Check Me! </label>
 								<af-error for="required-thing">Required</af-error>
 							</fieldset>
 						</fieldset>
 					</af-step>
-					<af-step data-if="comments-add" hidden>
+					<af-step data-if="comments-add">
 						<fieldset>
 							<label>Optional Comments2: <textarea name="comments2" placeholder="Comments"></textarea></label>
 						</fieldset>
