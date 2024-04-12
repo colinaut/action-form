@@ -114,6 +114,30 @@ export default class ActionForm extends HTMLElement {
 					if (watchers.length > 0) {
 						this.checkWatchers(watchers);
 					}
+
+					// if store attribute is set then store the values in local storage
+					if (this.id && this.hasAttribute("store")) {
+						const ls = localStorage.getItem(`action-form-${this.id}`) || "{}";
+						if (ls && field.name) {
+							const values = JSON.parse(ls);
+							// if element is a checkbox or radio than store as array of checked values
+							if (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type)) {
+								// create temporary array
+								const tempArray = values[field.name] instanceof Array ? values[field.name] : [];
+								// update array based on checked value
+								if (field.checked) {
+									tempArray.push(field.value);
+								} else {
+									tempArray.splice(tempArray.indexOf(field.value), 1);
+								}
+								values[field.name] = tempArray;
+							} else {
+								values[field.name] = field.value;
+							}
+							// if
+							localStorage.setItem(`action-form-${this.id}`, JSON.stringify(values));
+						}
+					}
 				}
 			});
 		}
@@ -159,10 +183,11 @@ export default class ActionForm extends HTMLElement {
 	private enhanceElements() {
 		// TODO: see if there is a better way to do this
 		// find all elements with stored values and set value
-		const storedElements = this.querySelectorAll("input[data-get-store]") as NodeListOf<HTMLElement>;
-		storedElements.forEach((el) => {
+		const getStoreElements = this.querySelectorAll("[data-get-store]") as NodeListOf<HTMLElement>;
+		getStoreElements.forEach((el) => {
 			const stored = el.dataset.getStore;
-			if (stored && el instanceof HTMLInputElement) {
+			if (!stored) return;
+			if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
 				// split stored by periods
 				const parts = stored.split(".");
 				const ls = localStorage.getItem(parts[0]);
@@ -179,7 +204,28 @@ export default class ActionForm extends HTMLElement {
 			}
 		});
 
-		const setStore = this.querySelectorAll("input[data-set-store]") as NodeListOf<HTMLElement>;
+		// If store then update all not hidden/disabled fields with stored values
+		if (this.id && this.hasAttribute("store")) {
+			const ls = localStorage.getItem(`action-form-${this.id}`);
+			if (ls) {
+				const values = JSON.parse(ls);
+				Object.keys(values).forEach((key) => {
+					const fields = this.querySelectorAll(`[name="${key}"]`);
+					fields.forEach((el) => {
+						if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
+							// if this is a checkbox or radio button
+							if (el instanceof HTMLInputElement && ["checkbox", "radio"].includes(el.type) && values[key] instanceof Array) {
+								console.log(values[key], el.value, values[key].includes(el.value));
+
+								el.checked = values[key].includes(el.value);
+							} else {
+								el.value = String(values[key]);
+							}
+						}
+					});
+				});
+			}
+		}
 
 		// find all watchers and create watcher array
 		const watchers = this.querySelectorAll("[data-if]") as NodeListOf<HTMLElement>;

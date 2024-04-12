@@ -16,7 +16,7 @@
 		<h1>Action Form</h1>
 		<p>HTML web component for forms</p>
 		<section>
-			<action-form novalidate auto-error>
+			<action-form novalidate auto-error store id="example">
 				<af-step-toggle></af-step-toggle>
 				<p><span class="required">*</span> Required</p>
 				<form>
@@ -37,9 +37,9 @@
 						</template>
 						<fieldset name="names">
 							<legend>Your Name</legend>
-							<label>First Name: <input type="text" name="first-name" required value="Sophia" /></label>
-							<label>Last Name: <input type="text" name="lastName" required value="Lorem" data-error="Last name is required" /></label>
-							<label>Nick Name: <input type="text" name="nick_name" value="Puppy!" /></label>
+							<label>First Name: <input type="text" name="first-name" required /></label>
+							<label>Last Name: <input type="text" name="lastName" required data-error="Last name is required" /></label>
+							<label>Nick Name: <input type="text" name="nick_name" /></label>
 						</fieldset>
 					</af-step>
 					<af-step>
