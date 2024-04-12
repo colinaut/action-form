@@ -5,7 +5,7 @@ import type ActionFormGroupCount from "./af-group-count";
 export default class ActionForm extends HTMLElement {
 	public stepIndex: number = 0; // current step
 
-	private watchers: { el: HTMLElement; name: string; value?: string; regex?: RegExp }[] = [];
+	private watchers: { el: HTMLElement; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
 	constructor() {
 		super();
@@ -129,7 +129,19 @@ export default class ActionForm extends HTMLElement {
 			const values = formData.getAll(watcher.name);
 			// console.log("watchers values", values, watcher);
 			// typeof value === "string" is to ignore formData files
-			const valid = values.some((value) => typeof value === "string" && (value === watcher.value || (watcher.regex && watcher.regex.test(value))));
+			let valid = values.some((value) => {
+				if (typeof value === "string" && (watcher.value || watcher.regex)) {
+					// if is is a string (rather than a File) there is a value or regex to check then check for that
+					return value === watcher.value || (watcher.regex && watcher.regex.test(value));
+				}
+				// if value has no value return false; otherwise true
+				return !!value;
+			});
+
+			// if valid and there is a notValue then check for that as well
+			if (watcher.notValue && values.length !== 0 && valid) {
+				valid = values.every((value) => value !== watcher.notValue);
+			}
 			// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
 			if (watcher.el.hasAttribute("hidden") !== valid) return;
 			// console.log("watcher", watcher.name, valid);
@@ -147,9 +159,9 @@ export default class ActionForm extends HTMLElement {
 	private enhanceElements() {
 		// TODO: see if there is a better way to do this
 		// find all elements with stored values and set value
-		const storedElements = this.querySelectorAll("input[data-stored]") as NodeListOf<HTMLElement>;
+		const storedElements = this.querySelectorAll("input[data-get-store]") as NodeListOf<HTMLElement>;
 		storedElements.forEach((el) => {
-			const stored = el.dataset.stored;
+			const stored = el.dataset.getStore;
 			if (stored && el instanceof HTMLInputElement) {
 				// split stored by periods
 				const parts = stored.split(".");
@@ -167,16 +179,19 @@ export default class ActionForm extends HTMLElement {
 			}
 		});
 
+		const setStore = this.querySelectorAll("input[data-set-store]") as NodeListOf<HTMLElement>;
+
 		// find all watchers and create watcher array
-		const watchers = this.querySelectorAll("[data-watch]") as NodeListOf<HTMLElement>;
+		const watchers = this.querySelectorAll("[data-if]") as NodeListOf<HTMLElement>;
 		watchers.forEach((el) => {
-			const watch = el.dataset.watch;
-			const value = el.dataset.value;
-			const regexStr = el.dataset.regex;
+			const watch = el.dataset.if;
+			const value = el.dataset.ifValue;
+			const notValue = el.dataset.ifNotValue;
+			const regexStr = el.dataset.ifRegex;
 			// if neither watch nor value is set, assume that any value is valid. RegExp /./ tests for any value
-			const regex: RegExp | undefined = regexStr ? new RegExp(regexStr) : !regexStr && !value ? /./ : undefined;
+			const regex: RegExp | undefined = regexStr ? new RegExp(regexStr) : undefined;
 			if (watch) {
-				this.watchers.push({ name: watch, value, regex, el: el });
+				this.watchers.push({ name: watch, value, notValue, regex, el: el });
 			}
 		});
 

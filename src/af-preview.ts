@@ -50,14 +50,22 @@ export default class ActionFormPreview extends HTMLElement {
 	render() {
 		const data = this.getFormData();
 
-		this.innerHTML = `${data
-			?.map(
-				(item) =>
-					`<p><strong>${this.hasAttribute("title-case") ? convertToTitleCase(item.key) : item.key}</strong>: ${item.value
-						.map((value) => `<span>${value}</span>`)
-						.join(", ")}</p>`
-			)
-			.join("")}`;
+		const valuesToText = (values: string[]) => {
+			return values.length === 1 ? values[0] : values.map((value) => `<span>${value}</span>`).join(", ");
+		};
+
+		if (!this.hasChildNodes()) {
+			this.innerHTML = `${data
+				?.map((item) => `<p><strong>${this.hasAttribute("title-case") ? convertToTitleCase(item.key) : item.key}</strong>: ${valuesToText(item.value)}</p>`)
+				.join("")}`;
+		} else {
+			data?.forEach((item) => {
+				const el = this.querySelector(`[data-preview="${item.key}"]`);
+				if (el) {
+					el.innerHTML = valuesToText(item.value);
+				}
+			});
+		}
 	}
 }
 
