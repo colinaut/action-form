@@ -11,17 +11,15 @@ Base wrapper. This wrapper enhances fieldsets with the ability to show and hide 
 * novalidate - sets novalidate on form when defined
 * auto-error - automatically adds af-error elements for fields that require validation, unless there is already a matching af-error.
 
-## Watchers
+## Element Enhancements
 
-Used to make any element automatically hide(add `disable` and `hidden` attributes) or show(remove `disable` and `hidden` attributes) based on the value of a field. 
+This element adds functionality to child elements based on special data attributes.
 
-Use the following attributes on any element to have action-form turn them into watchers. This includes af-step, which allows you to show/hide steps. Note: `disable` only works to disable fields when set on the field itself or a parent fieldset. So if you need to hide a step and disable all fields in a step, the a watcher needs to be set on the fields or a parent fieldset as well.
-
-### Attributes
-
-* data-watch - name of the field to watch for changes. _If set without value or regex it will match if there is any value or if it is checked._
-* data-value - value to exact match against the field's value
-* data-regex - regex to use for testing against the field's value
+* data-if - show/hide based on named form field. `data-if="animal"` watches the field with name='animal' for changes. Groups of radio or checkboxes with the same name are matched against as an array. If the field has a value or is checked then the element is shown; otherwise the element is hidden using style.display="none" and disabled using the disabled attribute. NOTE: disabled attribute is really only useful for fields and fieldsets. You can specify the value you are interested in with the added attributes:
+  * data-if-value - value to exact match against
+  * data-if-not-value - value it is not
+  * data-if-regex - regex to use for testing against the field's value
+* data-get-store - grabs the value from a named localStorage. Useful mainly for hidden fields that are grabbing from some prior stored data.
 
 ## `<af-error>`
 
@@ -85,7 +83,8 @@ Displays the number of characters in a text input field or textarea
 - [x] Automatically add af-error elements to form unless they exist already
 - [x] Add ability to grab values from localStorage data-get-ls="lsname" which can be used on hidden input fields
 - [x] Add ability to set/get values from localStorage so that you can return to the form and retain the value
-- [ ] Add reset functionality for clearing localStorage; also should clear on submit
+- [ ] convert to use style.display="none" instead of hidden att
+- [x] Add reset functionality for clearing localStorage; also should clear on submit
 - [ ] Add reactive data for form elements values
 - [ ] hide type="hidden" from preview
 - [ ] Make sure that resetting the form also hides all error messages

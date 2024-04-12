@@ -5,7 +5,7 @@
 ### Properties
 
 * stepIndex: The current step index
-* steps: getter for `"af-step:not([hidden])"` querySelector
+* steps: getter for `"af-step"` querySelector
   * Used for af-step event listener and some child components
   * _This is an expensive operation so maybe look to see how often it is triggered and if there is a better method_
 
@@ -14,7 +14,7 @@
 * Private Step change method for `<af-step>` triggered by "af-step" custom event listener
   * The "af-step" custom event listener uses detail of either the index to change to or the direction from the current active step { step?: number, direction?: "next"|"prev" }
   * NOTE: If you have hidden steps they will be skipped over. For instance if you have 6 steps (0-5 index) and index 3 is hidden then index 4 becomes index 3 for the purposes of this function.
-* checkWatchers() — Loops through watchers for show/hide and enable/disable of data-watch elements
+* checkWatchers() — Loops through watchers for show/hide and enable/disable of data-if elements
 
 ### Constructor Init
 
@@ -26,19 +26,24 @@
    2. Searches for `<af-error>` either by the field id or as siblings of parent `<label>` element.
    3. If neither are found it adds an `<af-error>` element after the field.
    4. If the field has data-error="error text" attribute then that is used for the textContent of the af-error.
-5. Queries for fieldsets and af-steps which have data-watch attribute
+5. Queries for fields with `data-get-store` attribute
+   1. updates the field with localStorage value; if it exists
+6. If action-form has `store` attribute and and id, it updates all fields that have value in the named localStorage
+7. Queries for fieldsets and af-steps which have `data-if` attribute
    1. Creates watchers array which allows hide/show functionality. Array has the following properties:
-      1.  el: HTMLElement with data-watch attribute
-      2.  name: value of data-watch attribute; name of form element to watch for changes
-      3.  value: value of data-value attribute; value to match named form element's value
-      4.  regex: value of data-regex attribute; regex to test named form element's value
-      5.  Either value or regex is required, but not both
-  1.  _Currently hidden and disabled need to be set manually to hide on load. Maybe this should be automatically handled?_
-6. Adds listener for `change` event which show/hide and enable/disable based on watchers array
+      1.  el: HTMLElement with data-if attribute
+      2.  name: value of `data-if` attribute; name of form element to watch for changes
+      3.  value: value of `data-if-value` attribute; value to match named form element's value
+      4.  notValue: value of `data-if-not-value` attribute; test if value does not match
+      5.  regex: value of `data-if-regex` attribute; regex to test named form element's value
+8. Adds listener for `change` event which show/hide and enable/disable based on watchers array
    1. If event target is a field or af-group-count element, check validity and update error visibility
    2. Loop through watchers array using FormData with getAll(watcher.name) and tests against it with either the value or regex
       1. If value matches or regex tests false, then the watcher element has hidden and disabled added
       2. If value matches or regex tests true, then the watcher element has hidden and disabled removed
+   3. If action-form has `store` attribute and and id, it stores the value in local storage
+      1. checkboxes and radio buttons are stored as array
+9. Adds listener for `reset` and `submit` which clears local storage for the form
 
 ## `<af-error>`
 
