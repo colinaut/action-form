@@ -152,9 +152,32 @@ export default class ActionForm extends HTMLElement {
 				this.dispatchEvent(new CustomEvent("af-step", { detail: { step: 0 } }));
 			});
 
-			this.addEventListener("submit", () => {
+			this.addEventListener("submit", (e) => {
 				if (this.hasAttribute("store")) {
 					localStorage.removeItem(`action-form-${this.id}`);
+				}
+				// Validate form before submitting
+				const formValid = form.checkValidity();
+				if (!formValid) {
+					e.preventDefault();
+					console.error("Form validation failed");
+					// find first invalid field
+					// TODO: get working for af-group-count fieldset groups
+					const invalidField = form.querySelector("input:invalid, select:invalid, textarea:invalid");
+					if (invalidField) {
+						const parentStep = invalidField.closest("af-step") as null | ActionFormStep;
+						// check if that field is a child of an af-step element
+						if (parentStep) {
+							// move to that step
+							// TODO: test this with hidden steps
+							this.dispatchEvent(new CustomEvent("af-step", { detail: { step: parentStep.index } }));
+						}
+
+						console.log("invalidField", invalidField);
+
+						invalidField.focus();
+						invalidField.dispatchEvent(new Event("change", { bubbles: true }));
+					}
 				}
 			});
 		}
