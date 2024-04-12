@@ -2,6 +2,10 @@ import type ActionFormStep from "./af-step";
 import type ActionFormError from "./af-error";
 import type ActionFormGroupCount from "./af-group-count";
 
+function isField(el: Element): el is HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement {
+	return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement;
+}
+
 export default class ActionForm extends HTMLElement {
 	public stepIndex: number = 0; // current step
 
@@ -140,6 +144,18 @@ export default class ActionForm extends HTMLElement {
 					}
 				}
 			});
+
+			this.addEventListener("reset", () => {
+				if (this.hasAttribute("store")) {
+					localStorage.removeItem(`action-form-${this.id}`);
+				}
+			});
+
+			this.addEventListener("submit", () => {
+				if (this.hasAttribute("store")) {
+					localStorage.removeItem(`action-form-${this.id}`);
+				}
+			});
 		}
 	}
 
@@ -187,7 +203,7 @@ export default class ActionForm extends HTMLElement {
 		getStoreElements.forEach((el) => {
 			const stored = el.dataset.getStore;
 			if (!stored) return;
-			if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
+			if (isField(el)) {
 				// split stored by periods
 				const parts = stored.split(".");
 				const ls = localStorage.getItem(parts[0]);
@@ -212,11 +228,10 @@ export default class ActionForm extends HTMLElement {
 				Object.keys(values).forEach((key) => {
 					const fields = this.querySelectorAll(`[name="${key}"]`);
 					fields.forEach((el) => {
-						if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
+						if (isField(el) && !el.matches("[type=hidden]")) {
 							// if this is a checkbox or radio button
 							if (el instanceof HTMLInputElement && ["checkbox", "radio"].includes(el.type) && values[key] instanceof Array) {
-								console.log(values[key], el.value, values[key].includes(el.value));
-
+								// set checked based on value in array
 								el.checked = values[key].includes(el.value);
 							} else {
 								el.value = String(values[key]);
