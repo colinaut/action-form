@@ -11,6 +11,7 @@ function isField(el: Element): el is FormField {
 export default class ActionForm extends HTMLElement {
 	public steps = this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	public stepIndex: number = 0; // current step
+	public shownStepIndex: number = 0; // current step
 
 	private watchers: { el: HTMLElement; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
@@ -57,12 +58,18 @@ export default class ActionForm extends HTMLElement {
 				// set this.stepIndex
 				this.stepIndex = stepIndex;
 				// set active based on index
+				let shownIndex = 0;
 				Array.from(this.steps).forEach((step, i) => {
 					// set active based on index
 					if (i === this.stepIndex) {
 						step.classList.add("active");
+						this.shownStepIndex = shownIndex;
 					} else {
 						step.classList.remove("active");
+					}
+					if (step.style.display !== "none") {
+						step.setAttribute("shown-index", String(shownIndex));
+						shownIndex++;
 					}
 				});
 			});

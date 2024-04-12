@@ -28,6 +28,14 @@ export default class ActionFormStep extends HTMLElement {
 		this.setAttribute("index", String(value));
 	}
 
+	get shownIndex(): number | undefined {
+		return Number(this.getAttribute("shown-index") || 0);
+	}
+
+	set shownTndex(value: number) {
+		this.setAttribute("shown-index", String(value));
+	}
+
 	// Method Getter
 	get isValid(): boolean {
 		// console.log("isValid", this.querySelectorAll(":invalid"));
