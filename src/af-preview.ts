@@ -54,7 +54,7 @@ export default class ActionFormPreview extends HTMLElement {
 			return values.length === 1 ? values[0] : values.map((value) => `<span>${value}</span>`).join(", ");
 		};
 
-		if (!this.hasChildNodes()) {
+		if (this.hasAttribute("auto-preview")) {
 			this.innerHTML = `${data
 				?.map((item) => `<p><strong>${this.hasAttribute("title-case") ? convertToTitleCase(item.key) : item.key}</strong>: ${valuesToText(item.value)}</p>`)
 				.join("")}`;

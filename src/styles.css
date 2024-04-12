@@ -62,3 +62,9 @@ af-step::part(step-btn):hover {
 .no-steps af-progress {
 	display: none;
 }
+
+af-preview {
+	display: block;
+	max-width: 100%;
+	overflow: hidden;
+}
