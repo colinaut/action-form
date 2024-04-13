@@ -139,3 +139,6 @@ label:has(> [required])::after {
 	color: coral;
 	font-weight: bold;
 }
+af-progress {
+	--step-bg: var(--button-base);
+}

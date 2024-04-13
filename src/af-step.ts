@@ -7,6 +7,8 @@ export default class ActionFormStep extends HTMLElement {
 	// TODO: test this with a browser that does not have Declarative Shadow DOM
 	private this: this | ShadowRoot;
 
+	private buttons!: string[];
+
 	// Reflected Attributes
 	get valid(): boolean {
 		return this.hasAttribute("valid");
@@ -18,22 +20,6 @@ export default class ActionFormStep extends HTMLElement {
 		} else {
 			this.removeAttribute("valid");
 		}
-	}
-
-	get index(): number | undefined {
-		return Number(this.getAttribute("index") || 0);
-	}
-
-	set index(value: number) {
-		this.setAttribute("index", String(value));
-	}
-
-	get shownIndex(): number | undefined {
-		return Number(this.getAttribute("shown-index") || 0);
-	}
-
-	set shownTndex(value: number) {
-		this.setAttribute("shown-index", String(value));
 	}
 
 	// Method Getter
@@ -59,6 +45,8 @@ export default class ActionFormStep extends HTMLElement {
 		const actionForm = this.closest("action-form") as ActionForm | null;
 		if (!actionForm) return;
 
+		this.buttons = actionForm.stepButtons || ["Prev", "Next", "Submit"]; // default buttons
+
 		// update validity and completed when change event is fired
 		this.this.addEventListener("change", () => {
 			// console.log("af-step change isValid", this.isValid);
@@ -69,13 +57,7 @@ export default class ActionFormStep extends HTMLElement {
 		this.this.addEventListener("click", (e) => {
 			const target = e.target;
 			if (!(target instanceof HTMLButtonElement)) return;
-			// console.log("🚀 ~ FormStep ~ this.addEventListener ~ target:", target);
-
-			if (target.matches(".af-step-next")) {
-				this.step("next");
-			} else if (target.matches(".af-step-prev")) {
-				this.step("prev");
-			}
+			this.step(target.dataset.direction || "next");
 		});
 
 		//TODO: maybe change this to a mutation observer?
@@ -84,9 +66,9 @@ export default class ActionFormStep extends HTMLElement {
 		});
 	}
 
-	public step(direction: "prev" | "next" = "next") {
+	public step(direction: string = this.buttons[1]) {
 		// If button is next check if any elements are invalid before moving to next step
-		if (direction === "next") {
+		if (direction === this.buttons[1]) {
 			const fields = this.querySelectorAll("input, select, textarea, af-group-count") as NodeListOf<
 				HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | ActionFormGroupCount
 			>;
@@ -126,11 +108,11 @@ export default class ActionFormStep extends HTMLElement {
 			nav.classList.add("af-step-nav");
 			nav.setAttribute("part", "step-nav");
 			nav.setAttribute("aria-label", "Step Navigation");
-			const stepButton = (direction: "Next" | "Prev") => {
-				return `<button type="button" class="af-step-${direction.toLowerCase()}" part="step-btn">${direction}</button>`;
+			const stepButton = (direction: string) => {
+				return `<button type="button" class="af-step-${direction.toLowerCase()}" data-direction="${direction}" part="step-btn">${direction}</button>`;
 			};
-			const leftBtn = this.classList.contains("first") ? `<span></span>` : stepButton("Prev");
-			const rightBtn = this.classList.contains("last") ? `<button type="submit" part="submit">Submit</button>` : stepButton("Next");
+			const leftBtn = this.classList.contains("first") ? `<span></span>` : stepButton(this.buttons[0]);
+			const rightBtn = this.classList.contains("last") ? `<button type="submit" part="submit">${this.buttons[2]}</button>` : stepButton(this.buttons[1]);
 			nav.innerHTML = `${leftBtn}${rightBtn}`;
 			this.this.appendChild(nav);
 		}

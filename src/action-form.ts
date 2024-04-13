@@ -11,9 +11,9 @@ function isField(el: Element): el is FormField {
 export default class ActionForm extends HTMLElement {
 	public steps = this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	public stepIndex: number = 0; // current step
-	public shownStepIndex: number = 0; // current step
+	public stepButtons!: string[];
 
-	private watchers: { el: HTMLElement; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
+	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
 	constructor() {
 		super();
@@ -40,33 +40,22 @@ export default class ActionForm extends HTMLElement {
 				}
 			});
 
-			// TODO: clean up this next/prev code to be more DRY
-			const goToNextVisibleStep = (stepIndex: number) => {
-				while (stepIndex < this.steps.length) {
-					stepIndex++;
-					if (this.steps[stepIndex].style.display !== "none") break;
-				}
-				return stepIndex;
-			};
-
-			const goToPrevVisibleStep = (stepIndex: number) => {
-				while (stepIndex >= 0) {
-					stepIndex--;
-					if (this.steps[stepIndex].style.display !== "none") break;
-				}
-				return stepIndex;
-			};
+			// Get step buttons
+			this.stepButtons = this.getAttribute("step-buttons")?.split(",") || [];
+			if (this.stepButtons.length !== 3) {
+				this.stepButtons = ["Prev", "Next", "Submit"];
+			}
 
 			this.addEventListener("af-step", (event) => {
-				const customEvent = event as CustomEvent<{ step?: number; direction?: "next" | "prev" }>;
+				const customEvent = event as CustomEvent<{ step?: number; direction?: string }>;
 				console.log("af-step", customEvent.detail?.step, customEvent.detail?.direction);
 				let stepIndex = this.stepIndex;
 				if (typeof customEvent.detail?.step === "number") {
 					stepIndex = customEvent.detail.step;
-				} else if (customEvent.detail?.direction === "next") {
-					stepIndex = goToNextVisibleStep(stepIndex);
-				} else if (customEvent.detail?.direction === "prev") {
-					stepIndex = goToPrevVisibleStep(stepIndex);
+				} else if (customEvent.detail?.direction === this.stepButtons[1]) {
+					stepIndex++;
+				} else if (customEvent.detail?.direction === this.stepButtons[0]) {
+					stepIndex--;
 				}
 				// make sure stepIndex is within bounds
 				stepIndex = Math.max(0, Math.min(stepIndex, this.steps.length - 1));
@@ -74,17 +63,21 @@ export default class ActionForm extends HTMLElement {
 				this.stepIndex = stepIndex;
 				// set active based on index
 				let shownIndex = 0;
-				Array.from(this.steps).forEach((step, i) => {
+				Array.from(this.steps).forEach((step) => {
+					// Set data-index Based on visibility of the step
+					if (step.style.display !== "none") {
+						step.dataset.index = String(shownIndex);
+						shownIndex++;
+					} else {
+						step.dataset.index = "";
+					}
 					// set active based on index
-					if (i === this.stepIndex) {
+
+					if (shownIndex - 1 === stepIndex) {
 						step.classList.add("active");
-						this.shownStepIndex = shownIndex;
+						this.stepIndex = stepIndex;
 					} else {
 						step.classList.remove("active");
-					}
-					if (step.style.display !== "none") {
-						step.setAttribute("shown-index", String(shownIndex));
-						shownIndex++;
 					}
 				});
 			});
@@ -191,7 +184,7 @@ export default class ActionForm extends HTMLElement {
 						// check if that field is a child of an af-step element
 						if (parentStep) {
 							// move to that step
-							this.dispatchEvent(new CustomEvent("af-step", { detail: { step: parentStep.index } }));
+							this.dispatchEvent(new CustomEvent("af-step", { detail: { step: parentStep.dataset.index } }));
 						}
 
 						console.log("invalidField", invalidField);
@@ -218,26 +211,31 @@ export default class ActionForm extends HTMLElement {
 			const values = formData.getAll(watcher.name);
 			// console.log("watchers values", values, watcher);
 			// typeof value === "string" is to ignore formData files
-			let valid = values.some((value) => {
-				if (typeof value === "string" && (watcher.value || watcher.regex)) {
-					// if is is a string (rather than a File) there is a value or regex to check then check for that
-					return value === watcher.value || (watcher.regex && watcher.regex.test(value));
-				}
-				// if value has no value return false; otherwise true
-				return !!value;
-			});
+			if (watcher.if) {
+				let valid = values.some((value) => {
+					if (typeof value === "string" && (watcher.value || watcher.regex)) {
+						// if is is a string (rather than a File) there is a value or regex to check then check for that
+						return value === watcher.value || (watcher.regex && watcher.regex.test(value));
+					}
+					// if value has no value return false; otherwise true
+					return !!value;
+				});
 
-			// if valid and there is a notValue then check for that as well
-			if (watcher.notValue && values.length !== 0 && valid) {
-				valid = values.every((value) => value !== watcher.notValue);
+				// if valid and there is a notValue then check for that as well
+				if (watcher.notValue && values.length !== 0 && valid) {
+					valid = values.every((value) => value !== watcher.notValue);
+				}
+				// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
+				if ((watcher.el.style.display === "none") !== valid) return;
+				// console.log("watcher", watcher.name, valid);
+				// Else show/hide it
+				this.show(watcher.el, valid);
+				// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
+				if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
 			}
-			// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
-			if ((watcher.el.style.display === "none") !== valid) return;
-			// console.log("watcher", watcher.name, valid);
-			// Else show/hide it
-			this.show(watcher.el, valid);
-			// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
-			if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
+			if (watcher.text) {
+				watcher.el.textContent = values.join(", ");
+			}
 		});
 	}
 
@@ -288,16 +286,17 @@ export default class ActionForm extends HTMLElement {
 		}
 
 		// find all watchers and create watcher array
-		const watchers = this.querySelectorAll("[data-if]") as NodeListOf<HTMLElement>;
+		const watchers = this.querySelectorAll("[data-if],[data-text]") as NodeListOf<HTMLElement>;
+
 		watchers.forEach((el) => {
-			const watch = el.dataset.if;
+			const watch = el.dataset.if || el.dataset.text;
 			const value = el.dataset.ifValue;
 			const notValue = el.dataset.ifNotValue;
 			const regexStr = el.dataset.ifRegex;
 			// if neither watch nor value is set, assume that any value is valid. RegExp /./ tests for any value
 			const regex: RegExp | undefined = regexStr ? new RegExp(regexStr) : undefined;
 			if (watch) {
-				this.watchers.push({ name: watch, value, notValue, regex, el: el });
+				this.watchers.push({ name: watch, if: !!el.dataset.if, text: !!el.dataset.text, value, notValue, regex, el: el });
 			}
 		});
 

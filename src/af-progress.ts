@@ -35,9 +35,10 @@ export default class ActionFormProgress extends HTMLElement {
 		if (!this.actionForm?.steps) return;
 
 		const stepsLength = Array.from(this.actionForm.steps).filter((step) => !(step.style.display === "none")).length;
-		const shownStepIndex = this.actionForm?.shownStepIndex || 0;
+		const stepIndex = this.actionForm?.stepIndex || 0;
+		// const stepIndex = this.actionForm?.stepIndex || 0;
 
-		const progressPercentage = (shownStepIndex / (stepsLength - 1)) * 100;
+		const progressPercentage = (stepIndex / (stepsLength - 1)) * 100;
 
 		// TODO: simplify this
 		const style = `
@@ -119,13 +120,13 @@ export default class ActionFormProgress extends HTMLElement {
         ${Array.from(this.actionForm?.steps)
 			.filter((step) => !(step.style.display === "none"))
 			.map((step, index) => {
-				const active = index === shownStepIndex ? "active" : "";
+				const active = index === stepIndex ? "active" : "";
 				const valid = step.valid ? "valid" : "";
 				const disabled = this.hasAttribute("enable-all") || shownStepIndex > index ? "" : "disabled";
 				const title = step.getAttribute("progress-title") || "";
 				return `<button type="button" part="step ${valid} ${active}" ${disabled} title="${title}" class="step ${valid} ${active}" ${
 					active && `aria-current="step"`
-				} aria-label="Step ${index + 1}" data-index="${step.index}">${index + 1}</button>`;
+				} aria-label="Step ${index + 1}" data-index="${index}">${index + 1}</button>`;
 			})
 			.join("")}
         </nav>
