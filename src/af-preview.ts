@@ -27,13 +27,18 @@ export default class ActionFormPreview extends HTMLElement {
 		this.render();
 	}
 
+	get ignore(): string[] {
+		return this.getAttribute("ignore")?.split(",") || [];
+	}
+
 	getFormData() {
 		if (!this.form) return;
 		const formData = new FormData(this.form);
 
 		const keys = [...new Set(Array.from(formData.keys()))];
+
 		return keys
-			.filter((key) => formData.has(key) && formData.getAll(key).some((value) => value !== ""))
+			.filter((key) => !this.ignore.includes(key) && formData.getAll(key).some((value) => value !== ""))
 			.map((key) => {
 				const values = formData.getAll(key);
 				const stringValues = values.filter((value) => typeof value === "string") as string[];
@@ -53,18 +58,9 @@ export default class ActionFormPreview extends HTMLElement {
 			return values.length === 1 ? values[0] : values.map((value) => `<span>${value}</span>`).join(", ");
 		};
 
-		if (this.hasAttribute("auto-preview")) {
-			this.innerHTML = `${data
-				?.map((item) => `<p><strong>${this.hasAttribute("title-case") ? convertToTitleCase(item.key) : item.key}</strong>: ${valuesToText(item.value)}</p>`)
-				.join("")}`;
-		} else {
-			data?.forEach((item) => {
-				const el = this.querySelector(`[data-preview="${item.key}"]`);
-				if (el) {
-					el.innerHTML = valuesToText(item.value);
-				}
-			});
-		}
+		this.innerHTML = `<ul>${data
+			?.map((item) => `<li><strong>${this.hasAttribute("title-case") ? convertToTitleCase(item.key) : item.key}</strong>: ${valuesToText(item.value)}</li>`)
+			.join("")}</ul>`;
 	}
 }
 
