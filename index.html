@@ -38,8 +38,10 @@
 						<fieldset name="names">
 							<legend>Your Name</legend>
 							<label>First Name: <input type="text" name="first-name" required /></label>
+
 							<label>Last Name: <input type="text" name="lastName" required data-error="Last name is required" /></label>
 							<label>Nick Name: <input type="text" name="nick_name" /></label>
+							<div class="my-4">Full Name: <span data-text="first-name"></span> <em data-text="nick_name"></em> <span data-text="lastName"></span></div>
 						</fieldset>
 					</af-step>
 					<af-step>
@@ -145,7 +147,7 @@
 						</fieldset>
 					</af-step>
 					<af-step>
-						<af-preview auto-preview title-case></af-preview>
+						<af-preview title-case ignore="token"></af-preview>
 					</af-step>
 					<div style="margin: 1em"><button type="reset">Reset Form</button></div>
 				</form>
