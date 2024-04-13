@@ -122,7 +122,7 @@ export default class ActionFormProgress extends HTMLElement {
 			.map((step, index) => {
 				const active = index === stepIndex ? "active" : "";
 				const valid = step.valid ? "valid" : "";
-				const disabled = this.hasAttribute("enable-all") || shownStepIndex > index ? "" : "disabled";
+				const disabled = this.hasAttribute("enable-all") || stepIndex > index ? "" : "disabled";
 				const title = step.getAttribute("progress-title") || "";
 				return `<button type="button" part="step ${valid} ${active}" ${disabled} title="${title}" class="step ${valid} ${active}" ${
 					active && `aria-current="step"`

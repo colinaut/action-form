@@ -1,8 +1,8 @@
-import type ActionTableStepEvent from "./types";
+import type { ActionFormStepEvent } from "./types";
 
 declare global {
 	interface GlobalEventHandlersEventMap {
-		"af-step": CustomEvent<ActionTableStepEvent>;
+		"af-step": CustomEvent<ActionFormStepEvent>;
 	}
 }
 
