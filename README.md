@@ -9,7 +9,7 @@ Base wrapper. This wrapper enhances fieldsets with the ability to show and hide 
 ### Attributes
 
 * novalidate - sets novalidate on form.
-* auto-error - automatically adds af-error elements for fields that require validation, unless there is already a matching af-error.
+* auto-error - automatically adds af-error elements for fields that require validation, unless there is already a matching af-error. Also adds af-error and af-group-count for fieldsets with `data-group`.
 * store - _Requires a id on the action-form._ stores all field values in local storage as `action-form-${id}` and refills fields on reload. Local storage is cleared after 'reset' or a successful 'submit'.
 
 ## Element Enhancements
@@ -22,6 +22,8 @@ This element adds functionality to child elements based on special data attribut
   * data-if-not-value - value it is not
   * data-if-regex - regex to use for testing against the field's value
 * data-get-store - grabs the value from a named localStorage. Useful mainly for hidden fields that are grabbing from some prior stored data.
+* data-group - used on fieldsets to check grouped fields to see how many are filled/checked. `data-group="1-3"` means a range from 1 to 3 checkboxes checked or 1-3 inputs filled. `data-group="1"` means minimum of 1 and no max. `data-group="-3"` means no min and max of 1. Default is "0-Infinity".
+  * If `auto-error` is set then it will automatically add an `<af-error>` element and a hidden `<af-group-count>` element. Otherwise you will need to add both yourself for this to work correctly.
 
 ## `<af-error>`
 
@@ -31,7 +33,9 @@ This element also allows checking groups of fields in a fieldset to see if a min
 
 ### Attributes
 
-* for - (optional) the id of the field or fieldset to watch for changes; if not specified then it finds the field within the parent `<label>`
+* for - the id of the field or fieldset to watch for changes
+  *  Neither a for or an id is required for fields if af-error is within the parent `<label>`. 
+  *  For with id is required for fieldsets.
 * min - (optional) Only for fieldsets; defaults to 1
 * max - (optional) Only for fieldsets; defaults to Infinity
 
@@ -98,6 +102,7 @@ Simple element that displays all of the field names and values as a list. Rerend
 - [x] Add reset functionality for clearing localStorage; also should clear on submit
 - [x] Review stepIndex and shownStepIndex to see if there is a cleaner way to handle this
 - [x] Add reactive data for form elements values
+- [ ] Add af-group-count and af-error for fieldset elements with data-group attribute
 - [ ] Make sure that resetting the form also hides all error messages
 - [x] Need to test submitting the form and triggering errors
 - [ ] QA all of it

@@ -47,18 +47,15 @@
 						</fieldset>
 					</af-step>
 					<af-step>
-						<fieldset id="phones" data-group>
+						<fieldset data-group="1" data-error="At least one phone number is required">
 							<legend>Phone Numbers</legend>
-							<div class="instructions col-span-full flex justify-between items-center">
-								At least one phone number is required <span>Phones filled: <af-group-count></af-group-count></span>
-							</div>
+							<div class="instructions col-span-full flex justify-between items-center">At least one phone number is required</div>
 							<label>Home Number: <input type="tel" name="home-phone" id="home-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="home-phone">phone number must have 7 digits</af-error>
 							<label>Work Number: <input type="tel" name="work-phone" id="work-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="work-phone">phone number must have 7 digits</af-error>
 							<label>Mobile Number: <input type="tel" name="mobile-phone" id="mobile-phone" pattern="\d{3}-?\d{3}-?\d{4}" /></label>
 							<af-error for="mobile-phone">phone number must have 7 digits</af-error>
-							<af-error for="phones">At least one phone number is required</af-error>
 						</fieldset>
 					</af-step>
 					<af-step>

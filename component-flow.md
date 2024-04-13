@@ -24,9 +24,15 @@
 3. Adds listener for `af-step` custom event which changes which af-step is `active` based on step number event detail
 4. (optional) if `auto-error` attribute is added, then it adds af-errors for fields that need them
    1. Queries for fields with `[required],[pattern],[type=phone],[type=email],[type=url]`
-   2. Searches for `<af-error>` either by the field id or as siblings of parent `<label>` element.
-   3. If neither are found it adds an `<af-error>` element after the field.
-   4. If the field has data-error="error text" attribute then that is used for the textContent of the af-error.
+      1. Searches for `<af-error>` either by the field id or as siblings of parent `<label>` element.
+      2. If neither are found it adds an `<af-error>` element after the field.
+      3. If the field has `data-error="error text"` attribute then that is used for the textContent of the af-error.
+   2. Queries for fieldsets with `data-group` attribute
+      1. Searches for `<af-error>` by the fieldset id
+      2. If no id it creates one
+      3. If it doesn't find af-error it appends one to the fieldset.
+      4. If the fieldset has `data-error="error text"` attribute then that is used for the textContent of the af-error.
+      5. Searches for `<af-group-count>` and if it doesn't find it, appends one with display="none"
 5. Queries for fields with `data-get-store` attribute
    1. updates the field with localStorage value; if it exists
 6. If action-form has `store` attribute and and id, it updates all fields that have value in the named localStorage
