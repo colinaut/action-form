@@ -210,9 +210,16 @@ export default class ActionForm extends HTMLElement {
 		watchers.forEach((watcher) => {
 			const values = formData.getAll(watcher.name);
 			// console.log("watchers values", values, watcher);
-			// typeof value === "string" is to ignore formData files
+
+			// Update textContent
+			if (watcher.text) {
+				watcher.el.textContent = values.join(", ");
+			}
+
+			// Update display
 			if (watcher.if) {
 				let valid = values.some((value) => {
+					// typeof value === "string" is to ignore formData files
 					if (typeof value === "string" && (watcher.value || watcher.regex)) {
 						// if is is a string (rather than a File) there is a value or regex to check then check for that
 						return value === watcher.value || (watcher.regex && watcher.regex.test(value));
@@ -232,9 +239,6 @@ export default class ActionForm extends HTMLElement {
 				this.show(watcher.el, valid);
 				// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
 				if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
-			}
-			if (watcher.text) {
-				watcher.el.textContent = values.join(", ");
 			}
 		});
 	}
