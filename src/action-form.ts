@@ -87,11 +87,9 @@ export default class ActionForm extends HTMLElement {
 
 			// Find all fields that require validation error messages
 			if (this.hasAttribute("auto-error")) {
-				const validationFields = this.querySelectorAll("[required],[pattern],[type=phone],[type=email],[type=url]") as NodeListOf<
-					HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-				>;
+				const validationFields = this.querySelectorAll("[required],[pattern],[type=phone],[type=email],[type=url]") as NodeListOf<FormField>;
 				validationFields.forEach((field) => {
-					let id = field.getAttribute("id") || "";
+					let id = field.id || "";
 					// Check if there is an af-error attribute for the field, either by id or withing parent label
 					const errorById = form.querySelector(`af-error[for="${id}"]`);
 					const errorByProximity = field.closest("label")?.querySelector(`af-error`);
@@ -102,13 +100,36 @@ export default class ActionForm extends HTMLElement {
 						error.textContent = field.dataset.error || "";
 						// If there is no id attribute on field then make one just to make things easier
 						if (!id) {
-							id = `${field.id || field.name || field.tagName.toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`;
+							id = `${field.name || field.tagName.toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`;
 							field.setAttribute("id", id);
 						}
 						error.setAttribute("for", id);
 						// add af-error after field
 						field.after(error);
 						console.log(`Added Error Message for ${field.tagName.toLowerCase()}[${field.name}] #${id}`);
+					}
+				});
+				const fieldsetGroups = this.querySelectorAll("fieldset[data-group]") as NodeListOf<HTMLFieldSetElement>;
+
+				fieldsetGroups.forEach((fieldset) => {
+					let id = fieldset.id || "";
+					const errorById = fieldset.querySelector(`af-error[for="${id}"]`);
+					if (!errorById) {
+						if (!id) {
+							id = `${fieldset.name || "fieldset"}-${Math.random().toString(36).substring(2, 9)}`;
+							fieldset.setAttribute("id", id);
+						}
+						const error = document.createElement("af-error");
+
+						error.setAttribute("for", id);
+						error.textContent = fieldset.dataset.error || "";
+						fieldset.append(error);
+					}
+					const groupCount = fieldset.querySelector(`af-group-count`) as ActionFormGroupCount | null;
+					if (!groupCount) {
+						const groupCount = document.createElement("af-group-count");
+						groupCount.style.display = "none";
+						fieldset.append(groupCount);
 					}
 				});
 			}
