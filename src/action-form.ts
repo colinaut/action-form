@@ -40,18 +40,33 @@ export default class ActionForm extends HTMLElement {
 				}
 			});
 
-			// console.log("validationFields", validationFields.length);
+			// TODO: clean up this next/prev code to be more DRY
+			const goToNextVisibleStep = (stepIndex: number) => {
+				while (stepIndex < this.steps.length) {
+					stepIndex++;
+					if (this.steps[stepIndex].style.display !== "none") break;
+				}
+				return stepIndex;
+			};
+
+			const goToPrevVisibleStep = (stepIndex: number) => {
+				while (stepIndex >= 0) {
+					stepIndex--;
+					if (this.steps[stepIndex].style.display !== "none") break;
+				}
+				return stepIndex;
+			};
 
 			this.addEventListener("af-step", (event) => {
 				const customEvent = event as CustomEvent<{ step?: number; direction?: "next" | "prev" }>;
-				console.log("af-step", customEvent.detail?.step);
+				console.log("af-step", customEvent.detail?.step, customEvent.detail?.direction);
 				let stepIndex = this.stepIndex;
 				if (typeof customEvent.detail?.step === "number") {
 					stepIndex = customEvent.detail.step;
 				} else if (customEvent.detail?.direction === "next") {
-					stepIndex++;
+					stepIndex = goToNextVisibleStep(stepIndex);
 				} else if (customEvent.detail?.direction === "prev") {
-					stepIndex--;
+					stepIndex = goToPrevVisibleStep(stepIndex);
 				}
 				// make sure stepIndex is within bounds
 				stepIndex = Math.max(0, Math.min(stepIndex, this.steps.length - 1));
