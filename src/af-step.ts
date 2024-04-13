@@ -56,8 +56,12 @@ export default class ActionFormStep extends HTMLElement {
 		// trigger next or prev step
 		this.this.addEventListener("click", (e) => {
 			const target = e.target;
-			if (!(target instanceof HTMLButtonElement)) return;
-			this.step(target.dataset.direction || "next");
+			if (target instanceof HTMLButtonElement) {
+				const direction = target.dataset.direction;
+				if (direction && this.buttons.indexOf(direction) < 2) {
+					this.step(direction);
+				}
+			}
 		});
 
 		//TODO: maybe change this to a mutation observer?
