@@ -11,7 +11,7 @@ export default class ActionFormGroupCount extends HTMLElement {
 
 	// Reflected attribute properties
 	get min(): number {
-		return Number(this.getAttribute("min") || 1);
+		return Number(this.getAttribute("min") || 0);
 	}
 
 	set min(value: number) {
