@@ -8,13 +8,15 @@ Base wrapper. This wrapper enhances fieldsets with the ability to show and hide 
 
 ### Attributes
 
-* novalidate - sets novalidate on form when defined
+* novalidate - sets novalidate on form.
 * auto-error - automatically adds af-error elements for fields that require validation, unless there is already a matching af-error.
+* store - _Requires a id on the action-form._ stores all field values in local storage as `action-form-${id}` and refills fields on reload. Local storage is cleared after 'reset' or a successful 'submit'.
 
 ## Element Enhancements
 
 This element adds functionality to child elements based on special data attributes.
 
+* data-text - updates the textContent of the element with the value of the watched field (shows as a comma delimited string for a group of checkboxes).
 * data-if - show/hide based on named form field. `data-if="animal"` watches the field with name='animal' for changes. Groups of radio or checkboxes with the same name are matched against as an array. If the field has a value or is checked then the element is shown; otherwise the element is hidden using style.display="none" and disabled using the disabled attribute. NOTE: disabled attribute is really only useful for fields and fieldsets. You can specify the value you are interested in with the added attributes:
   * data-if-value - value to exact match against
   * data-if-not-value - value it is not
@@ -56,6 +58,15 @@ Displays the number of characters in a text input field or textarea
 ### Attributes
 
 * for - (optional) the id of the input or textarea; if not specified then it finds the field within the parent `<label>`
+  
+## `<af-preview>`
+
+Simple element that displays all of the field names and values as a list. Rerenders on 'af-step' event
+
+### Attributes
+
+* title-case: convert all of the field names (whether kebab-case, camelCase, or snake_case) to Title Case
+* ignore: comma separated list of field names to ignore and not display
 
 ### TODO
 
@@ -83,12 +94,12 @@ Displays the number of characters in a text input field or textarea
 - [x] Automatically add af-error elements to form unless they exist already
 - [x] Add ability to grab values from localStorage data-get-ls="lsname" which can be used on hidden input fields
 - [x] Add ability to set/get values from localStorage so that you can return to the form and retain the value
-- [ ] convert to use style.display="none" instead of hidden att
+- [x] convert to use style.display="none" instead of hidden att
 - [x] Add reset functionality for clearing localStorage; also should clear on submit
-- [ ] Add reactive data for form elements values
-- [ ] hide type="hidden" from preview
+- [x] Review stepIndex and shownStepIndex to see if there is a cleaner way to handle this
+- [x] Add reactive data for form elements values
 - [ ] Make sure that resetting the form also hides all error messages
-- [ ] Need to test submitting the form and triggering errors
+- [x] Need to test submitting the form and triggering errors
 - [ ] QA all of it
 - [ ] Clean up and DRY code
 - [ ] QA Again

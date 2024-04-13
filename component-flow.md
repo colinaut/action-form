@@ -8,6 +8,7 @@
 * steps: getter for `"af-step"` querySelector
   * Used for af-step event listener and some child components
   * _This is an expensive operation so maybe look to see how often it is triggered and if there is a better method_
+* stepButtons: string[] for the text of the next, prev, and submit step buttons. Defaults to ["Prev", "Next", "Submit"]. Change via comma separated string on attribute `step-buttons="Prev,Next,Submit"`.
 
 ### Methods
 
@@ -29,21 +30,26 @@
 5. Queries for fields with `data-get-store` attribute
    1. updates the field with localStorage value; if it exists
 6. If action-form has `store` attribute and and id, it updates all fields that have value in the named localStorage
-7. Queries for fieldsets and af-steps which have `data-if` attribute
-   1. Creates watchers array which allows hide/show functionality. Array has the following properties:
+7. Queries for fieldsets and af-steps which have `data-if` or `data-text` attribute
+   1. Creates watchers array which allows hide/show and update textContent functionality. Array has the following properties:
       1.  el: HTMLElement with data-if attribute
-      2.  name: value of `data-if` attribute; name of form element to watch for changes
-      3.  value: value of `data-if-value` attribute; value to match named form element's value
-      4.  notValue: value of `data-if-not-value` attribute; test if value does not match
-      5.  regex: value of `data-if-regex` attribute; regex to test named form element's value
-8. Adds listener for `change` event which show/hide and enable/disable based on watchers array
-   1. If event target is a field or af-group-count element, check validity and update error visibility
-   2. Loop through watchers array using FormData with getAll(watcher.name) and tests against it with either the value or regex
-      1. If value matches or regex tests false, then the watcher element has hidden and disabled added
-      2. If value matches or regex tests true, then the watcher element has hidden and disabled removed
+      2.  name: name of form element to watch for changes based on value of `data-if` or `data-text` attribute
+      3.  if: boolean based on value if name came from `data-if` attribute
+      4.  text: boolean based on value if name came from `data-text` attribute
+      5.  value: value of `data-if-value` attribute; value to match named form element's value
+      6.  notValue: value of `data-if-not-value` attribute; test if value does not match
+      7.  regex: value of `data-if-regex` attribute; regex to test named form element's value
+8. Adds listener for `change` event on input, textarea, select and af-group-count:
+   1. If it has an error linked via "aria-describedby" then check for validity and toggle the af-error
+   2. Loop through watchers array using FormData with getAll(watcher.name):
+      1. If this is an `data-text` watcher it updates the textContent with the value; if it is a group of checkboxes it lists all checked as a comma delimited string.
+      2. If this is an `data-if` watcher it shows/hides based on if it has a value. It will do further checks if other data attributes are present:
+         1. `data-if-value` checks value matches (or has the value in the array in case of checkboxes)
+         2. `data-if-not-value` checks if value does not match (or does not have the value in the array in case of checkboxes)
+         3. `data-if-regex` tests via regex
    3. If action-form has `store` attribute and and id, it stores the value in local storage
       1. checkboxes and radio buttons are stored as array
-9. Adds listener for `reset` and `submit` which clears local storage for the form
+9.  Adds listener for `reset` and `submit` which clears local storage for the form
 
 ## `<af-error>`
 
@@ -175,3 +181,12 @@ _Uses Connected Callback. Might want to switch this to the constructor so it's o
 
 1. Finds target element based on id in `for` attribute or nearest sibling in label parent.
 2. Adds "input" listener on target to update number in this element's textContent.
+
+## `<af-preview>`
+
+Simple element that displays all of the field names and values as a list. Rerenders on 'af-step' event
+
+### Attributes
+
+* title-case: convert all of the field names (whether kebab-case, camelCase, or snake_case) to Title Case
+* ignore: comma separated list of field names to ignore and not display
