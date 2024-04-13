@@ -1,6 +1,7 @@
 import type ActionFormStep from "./af-step";
 import type ActionFormError from "./af-error";
 import type ActionFormGroupCount from "./af-group-count";
+import type { ActionFormStepEvent } from "./types";
 
 type FormField = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -63,6 +64,8 @@ export default class ActionForm extends HTMLElement {
 				this.stepIndex = stepIndex;
 				// set active based on index
 				let shownIndex = 0;
+				console.log("shownIndex", shownIndex, stepIndex);
+
 				Array.from(this.steps).forEach((step) => {
 					// Set data-index Based on visibility of the step
 					if (step.style.display !== "none") {
@@ -169,9 +172,6 @@ export default class ActionForm extends HTMLElement {
 			});
 
 			this.addEventListener("submit", (e) => {
-				if (this.hasAttribute("store")) {
-					localStorage.removeItem(`action-form-${this.id}`);
-				}
 				// Validate form before submitting
 				const formValid = form.checkValidity();
 				if (!formValid) {
@@ -184,7 +184,7 @@ export default class ActionForm extends HTMLElement {
 						// check if that field is a child of an af-step element
 						if (parentStep) {
 							// move to that step
-							this.dispatchEvent(new CustomEvent("af-step", { detail: { step: parentStep.dataset.index } }));
+							this.dispatchEvent(new CustomEvent<ActionFormStepEvent>("af-step", { detail: { step: Number(parentStep.dataset.index) } }));
 						}
 
 						console.log("invalidField", invalidField);
@@ -195,6 +195,11 @@ export default class ActionForm extends HTMLElement {
 							invalidField.focus();
 						}
 						invalidField.dispatchEvent(new Event("change", { bubbles: true }));
+					}
+				} else {
+					// If form is valid then erase the stored values
+					if (this.hasAttribute("store")) {
+						localStorage.removeItem(`action-form-${this.id}`);
 					}
 				}
 			});
