@@ -63,11 +63,6 @@ export default class ActionFormStep extends HTMLElement {
 				}
 			}
 		});
-
-		//TODO: maybe change this to a mutation observer?
-		this.this.addEventListener("af-watcher", () => {
-			this.valid = this.isValid;
-		});
 	}
 
 	public step(direction: string = this.buttons[1]) {

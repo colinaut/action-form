@@ -136,6 +136,10 @@ export default class ActionForm extends HTMLElement {
 
 			this.enhanceElements();
 
+			/* -------------------------------------------------------------------------- */
+			/*                                Add Listeners                               */
+			/* -------------------------------------------------------------------------- */
+
 			this.addEventListener("change", (event) => {
 				const target = event.target;
 				if (target instanceof HTMLElement && target.matches("input, textarea, select, af-group-count")) {
@@ -227,50 +231,7 @@ export default class ActionForm extends HTMLElement {
 		}
 	}
 
-	public checkWatchers(watchers = this.watchers) {
-		// Get FormData for watchers
-		const form = this.querySelector("form");
-		if (!form || watchers.length === 0) return;
-		const formData = new FormData(form);
-		// Loop through watchers
-		watchers.forEach((watcher) => {
-			const values = formData.getAll(watcher.name);
-			// console.log("watchers values", values, watcher);
-
-			// Update textContent
-			if (watcher.text) {
-				watcher.el.textContent = values.join(", ");
-			}
-
-			// Update display
-			if (watcher.if) {
-				let valid = values.some((value) => {
-					// typeof value === "string" is to ignore formData files
-					if (typeof value === "string" && (watcher.value || watcher.regex)) {
-						// if is is a string (rather than a File) there is a value or regex to check then check for that
-						return value === watcher.value || (watcher.regex && watcher.regex.test(value));
-					}
-					// if value has no value return false; otherwise true
-					return !!value;
-				});
-
-				// if valid and there is a notValue then check for that as well
-				if (watcher.notValue && values.length !== 0 && valid) {
-					valid = values.every((value) => value !== watcher.notValue);
-				}
-				// if it is hidden and it is invalid, or vice versa, that means the state is fine so return.
-				if ((watcher.el.style.display === "none") !== valid) return;
-				// console.log("watcher", watcher.name, valid);
-				// Else show/hide it
-				this.show(watcher.el, valid);
-				// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
-				if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
-			}
-		});
-	}
-
 	private enhanceElements() {
-		// TODO: see if there is a better way to do this
 		// find all elements with stored values and set value
 		const getStoreElements = this.querySelectorAll("[data-get-store]") as NodeListOf<HTMLElement>;
 		getStoreElements.forEach((el) => {
@@ -334,6 +295,49 @@ export default class ActionForm extends HTMLElement {
 		this.checkWatchers();
 	}
 
+	public checkWatchers(watchers = this.watchers) {
+		// Get FormData for watchers
+		const form = this.querySelector("form");
+		if (!form || watchers.length === 0) return;
+		const formData = new FormData(form);
+		// Loop through watchers
+		watchers.forEach((watcher) => {
+			const values = formData.getAll(watcher.name);
+			// console.log("watchers values", values, watcher);
+
+			// Update textContent
+			if (watcher.text) {
+				watcher.el.textContent = values.join(", ");
+			}
+
+			// Update display
+			if (watcher.if) {
+				console.log("watcher", watcher.name, watcher.value, values);
+
+				let valid = values.some((value) => {
+					// typeof value === "string" is to ignore formData files
+					if (typeof value === "string" && (watcher.value || watcher.regex)) {
+						// if is is a string (rather than a File) there is a value or regex to check then check for that
+						return value === watcher.value || (watcher.regex && watcher.regex.test(value));
+					}
+					// if value has no value return false; otherwise true
+					return !!value;
+				});
+
+				console.log("watcher 2", watcher.name, watcher.value, values, valid, watcher.el.style.display === "none");
+
+				// if valid and there is a notValue then check for that as well
+				if (watcher.notValue && values.length !== 0 && valid) {
+					valid = values.every((value) => value !== watcher.notValue);
+				}
+				// console.log("watcher", watcher.name, valid);
+				this.show(watcher.el, valid);
+				// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
+				if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
+			}
+		});
+	}
+
 	private show(el: HTMLElement, show: boolean): void {
 		if (show) {
 			el.style.display = "";
@@ -342,8 +346,7 @@ export default class ActionForm extends HTMLElement {
 			el.style.display = "none";
 			el.setAttribute("disabled", "");
 		}
-		// TODO: is this needed? there is a listener in af-step
-		el.dispatchEvent(new CustomEvent("af-watcher", { bubbles: true, detail: { show: show } }));
+		el.dispatchEvent(new Event("change", { bubbles: true }));
 	}
 
 	// public connectedCallback(): void {
