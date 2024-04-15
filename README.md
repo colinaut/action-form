@@ -102,8 +102,9 @@ Simple element that displays all of the field names and values as a list. Rerend
 - [x] Add reset functionality for clearing localStorage; also should clear on submit
 - [x] Review stepIndex and shownStepIndex to see if there is a cleaner way to handle this
 - [x] Add reactive data for form elements values
-- [ ] Add af-group-count and af-error for fieldset elements with data-group attribute
-- [ ] Make sure that resetting the form also hides all error messages
+- [x] Add af-group-count and af-error for fieldset elements with data-group attribute
+- [x] Review how often the various "change" eventlisteners are triggered and if there is a way to limit it if it's going off too often.
+- [x] Make sure that resetting the form also hides all error messages
 - [x] Need to test submitting the form and triggering errors
 - [ ] QA all of it
 - [ ] Clean up and DRY code
