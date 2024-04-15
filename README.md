@@ -62,7 +62,7 @@ Displays the number of characters in a text input field or textarea
 ### Attributes
 
 * for - (optional) the id of the input or textarea; if not specified then it finds the field within the parent `<label>`
-  
+
 ## `<af-preview>`
 
 Simple element that displays all of the field names and values as a list. Rerenders on 'af-step' event
@@ -71,6 +71,7 @@ Simple element that displays all of the field names and values as a list. Rerend
 
 * title-case: convert all of the field names (whether kebab-case, camelCase, or snake_case) to Title Case
 * ignore: comma separated list of field names to ignore and not display
+* event-type: event listener that updates content. Default is "change"
 
 ### TODO
 

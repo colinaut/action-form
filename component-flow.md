@@ -196,3 +196,4 @@ Simple element that displays all of the field names and values as a list. Rerend
 
 * title-case: convert all of the field names (whether kebab-case, camelCase, or snake_case) to Title Case
 * ignore: comma separated list of field names to ignore and not display
+* event-type: event listener that updates content. Default is "change"
