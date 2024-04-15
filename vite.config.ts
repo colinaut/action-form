@@ -24,10 +24,10 @@ export default defineConfig(({ mode }) => {
 					index: resolve(__dirname, "src/main.ts"),
 					"action-form": resolve(__dirname, "src/action-form.ts"),
 					"af-step": resolve(__dirname, "src/af-step.ts"),
-					"af-progress": resolve(__dirname, "src/af-progress.ts"),
 					"af-error": resolve(__dirname, "src/af-error.ts"),
 					"af-text-count": resolve(__dirname, "src/af-text-count.ts"),
 					"af-group-count": resolve(__dirname, "src/af-group-count.ts"),
+					"af-preview": resolve(__dirname, "src/af-preview.ts"),
 				},
 				output: [
 					{

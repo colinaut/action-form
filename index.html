@@ -17,7 +17,7 @@
 		<p>HTML web component for forms</p>
 		<section>
 			<action-form novalidate auto-error store id="example">
-				<af-step-toggle></af-step-toggle>
+				<button type="button" onclick="this.closest('action-form')?.classList.toggle('no-steps')">Toogle Steps</button>
 				<p><span class="required">*</span> Required</p>
 				<form>
 					<input type="hidden" name="token" data-get-store="lilRedAuthToken" />
@@ -123,7 +123,8 @@
 					</af-step>
 					<af-step>
 						<fieldset>
-							<label>Optional Comments: <textarea name="comments" placeholder="Comments"></textarea></label>
+							<label>Optional Comments: <textarea name="comments" id="comments" placeholder="Comments"></textarea></label>
+							<div class="instructions">Characters written: <af-text-count for="comments"></af-text-count></div>
 
 							<label>Add required field to this step? <input type="checkbox" name="add-required" />Yes</label>
 							<label>Add another comment step? <input type="checkbox" name="comments-add" /> Yes</label>

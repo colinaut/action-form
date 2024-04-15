@@ -119,3 +119,6 @@ export default class ActionFormStep extends HTMLElement {
 }
 
 customElements.define("af-step", ActionFormStep);
+
+// Import af-progress so it is part of the af-step js bundle.
+import "./af-progress";
