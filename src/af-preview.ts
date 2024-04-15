@@ -9,23 +9,20 @@ function convertToTitleCase(str: string): string {
 		});
 }
 export default class ActionFormPreview extends HTMLElement {
-	private form!: HTMLFormElement | null;
+	private form: HTMLFormElement | null;
 
 	constructor() {
 		super();
 
-		const actionForm = this.closest("action-form");
-		this.form = this.closest("form");
+		const forId = this.getAttribute("for");
+		this.form = forId ? (document.getElementById(forId) as HTMLFormElement | null) : (this.closest("form") as HTMLFormElement | null);
+		if (!this.form) return;
 
-		if (!actionForm || !this.form) return;
-
+		this.render();
 		const eventType = this.getAttribute("event-type") || "change";
-		actionForm.addEventListener(eventType, () => {
+		this.form.addEventListener(eventType, () => {
 			this.render();
 		});
-	}
-	connectedCallback() {
-		this.render();
 	}
 
 	get ignore(): string[] {

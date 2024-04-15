@@ -190,10 +190,11 @@ _Uses Connected Callback. Might want to switch this to the constructor so it's o
 
 ## `<af-preview>`
 
-Simple element that displays all of the field names and values as a list. Rerenders on 'af-step' event
+Simple element that displays all of the field names and values as a list.
 
 ### Attributes
 
+* for: (optional) id of form element to display form data. Not required if this component is as child the parent form element.
 * title-case: convert all of the field names (whether kebab-case, camelCase, or snake_case) to Title Case
 * ignore: comma separated list of field names to ignore and not display
 * event-type: event listener that updates content. Default is "change"
