@@ -19,7 +19,8 @@ export default class ActionFormPreview extends HTMLElement {
 
 		if (!actionForm || !this.form) return;
 
-		actionForm.addEventListener("af-step", () => {
+		const eventType = this.getAttribute("event-type") || "change";
+		actionForm.addEventListener(eventType, () => {
 			this.render();
 		});
 	}
