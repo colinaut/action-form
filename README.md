@@ -108,6 +108,7 @@ Simple element that displays all of the field names and values as a list.
 - [x] Review how often the various "change" eventlisteners are triggered and if there is a way to limit it if it's going off too often.
 - [x] Make sure that resetting the form also hides all error messages
 - [x] Need to test submitting the form and triggering errors
+- [ ] Add show invalid to af-preview and/or a new component that displays invalid fields as a list
 - [ ] QA all of it
 - [ ] Clean up and DRY code
 - [ ] QA Again
