@@ -1,17 +1,7 @@
 export default class ActionFormTextCount extends HTMLElement {
-	constructor() {
-		super();
-	}
-
 	private getNumber(field: HTMLInputElement | HTMLTextAreaElement) {
-		const maxlength = field.getAttribute("maxlength");
-		let text!: string;
-		if (maxlength && this.hasAttribute("remaining")) {
-			text = String(Number(maxlength) - field.value.length);
-		} else {
-			text = String(field.value.length);
-		}
-		this.textContent = text;
+		const maxlength = Number(field.getAttribute("maxlength") || Infinity);
+		this.textContent = String(this.hasAttribute("remaining") ? maxlength - field.value.length : field.value.length);
 	}
 
 	connectedCallback() {
