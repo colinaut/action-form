@@ -49,7 +49,6 @@ export default class ActionForm extends HTMLElement {
 
 			this.addEventListener("af-step", (event) => {
 				const customEvent = event as CustomEvent<{ step?: number; direction?: string }>;
-				console.log("af-step", customEvent.detail?.step, customEvent.detail?.direction);
 				let stepIndex = this.stepIndex;
 				if (typeof customEvent.detail?.step === "number") {
 					stepIndex = customEvent.detail.step;
@@ -64,7 +63,6 @@ export default class ActionForm extends HTMLElement {
 				this.stepIndex = stepIndex;
 				// set active based on index
 				let shownIndex = 0;
-				console.log("shownIndex", shownIndex, stepIndex);
 
 				Array.from(this.steps).forEach((step) => {
 					// Set data-index Based on visibility of the step
@@ -190,9 +188,17 @@ export default class ActionForm extends HTMLElement {
 			});
 
 			this.addEventListener("reset", () => {
+				// Remove store
 				if (this.hasAttribute("store")) {
 					localStorage.removeItem(`action-form-${this.id}`);
 				}
+				// Find all invalid af-errors and hide them
+				const invalidErrors = form.querySelectorAll("af-error[invalid]") as NodeListOf<ActionFormError>;
+				invalidErrors.forEach((error) => {
+					error.showError(false);
+				});
+
+				// Move back to step 0
 				this.dispatchEvent(new CustomEvent("af-step", { detail: { step: 0 } }));
 			});
 
@@ -203,7 +209,10 @@ export default class ActionForm extends HTMLElement {
 					e.preventDefault();
 					console.error("Form validation failed");
 					// find first invalid field or invalid af-group-count
-					const invalidField = form.querySelector("input:invalid, select:invalid, textarea:invalid, af-group-count[validity=false]") as FormField | null;
+					const invalidField = form.querySelector("input:invalid, select:invalid, textarea:invalid, af-group-count[validity=false]") as
+						| FormField
+						| ActionFormGroupCount
+						| null;
 					if (invalidField) {
 						const parentStep = invalidField.closest("af-step") as null | ActionFormStep;
 						// check if that field is a child of an af-step element
@@ -312,8 +321,6 @@ export default class ActionForm extends HTMLElement {
 
 			// Update display
 			if (watcher.if) {
-				console.log("watcher", watcher.name, watcher.value, values);
-
 				let valid = values.some((value) => {
 					// typeof value === "string" is to ignore formData files
 					if (typeof value === "string" && (watcher.value || watcher.regex)) {
@@ -323,9 +330,6 @@ export default class ActionForm extends HTMLElement {
 					// if value has no value return false; otherwise true
 					return !!value;
 				});
-
-				console.log("watcher 2", watcher.name, watcher.value, values, valid, watcher.el.style.display === "none");
-
 				// if valid and there is a notValue then check for that as well
 				if (watcher.notValue && values.length !== 0 && valid) {
 					valid = values.every((value) => value !== watcher.notValue);

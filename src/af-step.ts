@@ -48,8 +48,8 @@ export default class ActionFormStep extends HTMLElement {
 		this.buttons = actionForm.stepButtons || ["Prev", "Next", "Submit"]; // default buttons
 
 		// update validity and completed when change event is fired
-		this.this.addEventListener("change", () => {
-			// console.log("af-step change isValid", this.isValid);
+		this.this.addEventListener("change", (event) => {
+			console.log("af-step change isValid", event.target, this.isValid);
 			this.valid = this.isValid;
 		});
 
