@@ -48,14 +48,14 @@ export default class ActionForm extends HTMLElement {
 			}
 
 			this.addEventListener("af-step", (event) => {
-				const customEvent = event as CustomEvent<{ step?: number; direction?: string }>;
+				const customEvent = event as CustomEvent<ActionFormStepEvent>;
 				let stepIndex = this.stepIndex;
 				if (typeof customEvent.detail?.step === "number") {
 					stepIndex = customEvent.detail.step;
-				} else if (customEvent.detail?.direction === this.stepButtons[1]) {
-					stepIndex++;
-				} else if (customEvent.detail?.direction === this.stepButtons[0]) {
-					stepIndex--;
+				} else if (customEvent.detail?.direction) {
+					console.log("step", customEvent.detail?.direction);
+
+					stepIndex = stepIndex + customEvent.detail?.direction;
 				}
 				// make sure stepIndex is within bounds
 				stepIndex = Math.max(0, Math.min(stepIndex, this.steps.length - 1));

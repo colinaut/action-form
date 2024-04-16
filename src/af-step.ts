@@ -1,5 +1,6 @@
 import type ActionForm from "./action-form";
 import type ActionFormGroupCount from "./af-group-count";
+import { ActionFormStepEvent } from "./types";
 
 export default class ActionFormStep extends HTMLElement {
 	private shadow: ShadowRoot | null;
@@ -57,17 +58,15 @@ export default class ActionFormStep extends HTMLElement {
 		this.this.addEventListener("click", (e) => {
 			const target = e.target;
 			if (target instanceof HTMLButtonElement) {
-				const direction = target.dataset.direction;
-				if (direction && this.buttons.indexOf(direction) < 2) {
-					this.step(direction);
-				}
+				this.step(Number(target.dataset.direction || 0));
 			}
 		});
 	}
 
-	public step(direction: string = this.buttons[1]) {
+	public step(direction: number = 1) {
+		if (direction === 0) return;
 		// If button is next check if any elements are invalid before moving to next step
-		if (direction === this.buttons[1]) {
+		if (direction > 0) {
 			const fields = this.querySelectorAll("input, select, textarea, af-group-count") as NodeListOf<
 				HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | ActionFormGroupCount
 			>;
@@ -91,7 +90,7 @@ export default class ActionFormStep extends HTMLElement {
 
 			if (!allValid) return;
 		}
-		this.dispatchEvent(new CustomEvent("af-step", { bubbles: true, detail: { direction } }));
+		this.dispatchEvent(new CustomEvent<ActionFormStepEvent>("af-step", { bubbles: true, detail: { direction } }));
 	}
 
 	public connectedCallback(): void {
@@ -107,11 +106,11 @@ export default class ActionFormStep extends HTMLElement {
 			nav.classList.add("af-step-nav");
 			nav.setAttribute("part", "step-nav");
 			nav.setAttribute("aria-label", "Step Navigation");
-			const stepButton = (direction: string) => {
-				return `<button type="button" class="af-step-${direction.toLowerCase()}" data-direction="${direction}" part="step-btn">${direction}</button>`;
+			const stepButton = (direction: string, dataDirection?: string) => {
+				return `<button type="button" class="af-step-${direction.toLowerCase()}" data-direction="${dataDirection}" part="step-btn">${direction}</button>`;
 			};
-			const leftBtn = this.classList.contains("first") ? `<span></span>` : stepButton(this.buttons[0]);
-			const rightBtn = this.classList.contains("last") ? `<button type="submit" part="submit">${this.buttons[2]}</button>` : stepButton(this.buttons[1]);
+			const leftBtn = this.classList.contains("first") ? `<span></span>` : stepButton(this.buttons[0], "-1");
+			const rightBtn = this.classList.contains("last") ? `<button type="submit" part="submit">${this.buttons[2]}</button>` : stepButton(this.buttons[1], "1");
 			nav.innerHTML = `${leftBtn}${rightBtn}`;
 			this.this.appendChild(nav);
 		}
