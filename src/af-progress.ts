@@ -123,7 +123,7 @@ export default class ActionFormProgress extends HTMLElement {
 				const active = index === stepIndex ? "active" : "";
 				const valid = step.valid ? "valid" : "";
 				const disabled = this.hasAttribute("enable-all") || stepIndex > index ? "" : "disabled";
-				const title = step.getAttribute("progress-title") || "";
+				const title = step.dataset.title || "";
 				return `<button type="button" part="step ${valid} ${active}" ${disabled} title="${title}" class="step ${valid} ${active}" ${
 					active && `aria-current="step"`
 				} aria-label="Step ${index + 1}" data-index="${index}">${index + 1}</button>`;
