@@ -121,7 +121,7 @@
 							</fieldset>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Comments">
 						<fieldset>
 							<label>Optional Comments: <textarea name="comments" id="comments" placeholder="Comments"></textarea></label>
 							<div class="instructions">Characters written: <af-text-count for="comments"></af-text-count></div>
@@ -134,19 +134,19 @@
 							</fieldset>
 						</fieldset>
 					</af-step>
-					<af-step data-if="comments-add">
+					<af-step data-if="comments-add" data-title="More Comments">
 						<fieldset>
 							<label>Optional Comments2: <textarea name="comments2" placeholder="Comments"></textarea></label>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Terms">
 						<fieldset id="submit">
 							<label><input type="checkbox" name="terms" id="terms" required /> I agree to the terms and conditions</label>
 							<af-error for="terms"></af-error>
 							<!-- Form fields -->
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Preview">
 						<af-preview title-case ignore="token"></af-preview>
 					</af-step>
 					<div style="margin: 1em"><button type="reset">Reset Form</button></div>

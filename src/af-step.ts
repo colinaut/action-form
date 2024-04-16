@@ -8,9 +8,7 @@ export default class ActionFormStep extends HTMLElement {
 	// TODO: test this with a browser that does not have Declarative Shadow DOM
 	private this: this | ShadowRoot;
 
-	public prev!: string;
-	public next!: string;
-	public submit!: string;
+	private actionForm = this.closest("action-form") as ActionForm | null;
 
 	// Reflected Attributes
 	get valid(): boolean {
@@ -37,21 +35,35 @@ export default class ActionFormStep extends HTMLElement {
 		return valid && this.querySelectorAll(":invalid").length === 0;
 	}
 
+	private getStepTitle(direction: number = 1): string {
+		if (this.actionForm) {
+			const thisStepIndex = Number(this.dataset.index || 0);
+			let otherStepIndex = thisStepIndex + direction;
+			otherStepIndex = Math.max(0, Math.min(otherStepIndex, this.actionForm.steps.length - 1));
+			const otherStep = Array.from(this.actionForm.steps).find((step) => step.dataset.index === String(otherStepIndex));
+			return otherStep?.dataset.title || "";
+		}
+		return "";
+	}
+
+	get prev() {
+		return this.dataset.buttonPrev || this.getStepTitle(-1) || this.actionForm?.dataset.buttonPrev || "Prev";
+	}
+
+	get next() {
+		return this.dataset.buttonNext || this.getStepTitle() || this.actionForm?.dataset.buttonNext || "Next";
+	}
+
+	get submit() {
+		return this.dataset.buttonSubmit || this.actionForm?.dataset.buttonSubmit || "Submit";
+	}
+
 	constructor() {
 		super();
 
 		const internals = this.attachInternals();
 		this.shadow = internals.shadowRoot;
 		this.this = this.shadow || this;
-
-		// af-step requires action-form wrapper. Exit if it is not found
-		const actionForm = this.closest("action-form") as ActionForm | null;
-		if (!actionForm) return;
-
-		// get button text
-		this.prev = this.getAttribute("prev") || actionForm.prev;
-		this.next = this.getAttribute("next") || actionForm.next;
-		this.submit = this.getAttribute("submit") || actionForm.submit;
 
 		// update validity and completed when change event is fired
 		this.this.addEventListener("change", (event) => {
@@ -64,6 +76,12 @@ export default class ActionFormStep extends HTMLElement {
 			const target = e.target;
 			if (target instanceof HTMLButtonElement) {
 				this.step(Number(target.dataset.direction || 0));
+			}
+		});
+
+		this.actionForm?.addEventListener("af-step", (event) => {
+			if (!event.detail) {
+				this.setButtonTexts();
 			}
 		});
 	}
@@ -120,6 +138,19 @@ export default class ActionFormStep extends HTMLElement {
 			const rightBtn = this.classList.contains("last") ? `<button type="submit" part="submit">${this.submit}</button>` : stepButton(this.next, true);
 			nav.innerHTML = `${leftBtn}${rightBtn}`;
 			this.this.appendChild(nav);
+		}
+	}
+
+	private setButtonTexts() {
+		console.log("setButtonTexts");
+
+		const prevBtn = this.this.querySelector("button[data-direction='-1']") as HTMLButtonElement | null;
+		const nextBtn = this.this.querySelector("button[data-direction='1']") as HTMLButtonElement | null;
+		if (prevBtn) {
+			prevBtn.textContent = this.prev;
+		}
+		if (nextBtn) {
+			nextBtn.textContent = this.next;
 		}
 	}
 }

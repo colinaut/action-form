@@ -12,9 +12,6 @@ function isField(el: Element): el is FormField {
 export default class ActionForm extends HTMLElement {
 	public steps = this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	public stepIndex: number = 0; // current step
-	public prev: string = this.getAttribute("prev") || "Prev";
-	public next: string = this.getAttribute("next") || "Next";
-	public submit: string = this.getAttribute("submit") || "Submit";
 
 	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
@@ -34,7 +31,7 @@ export default class ActionForm extends HTMLElement {
 			}
 
 			this.steps.forEach((step, i) => {
-				step.setAttribute("index", String(i)); // step.index = i;
+				step.dataset.index = String(i);
 				if (i === 0) {
 					step.classList.add("first", "active");
 				}
@@ -46,6 +43,8 @@ export default class ActionForm extends HTMLElement {
 			// Get step buttons
 
 			this.addEventListener("af-step", (event) => {
+				console.log("af-step", event);
+
 				const customEvent = event as CustomEvent<ActionFormStepEvent>;
 				let stepIndex = this.stepIndex;
 				if (typeof customEvent.detail?.step === "number") {
@@ -334,7 +333,7 @@ export default class ActionForm extends HTMLElement {
 				}
 				// console.log("watcher", watcher.name, valid);
 				this.show(watcher.el, valid);
-				// if this is af-step then trigger event to update progress bar since there is a change in the number of steps
+				// if this is af-step then trigger event to update progress bar and step buttons text since there is a change in the number of steps
 				if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
 			}
 		});
