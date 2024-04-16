@@ -142,8 +142,6 @@ export default class ActionFormStep extends HTMLElement {
 	}
 
 	private setButtonTexts() {
-		console.log("setButtonTexts");
-
 		const prevBtn = this.this.querySelector("button[data-direction='-1']") as HTMLButtonElement | null;
 		const nextBtn = this.this.querySelector("button[data-direction='1']") as HTMLButtonElement | null;
 		if (prevBtn) {

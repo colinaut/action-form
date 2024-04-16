@@ -40,11 +40,7 @@ export default class ActionForm extends HTMLElement {
 				}
 			});
 
-			// Get step buttons
-
 			this.addEventListener("af-step", (event) => {
-				console.log("af-step", event);
-
 				const customEvent = event as CustomEvent<ActionFormStepEvent>;
 				let stepIndex = this.stepIndex;
 				if (typeof customEvent.detail?.step === "number") {
