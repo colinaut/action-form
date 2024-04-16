@@ -28,7 +28,7 @@
 					<input type="hidden" name="token" data-get-store="lilRedAuthToken" />
 					<input type="hidden" name="sort" data-get-store="action-table-big-table.sort" />
 					<af-progress enable-all></af-progress>
-					<af-step progress-title="Your Name">
+					<af-step data-title="Your Name" next="Phone Numbers">
 						<template shadowrootmode="open">
 							<style>
 								:host {
@@ -51,7 +51,7 @@
 							</div>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Phone Numbers">
 						<fieldset data-group="1" data-error="At least one phone number is required">
 							<legend>Phone Numbers</legend>
 							<div class="instructions col-span-full flex justify-between items-center">At least one phone number is required</div>
@@ -63,7 +63,7 @@
 							<af-error for="mobile-phone">phone number must have 7 digits</af-error>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Contact Us">
 						<template shadowrootmode="open">
 							<style>
 								:host {
@@ -75,7 +75,7 @@
 							</style>
 							<slot></slot>
 						</template>
-						<div slot="header">Contact Information</div>
+						<div slot="header">Contact Us</div>
 						<fieldset>
 							<label>Email: <input type="email" name="email" id="email" required /></label>
 							<af-error for="email">Email is required</af-error>
@@ -102,7 +102,7 @@
 							</div>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Favorite Animals">
 						<fieldset id="animals" class="grid grid-cols-4" data-group="1-3">
 							<legend>Favorite Animals</legend>
 							<div class="instructions col-span-full flex justify-between items-center">
@@ -126,7 +126,7 @@
 							</fieldset>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Comments">
 						<fieldset>
 							<label>Optional Comments: <textarea name="comments" id="comments" placeholder="Comments"></textarea></label>
 							<div class="instructions">Characters written: <af-text-count for="comments"></af-text-count></div>
@@ -139,19 +139,19 @@
 							</fieldset>
 						</fieldset>
 					</af-step>
-					<af-step data-if="comments-add">
+					<af-step data-if="comments-add" data-title="More Comments">
 						<fieldset>
 							<label>Optional Comments2: <textarea name="comments2" placeholder="Comments"></textarea></label>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Terms">
 						<fieldset id="submit">
 							<label><input type="checkbox" name="terms" id="terms" required /> I agree to the terms and conditions</label>
 							<af-error for="terms"></af-error>
 							<!-- Form fields -->
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step data-title="Preview">
 						<af-preview title-case ignore="token"></af-preview>
 					</af-step>
 					<div style="margin: 1em"><button type="reset">Reset Form</button></div>
