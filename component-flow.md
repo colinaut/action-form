@@ -133,7 +133,7 @@ Wrapper element for form steps. Works as either a light DOM or declarative shado
 2. update number of steps
 3. Add 'change' event listener to check for validity of all fields in step
    1. Sets valid.
-4. Add `click` event for prev/next buttons
+4. Add 'click' event listener for prev/next buttons
    1. Prev just goes to the previous step
    2. Next checks validity before going to the next step.
       1. Grabs all :invalid input, select, textarea, and fieldsets
@@ -141,6 +141,8 @@ Wrapper element for form steps. Works as either a light DOM or declarative shado
       3. If first invalid element is af-group-count then it triggers the af-error and focuses on the first other field in the fieldset
       4. If every element is valid then it sets completed if it moves on to nest step.
    3. If it moves than it dispatches 'af-step' event with prev or next step number to update progress bar and action-form
+5. Add 'af-step' event listener
+   1. If there is no detail for event, that means this is a data-if watcher event where a af-step is shown/hidden. If this is the case then update the prev/next button text since data-title will be different.
 
 ### connectedCallback Init
 
@@ -153,7 +155,7 @@ Wrapper element for form steps. Works as either a light DOM or declarative shado
 
 ### Methods
 
-* step("prev" | "next") - handles the validation check for next and dispatches "af-step" with new step index value
+* step(direction: number = 1) - Direction argument 1 = next step; -1 = prev step; handles the validation check for next and dispatches "af-step" with new step index value
 
 ## `<af-progress>`
 
@@ -171,6 +173,7 @@ Shadow DOM element that displays a progress bar for the steps.
 
 1. Sets the progress bar based on percentage of active step to total steps
 2. Adds buttons with parts and classes "valid" and "active" and aria-current="step" attribute for active.
+3. Adds title if there is a data-title on the corresponding step element
 
 ## `<af-test-count>`
 

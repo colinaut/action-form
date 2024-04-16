@@ -11,6 +11,9 @@ Base wrapper. This wrapper enhances fieldsets with the ability to show and hide 
 * novalidate - sets novalidate on form.
 * auto-error - automatically adds af-error elements for fields that require validation, unless there is already a matching af-error. Also adds af-error and af-group-count for fieldsets with `data-group`.
 * store - _Requires a id on the action-form._ stores all field values in local storage as `action-form-${id}` and refills fields on reload. Local storage is cleared after 'reset' or a successful 'submit'.
+* data-button.prev - text for previous buttons; defaults to "Prev"
+* data-button.next - text for next buttons; defaults to "Next"
+* data-button.submit - text for submit buttons; defaults to "Submit"
 
 ## Element Enhancements
 
@@ -46,6 +49,15 @@ Shadow DOM element that displays the number of checked or valid fields in a fiel
 ## `<af-step>`
 
 Form step wrapper. Automatically adds previous, next, and a final submit buttons unless footer is overridden. This element is light DOM unless you add a declarative shadow DOM template.
+
+### Attributes
+
+* data-title - (optional) Title attribute for progress bar and prev/next buttons of sibling steps
+* valid - (automatic, set by af-step) shown if all child fields are valid
+* data-index - (automatic, set by action-form) index for current step, undefined with not visible
+* data-button.prev - text for the previous button; overrides data-title and action-form data-button.prev
+* data-button.next - text for the next button; overrides data-title and action-form data-button.next
+* data-button.submit - text for submit button; overrides action-form data-button.submit
 
 ## `<af-progress>`
 
@@ -108,7 +120,7 @@ Simple element that displays all of the field names and values as a list.
 - [x] Review how often the various "change" eventlisteners are triggered and if there is a way to limit it if it's going off too often.
 - [x] Make sure that resetting the form also hides all error messages
 - [x] Need to test submitting the form and triggering errors
-- [ ] Ability to change next/prev button text when steps show or hide
+- [x] Ability to change next/prev button text when steps show or hide
 - [ ] Add show invalid to af-preview and/or a new component that displays invalid fields as a list
 - [ ] QA all of it
 - [ ] Clean up and DRY code
