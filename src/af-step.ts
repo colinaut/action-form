@@ -37,8 +37,7 @@ export default class ActionFormStep extends HTMLElement {
 
 	private getStepTitle(direction: number = 1): string {
 		if (this.actionForm) {
-			const thisStepIndex = Number(this.dataset.index || 0);
-			let otherStepIndex = thisStepIndex + direction;
+			let otherStepIndex = Number(this.dataset.index || 0) + direction;
 			otherStepIndex = Math.max(0, Math.min(otherStepIndex, this.actionForm.steps.length - 1));
 			const otherStep = Array.from(this.actionForm.steps).find((step) => step.dataset.index === String(otherStepIndex));
 			return otherStep?.dataset.title || "";
@@ -47,15 +46,20 @@ export default class ActionFormStep extends HTMLElement {
 	}
 
 	get prev() {
-		return this.dataset.buttonPrev || this.getStepTitle(-1) || this.actionForm?.dataset.buttonPrev || "Prev";
+		return this.getDataText("Prev", -1);
 	}
 
 	get next() {
-		return this.dataset.buttonNext || this.getStepTitle() || this.actionForm?.dataset.buttonNext || "Next";
+		return this.getDataText("Next", 1);
 	}
 
 	get submit() {
-		return this.dataset.buttonSubmit || this.actionForm?.dataset.buttonSubmit || "Submit";
+		return this.getDataText("Submit");
+	}
+
+	private getDataText(type: string, step?: number) {
+		const prop = `button${type}`;
+		return this.dataset[prop] || (step && this.getStepTitle(step)) || this.actionForm?.dataset[prop] || type;
 	}
 
 	constructor() {
@@ -142,14 +146,10 @@ export default class ActionFormStep extends HTMLElement {
 	}
 
 	private setButtonTexts() {
-		const prevBtn = this.this.querySelector("button[data-direction='-1']") as HTMLButtonElement | null;
-		const nextBtn = this.this.querySelector("button[data-direction='1']") as HTMLButtonElement | null;
-		if (prevBtn) {
-			prevBtn.textContent = this.prev;
-		}
-		if (nextBtn) {
-			nextBtn.textContent = this.next;
-		}
+		const queryBtns = this.this.querySelectorAll("button[data-direction]") as NodeListOf<HTMLButtonElement>;
+		queryBtns.forEach((btn) => {
+			btn.textContent = btn.dataset.direction === "1" ? this.next : this.prev;
+		});
 	}
 }
 
