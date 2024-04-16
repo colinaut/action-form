@@ -112,10 +112,14 @@ Wrapper element for form steps. Works as either a light DOM or declarative shado
 * numberOfSteps: number of steps, grabbed from action-form element as actionForm.steps.length. _Might not need this?_
 * this: this or ShadowRoot. Determined in constructor based on if there is a declarative template
 
-## Public Reflected Attribute Properties
+### Attributes
 
-* valid: if all fields in step are valid
-* index: index of step
+* valid - (automatic, set by af-step) shown if all child fields are valid
+* data-index - (automatic, set by action-form) index for current step, undefined with not visible
+* data-title - (optional) Title attribute for progress bar and prev/next buttons of sibling steps
+* data-button.prev - (optional) text for the previous button; overrides data-title and action-form data-button.prev
+* data-button.next - (optional) text for the next button; overrides data-title and action-form data-button.next
+* data-button.submit - (optional) text for submit button; overrides action-form data-button.submit
 
 ## Classes
 

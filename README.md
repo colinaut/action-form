@@ -52,12 +52,12 @@ Form step wrapper. Automatically adds previous, next, and a final submit buttons
 
 ### Attributes
 
-* data-title - (optional) Title attribute for progress bar and prev/next buttons of sibling steps
 * valid - (automatic, set by af-step) shown if all child fields are valid
 * data-index - (automatic, set by action-form) index for current step, undefined with not visible
-* data-button.prev - text for the previous button; overrides data-title and action-form data-button.prev
-* data-button.next - text for the next button; overrides data-title and action-form data-button.next
-* data-button.submit - text for submit button; overrides action-form data-button.submit
+* data-title - (optional) Title attribute for progress bar and prev/next buttons of sibling steps
+* data-button.prev - (optional) text for the previous button; overrides data-title and action-form data-button.prev
+* data-button.next - (optional) text for the next button; overrides data-title and action-form data-button.next
+* data-button.submit - (optional) text for submit button; overrides action-form data-button.submit
 
 ## `<af-progress>`
 
@@ -121,6 +121,7 @@ Simple element that displays all of the field names and values as a list.
 - [x] Make sure that resetting the form also hides all error messages
 - [x] Need to test submitting the form and triggering errors
 - [x] Ability to change next/prev button text when steps show or hide
+- [ ] Sort out css variables and document them
 - [ ] Add show invalid to af-preview and/or a new component that displays invalid fields as a list
 - [ ] QA all of it
 - [ ] Clean up and DRY code
