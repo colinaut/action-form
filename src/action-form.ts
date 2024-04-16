@@ -12,7 +12,9 @@ function isField(el: Element): el is FormField {
 export default class ActionForm extends HTMLElement {
 	public steps = this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	public stepIndex: number = 0; // current step
-	public stepButtons!: string[];
+	public prev: string = this.getAttribute("prev") || "Prev";
+	public next: string = this.getAttribute("next") || "Next";
+	public submit: string = this.getAttribute("submit") || "Submit";
 
 	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
@@ -42,10 +44,6 @@ export default class ActionForm extends HTMLElement {
 			});
 
 			// Get step buttons
-			this.stepButtons = this.getAttribute("step-buttons")?.split(",") || [];
-			if (this.stepButtons.length !== 3) {
-				this.stepButtons = ["Prev", "Next", "Submit"];
-			}
 
 			this.addEventListener("af-step", (event) => {
 				const customEvent = event as CustomEvent<ActionFormStepEvent>;

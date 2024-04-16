@@ -28,6 +28,22 @@ af-step af-error {
 	margin-block-start: -0.2em;
 	font-size: 0.9em;
 }
+af-step[valid] .af-step-next,
+af-step[valid]::part(next) {
+	background-color: lightseagreen;
+	color: white;
+	transition: color;
+}
+.af-step-next::after,
+af-step::part(next)::after {
+	content: "\2192";
+	margin-inline-start: 0.5em;
+}
+.af-step-prev::before,
+af-step::part(prev)::before {
+	content: "\2190";
+	margin-inline-end: 0.5em;
+}
 :where(fieldset, af-fieldset) > * {
 	width: -moz-fit-content;
 	width: fit-content;

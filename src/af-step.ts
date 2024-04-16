@@ -8,7 +8,9 @@ export default class ActionFormStep extends HTMLElement {
 	// TODO: test this with a browser that does not have Declarative Shadow DOM
 	private this: this | ShadowRoot;
 
-	private buttons!: string[];
+	public prev!: string;
+	public next!: string;
+	public submit!: string;
 
 	// Reflected Attributes
 	get valid(): boolean {
@@ -46,7 +48,10 @@ export default class ActionFormStep extends HTMLElement {
 		const actionForm = this.closest("action-form") as ActionForm | null;
 		if (!actionForm) return;
 
-		this.buttons = actionForm.stepButtons || ["Prev", "Next", "Submit"]; // default buttons
+		// get button text
+		this.prev = this.getAttribute("prev") || actionForm.prev;
+		this.next = this.getAttribute("next") || actionForm.next;
+		this.submit = this.getAttribute("submit") || actionForm.submit;
 
 		// update validity and completed when change event is fired
 		this.this.addEventListener("change", (event) => {
@@ -106,11 +111,13 @@ export default class ActionFormStep extends HTMLElement {
 			nav.classList.add("af-step-nav");
 			nav.setAttribute("part", "step-nav");
 			nav.setAttribute("aria-label", "Step Navigation");
-			const stepButton = (direction: string, dataDirection?: string) => {
-				return `<button type="button" class="af-step-${direction.toLowerCase()}" data-direction="${dataDirection}" part="step-btn">${direction}</button>`;
+			const stepButton = (buttonText: string, next?: boolean) => {
+				return `<button type="button" class="af-step-${next ? "next" : "prev"}" data-direction="${next ? 1 : -1}" part="step-btn ${
+					next ? "next" : "prev"
+				}">${buttonText}</button>`;
 			};
-			const leftBtn = this.classList.contains("first") ? `<span></span>` : stepButton(this.buttons[0], "-1");
-			const rightBtn = this.classList.contains("last") ? `<button type="submit" part="submit">${this.buttons[2]}</button>` : stepButton(this.buttons[1], "1");
+			const leftBtn = this.classList.contains("first") ? `<span></span>` : stepButton(this.prev, false);
+			const rightBtn = this.classList.contains("last") ? `<button type="submit" part="submit">${this.submit}</button>` : stepButton(this.next, true);
 			nav.innerHTML = `${leftBtn}${rightBtn}`;
 			this.this.appendChild(nav);
 		}

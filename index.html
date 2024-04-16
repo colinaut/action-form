@@ -23,7 +23,7 @@
 					<input type="hidden" name="token" data-get-store="lilRedAuthToken" />
 					<input type="hidden" name="sort" data-get-store="action-table-big-table.sort" />
 					<af-progress enable-all></af-progress>
-					<af-step progress-title="Your Name">
+					<af-step progress-title="Your Name" next="Phone Numbers">
 						<template shadowrootmode="open">
 							<style>
 								:host {
@@ -58,7 +58,7 @@
 							<af-error for="mobile-phone">phone number must have 7 digits</af-error>
 						</fieldset>
 					</af-step>
-					<af-step>
+					<af-step next="Favorite Animals">
 						<template shadowrootmode="open">
 							<style>
 								:host {
