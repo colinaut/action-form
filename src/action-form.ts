@@ -9,17 +9,25 @@ function isField(el: Element): el is FormField {
 	return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement;
 }
 
+function randomId(): string {
+	return Math.random().toString(36).substring(2);
+}
+
 export default class ActionForm extends HTMLElement {
+	public form = (this.querySelector("form") as HTMLFormElement) || null;
 	public steps = this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
 	public stepIndex: number = 0; // current step
 
+	public storeKey: string = this.hasAttribute("store") ? `action-form-${this.getAttribute("store") || this.id || this.form.id || randomId()}` : "";
+
 	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
+	private persistedFields: string[] = [];
 
 	constructor() {
 		super();
 		document.documentElement.classList.add("js");
 
-		const form = this.querySelector("form");
+		const form = this.form;
 		if (form) {
 			/*
 			 * Set novalidate on the form if novalidate set on action-form.
@@ -155,8 +163,8 @@ export default class ActionForm extends HTMLElement {
 					}
 
 					// if store attribute is set then store the values in local storage
-					if (this.id && this.hasAttribute("store")) {
-						const ls = localStorage.getItem(`action-form-${this.id}`) || "{}";
+					if (this.storeKey) {
+						const ls = localStorage.getItem(this.storeKey) || "{}";
 						if (ls && field.name) {
 							const values = JSON.parse(ls);
 							// if element is a checkbox or radio than store as array of checked values
@@ -174,25 +182,22 @@ export default class ActionForm extends HTMLElement {
 								values[field.name] = field.value;
 							}
 							// if
-							localStorage.setItem(`action-form-${this.id}`, JSON.stringify(values));
+							localStorage.setItem(this.storeKey, JSON.stringify(values));
 						}
 					}
 				}
 			});
 
-			this.addEventListener("reset", () => {
-				// Remove store
-				if (this.hasAttribute("store")) {
-					localStorage.removeItem(`action-form-${this.id}`);
-				}
-				// Find all invalid af-errors and hide them
-				const invalidErrors = form.querySelectorAll("af-error[invalid]") as NodeListOf<ActionFormError>;
-				invalidErrors.forEach((error) => {
-					error.showError(false);
-				});
+			// Override reset button. We need to reset the form and restore the form state in that order.
+			const resetBtns = this.querySelectorAll("button[type=reset]");
 
-				// Move back to step 0
-				this.dispatchEvent(new CustomEvent("af-step", { detail: { step: 0 } }));
+			resetBtns.forEach((resetBtn) => {
+				resetBtn.addEventListener("click", (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					this.form.reset();
+					this.restoreForm();
+				});
 			});
 
 			this.addEventListener("submit", (e) => {
@@ -224,12 +229,42 @@ export default class ActionForm extends HTMLElement {
 						invalidField.dispatchEvent(new Event("change", { bubbles: true }));
 					}
 				} else {
-					// If form is valid then erase the stored values
-					if (this.hasAttribute("store")) {
-						localStorage.removeItem(`action-form-${this.id}`);
-					}
+					// If form is valid then erase the stored values except for persisted fields
+					this.resetStore();
 				}
 			});
+		}
+	}
+
+	private restoreForm() {
+		// Remove store except for persisted fields
+		this.resetStore();
+		this.restoreFieldValues();
+		// Find all invalid af-errors and hide them
+		const invalidErrors = this.querySelectorAll("af-error[invalid]") as NodeListOf<ActionFormError>;
+		invalidErrors.forEach((error) => {
+			error.showError(false);
+		});
+
+		this.checkWatchers();
+		// Move back to step 0
+		this.dispatchEvent(new CustomEvent("af-step", { detail: { step: 0 } }));
+	}
+
+	private resetStore() {
+		// Remove store except for persisted fields
+		const ls = localStorage.getItem(this.storeKey);
+		// If there are persisted field then maintain them
+		if (ls && this.persistedFields.length > 0) {
+			const values = JSON.parse(ls) as Record<string, string | string[]>;
+			Object.keys(values).forEach((key) => {
+				if (!this.persistedFields.includes(key)) {
+					delete values[key];
+				}
+			});
+			localStorage.setItem(this.storeKey, JSON.stringify(values));
+		} else {
+			localStorage.removeItem(this.storeKey);
 		}
 	}
 
@@ -256,27 +291,7 @@ export default class ActionForm extends HTMLElement {
 			}
 		});
 
-		// If store then update all fields (except type="hidden") with stored values
-		if (this.id && this.hasAttribute("store")) {
-			const ls = localStorage.getItem(`action-form-${this.id}`);
-			if (ls) {
-				const values = JSON.parse(ls);
-				Object.keys(values).forEach((key) => {
-					const fields = this.querySelectorAll(`[name="${key}"]`);
-					fields.forEach((el) => {
-						if (isField(el) && !el.matches("[type=hidden]")) {
-							// if this is a checkbox or radio button
-							if (el instanceof HTMLInputElement && ["checkbox", "radio"].includes(el.type) && values[key] instanceof Array) {
-								// set checked based on value in array
-								el.checked = values[key].includes(el.value);
-							} else {
-								el.value = String(values[key]);
-							}
-						}
-					});
-				});
-			}
-		}
+		this.restoreFieldValues();
 
 		// find all watchers and create watcher array
 		const watchers = this.querySelectorAll("[data-if],[data-text]") as NodeListOf<HTMLElement>;
@@ -295,9 +310,37 @@ export default class ActionForm extends HTMLElement {
 
 		// set Watchers from the start
 		this.checkWatchers();
+
+		// check for persisted fields
+		const persistedFields = this.querySelectorAll("[data-persist]");
+		this.persistedFields = Array.from(persistedFields).map((el) => (isField(el) ? el.name : ""));
+	}
+
+	private restoreFieldValues() {
+		const ls = localStorage.getItem(this.storeKey);
+		if (!ls) return;
+		const values = JSON.parse(ls) as Record<string, string | string[]>;
+		if (typeof values !== "object") return;
+		// Cycle through fields based on name
+		Object.keys(values).forEach((key) => {
+			const fields = this.querySelectorAll(`[name="${key}"]`);
+			fields.forEach((el) => {
+				if (isField(el) && !el.matches("[type=hidden]")) {
+					// if this is a checkbox or radio button
+					if (el instanceof HTMLInputElement && ["checkbox", "radio"].includes(el.type) && values[key] instanceof Array) {
+						// set checked based on value in array
+						el.checked = values[key].includes(el.value);
+					} else {
+						// set value
+						el.value = String(values[key]);
+					}
+				}
+			});
+		});
 	}
 
 	public checkWatchers(watchers = this.watchers) {
+		console.log("checkWatchers", watchers);
 		// Get FormData for watchers
 		const form = this.querySelector("form");
 		if (!form || watchers.length === 0) return;

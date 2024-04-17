@@ -10,7 +10,7 @@ Base wrapper. This wrapper enhances fieldsets with the ability to show and hide 
 
 * novalidate - sets novalidate on form.
 * auto-error - automatically adds af-error elements for fields that require validation, unless there is already a matching af-error. Also adds af-error and af-group-count for fieldsets with `data-group`.
-* store - _Requires a id on the action-form._ stores all field values in local storage as `action-form-${id}` and refills fields on reload. Local storage is cleared after 'reset' or a successful 'submit'.
+* store - Stores all field values in local storage and refills fields on reload. Local storage is cleared after 'reset' or a successful 'submit'. Local storage key is as `action-form-${id}` where id is either the value of `store="name"`, the id of the action-form, the id of the form, or a random string. This is held in this.storeKey property.
 * data-button.prev - text for previous buttons; defaults to "Prev"
 * data-button.next - text for next buttons; defaults to "Next"
 * data-button.submit - text for submit buttons; defaults to "Submit"
@@ -121,6 +121,8 @@ Simple element that displays all of the field names and values as a list.
 - [x] Make sure that resetting the form also hides all error messages
 - [x] Need to test submitting the form and triggering errors
 - [x] Ability to change next/prev button text when steps show or hide
+- [ ] Add a data-no-store attribute to stop localStorage from being added for a field
+- [ ] Add a data-persist attribute to maintain a field from resetting.
 - [ ] Sort out css variables and document them
 - [ ] Add show invalid to af-preview and/or a new component that displays invalid fields as a list
 - [ ] QA all of it

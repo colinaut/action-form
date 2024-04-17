@@ -9,6 +9,7 @@
   * Used for af-step event listener and some child components
   * _This is an expensive operation so maybe look to see how often it is triggered and if there is a better method_
 * stepButtons: string[] for the text of the next, prev, and submit step buttons. Defaults to ["Prev", "Next", "Submit"]. Change via comma separated string on attribute `step-buttons="Prev,Next,Submit"`.
+* storeKey: string — Local storage key is as `action-form-${id}` where id is either the value of `store="name"`, the id of the action-form, the id of the form, or a random string. This is held in this.storeKey property.
 
 ### Methods
 
@@ -35,7 +36,7 @@
       5. Searches for `<af-group-count>` and if it doesn't find it, appends one with display="none"
 5. Queries for fields with `data-get-store` attribute
    1. updates the field with localStorage value; if it exists
-6. If action-form has `store` attribute and and id, it updates all fields that have value in the named localStorage
+6. If action-form has `store` attribute, it updates all fields that have value in localStorage using this.storeKey as the key.
 7. Queries for fieldsets and af-steps which have `data-if` or `data-text` attribute
    1. Creates watchers array which allows hide/show and update textContent functionality. Array has the following properties:
       1.  el: HTMLElement with data-if attribute
@@ -53,8 +54,7 @@
          1. `data-if-value` checks value matches (or has the value in the array in case of checkboxes)
          2. `data-if-not-value` checks if value does not match (or does not have the value in the array in case of checkboxes)
          3. `data-if-regex` tests via regex
-   3. If action-form has `store` attribute and and id, it stores the value in local storage
-      1. checkboxes and radio buttons are stored as array
+   3. If action-form has `store` attribute, it stores all field values in local storage using this.storeKey as the key.
 9.  Adds listener for `reset` and `submit` which clears local storage for the form
 
 ## `<af-error>`
