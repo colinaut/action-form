@@ -13,6 +13,15 @@ function randomId(): string {
 	return Math.random().toString(36).substring(2);
 }
 
+function IsJsonString(str: string) {
+	try {
+		const json = JSON.parse(str);
+		return typeof json === "object";
+	} catch (e) {
+		return false;
+	}
+}
+
 export default class ActionForm extends HTMLElement {
 	public form = (this.querySelector("form") as HTMLFormElement) || null;
 	public steps = this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
@@ -279,7 +288,7 @@ export default class ActionForm extends HTMLElement {
 				const parts = stored.split(".");
 				const ls = localStorage.getItem(parts[0]);
 				if (ls) {
-					if (parts.length > 1) {
+					if (IsJsonString(ls) && parts.length > 1) {
 						const value = JSON.parse(ls)[parts[1]];
 						if (value) {
 							el.value = String(value);

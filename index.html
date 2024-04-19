@@ -22,6 +22,7 @@
 				<form>
 					<input type="hidden" name="token" data-get-store="lilRedAuthToken" />
 					<input type="hidden" name="sort" data-get-store="action-table-big-table.sort" />
+
 					<af-progress enable-all></af-progress>
 					<af-step data-title="Your Name" next="Phone Numbers">
 						<template shadowrootmode="open">
@@ -41,6 +42,7 @@
 
 							<label>Last Name: <input type="text" name="lastName" required data-error="Last name is required" /></label>
 							<label>Nick Name: <input type="text" name="nick_name" /></label>
+							<label>Test: <input type="text" name="test" data-get-store="wrong.thing" /></label>
 							<div class="my-4">
 								Full Name: <span data-text="first-name" data-if="first-name"></span> <em data-text="nick_name"></em> <span data-text="lastName"></span>
 							</div>

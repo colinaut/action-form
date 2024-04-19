@@ -21,12 +21,13 @@
 		<h1>Action Form</h1>
 		<p>HTML web component for forms</p>
 		<section>
-			<action-form novalidate auto-error store id="example">
+			<action-form novalidate auto-error store="example">
 				<button type="button" onclick="this.closest('action-form')?.classList.toggle('no-steps')">Toogle Steps</button>
 				<p><span class="required">*</span> Required</p>
 				<form>
 					<input type="hidden" name="token" data-get-store="lilRedAuthToken" />
 					<input type="hidden" name="sort" data-get-store="action-table-big-table.sort" />
+
 					<af-progress enable-all></af-progress>
 					<af-step data-title="Your Name" next="Phone Numbers">
 						<template shadowrootmode="open">
@@ -42,10 +43,11 @@
 						</template>
 						<fieldset name="names">
 							<legend>Your Name</legend>
-							<label>First Name: <input type="text" name="first-name" required /></label>
+							<label>First Name: <input type="text" name="first-name" required data-persist /></label>
 
 							<label>Last Name: <input type="text" name="lastName" required data-error="Last name is required" /></label>
 							<label>Nick Name: <input type="text" name="nick_name" /></label>
+							<label>Test: <input type="text" name="test" data-get-store="wrong.thing" /></label>
 							<div class="my-4">
 								Full Name: <span data-text="first-name" data-if="first-name"></span> <em data-text="nick_name"></em> <span data-text="lastName"></span>
 							</div>
