@@ -28,9 +28,12 @@ export default class ActionForm extends HTMLElement {
 	public stepIndex: number = 0; // current step
 
 	public storeKey: string = this.hasAttribute("store") ? `action-form-${this.getAttribute("store") || this.id || this.form.id || randomId()}` : "";
+	private persistedFields: string[] = [];
 
 	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
-	private persistedFields: string[] = [];
+
+	private otherLocalStores: string[] = [];
+	private storeWatchers: { el: HTMLElement; keys: string[] }[] = [];
 
 	constructor() {
 		super();
@@ -242,6 +245,25 @@ export default class ActionForm extends HTMLElement {
 					this.resetStore();
 				}
 			});
+
+			// TODO: think about this. Maybe it's not needed or it should be a custom event?
+			// Might need to make this optional using an attribute on the action-form
+			// Listen for storage events to update the form data-get-store elements
+			window.addEventListener("storage", (event) => {
+				console.log("storage", event, event.key);
+
+				// if the event.key matches one in this.otherLocalStores then updateGetStoreElements()
+				// This only works with StorageEvent
+				const matchingKey = this.storeWatchers.filter((store) => store.keys[0] === event.key);
+				if (matchingKey.length > 0) {
+					matchingKey.forEach((store) => {
+						this.updateStoreField(store.el);
+					});
+				}
+				if (event.key === this.storeKey) {
+					this.restoreFieldValues();
+				}
+			});
 		}
 	}
 
@@ -277,28 +299,47 @@ export default class ActionForm extends HTMLElement {
 		}
 	}
 
-	private enhanceElements() {
-		// find all elements with stored values and set value
-		const getStoreElements = this.querySelectorAll("[data-get-store]") as NodeListOf<HTMLElement>;
-		getStoreElements.forEach((el) => {
-			const stored = el.dataset.getStore;
+	/* -------------------------------------------------------------------------- */
+	/*                Method to update fields using data-get-store                */
+	/* -------------------------------------------------------------------------- */
+	private updateStoreFields(elements: NodeListOf<Element>) {
+		elements.forEach((el) => {
+			this.updateStoreField(el);
+		});
+	}
+
+	private updateStoreField(el: Element) {
+		if (isField(el)) {
+			const stored = el.dataset.storeLoad || el.dataset.storeWatch;
 			if (!stored) return;
-			if (isField(el)) {
-				// split stored by periods
-				const parts = stored.split(".");
-				const ls = localStorage.getItem(parts[0]);
-				if (ls) {
-					if (IsJsonObject(ls) && parts.length > 1) {
-						const value = JSON.parse(ls)[parts[1]];
-						if (value) {
-							el.value = String(value);
-						}
-					} else {
-						el.value = ls;
+			// split stored by periods
+			const parts = stored.split(".");
+			// add the part[0] as key to otherLocalStores array unless it already exists
+			if (el.dataset.storeWatch && !this.storeWatchers.some((item) => item.keys[0] === parts[0])) {
+				this.storeWatchers.push({ el, keys: parts });
+			}
+			// get the value from local storage
+			const ls = localStorage.getItem(parts[0]);
+			if (ls) {
+				if (IsJsonObject(ls) && parts.length > 1) {
+					const value = JSON.parse(ls)[parts[1]];
+					if (value) {
+						el.value = String(value);
 					}
+				} else {
+					el.value = ls;
 				}
 			}
-		});
+		}
+	}
+
+	private enhanceElements() {
+		// find all elements with data-get-store stored values and set value
+		const dataStoreFields = this.querySelectorAll("[data-store-load],[data-store-watch]");
+
+		if (dataStoreFields.length > 0) {
+			this.updateStoreFields(dataStoreFields);
+		}
 
 		this.restoreFieldValues();
 
@@ -348,6 +389,9 @@ export default class ActionForm extends HTMLElement {
 		});
 	}
 
+	/* -------------------------------------------------------------------------- */
+	/*               Method to check data-if and data-text watchers               */
+	/* -------------------------------------------------------------------------- */
 	public checkWatchers(watchers = this.watchers) {
 		console.log("checkWatchers", watchers);
 		// Get FormData for watchers

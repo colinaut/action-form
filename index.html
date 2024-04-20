@@ -20,8 +20,8 @@
 				<button type="button" onclick="this.closest('action-form')?.classList.toggle('no-steps')">Toogle Steps</button>
 				<p><span class="required">*</span> Required</p>
 				<form>
-					<input type="hidden" name="token" data-get-store="lilRedAuthToken" />
-					<input type="hidden" name="sort" data-get-store="action-table-big-table.sort" />
+					<input type="hidden" name="token" data-store-load="lilRedAuthToken" />
+					<input type="hidden" name="sort" data-store-load="action-table-big-table.sort" />
 
 					<af-progress enable-all></af-progress>
 					<af-step data-title="Your Name" next="Phone Numbers">
@@ -38,11 +38,14 @@
 						</template>
 						<fieldset name="names">
 							<legend>Your Name</legend>
-							<label>First Name: <input type="text" name="first-name" required data-persist /></label>
-
-							<label>Last Name: <input type="text" name="lastName" required data-error="Last name is required" /></label>
-							<label>Nick Name: <input type="text" name="nick_name" /></label>
-							<label>Test: <input type="text" name="test" data-get-store="wrong.thing" /></label>
+							<div class="flex gap-8">
+								<label>First Name: <input type="text" name="first-name" required data-persist /></label>
+								<label>Last Name: <input type="text" name="lastName" required data-error="Last name is required" /></label>
+							</div>
+							<div class="flex gap-8">
+								<label>Nick Name: <input type="text" name="nick_name" /></label>
+								<label>Test: <input type="text" name="test" data-store-watch="wrong.test" /></label>
+							</div>
 							<div class="my-4">
 								Full Name: <span data-text="first-name" data-if="first-name"></span> <em data-text="nick_name"></em> <span data-text="lastName"></span>
 							</div>
@@ -154,6 +157,26 @@
 					<div style="margin: 1em"><button type="reset">Reset Form</button></div>
 				</form>
 			</action-form>
+		</section>
+		<section>
+			<button id="lsButton" type="button">Add LocalStore</button>
+			<script>
+				//document ready
+				document.addEventListener("DOMContentLoaded", () => {
+					const button = document.querySelector("#lsButton");
+					const data = {
+						test: "hello puppy",
+					};
+					// add localStorage for key "wrong"
+					button.addEventListener("click", () => {
+						localStorage.setItem("wrong", JSON.stringify(data));
+						const storageEvent = new StorageEvent("storage", {
+							key: "wrong",
+						});
+						window.dispatchEvent(storageEvent);
+					});
+				});
+			</script>
 		</section>
 	</body>
 </html>
