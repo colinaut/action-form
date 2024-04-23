@@ -58,6 +58,14 @@ af-step af-error {
 	align-items: center;
 }
 
+.gap-4 {
+	gap: 1em;
+}
+
+.gap-8 {
+	gap: 2em;
+}
+
 form {
 	margin-block: 1em;
 }
