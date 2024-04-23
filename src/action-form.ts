@@ -32,7 +32,6 @@ export default class ActionForm extends HTMLElement {
 
 	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
-	private otherLocalStores: string[] = [];
 	private storeWatchers: { el: HTMLElement; keys: string[] }[] = [];
 
 	constructor() {
@@ -246,21 +245,18 @@ export default class ActionForm extends HTMLElement {
 				}
 			});
 
-			// TODO: think about this. Maybe it's not needed or it should be a custom event?
-			// Might need to make this optional using an attribute on the action-form
-			// Listen for storage events to update the form data-get-store elements
+			// Listen for storage events to update the form data-store-watch elements and the main action-table store
 			window.addEventListener("storage", (event) => {
 				console.log("storage", event, event.key);
 
-				// if the event.key matches one in this.otherLocalStores then updateGetStoreElements()
-				// This only works with StorageEvent
+				// This only works with StorageEvent as it requires matching key
 				const matchingKey = this.storeWatchers.filter((store) => store.keys[0] === event.key);
 				if (matchingKey.length > 0) {
 					matchingKey.forEach((store) => {
 						this.updateStoreField(store.el);
 					});
 				}
-				if (event.key === this.storeKey) {
+				if (this.hasAttribute("store-listener") && event.key === this.storeKey) {
 					this.restoreFieldValues();
 				}
 			});
