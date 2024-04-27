@@ -32,6 +32,7 @@ export default class ActionForm extends HTMLElement {
 
 	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
+	private storeGetFields!: NodeListOf<FormField>;
 	private storeListenFields!: NodeListOf<FormField>;
 
 	constructor() {
@@ -278,6 +279,7 @@ export default class ActionForm extends HTMLElement {
 	private restoreForm() {
 		// Remove store except for persisted fields
 		this.resetStore();
+		this.updateStoreFields(this.storeGetFields);
 		this.restoreFieldValues();
 		// Find all invalid af-errors and hide them
 		const invalidErrors = this.querySelectorAll("af-error[invalid]") as NodeListOf<ActionFormError>;
@@ -341,11 +343,11 @@ export default class ActionForm extends HTMLElement {
 
 	private enhanceElements() {
 		// find all elements with data-store-get and set value
-		const storeGetFields = this.querySelectorAll("[data-store-get]");
+		this.storeGetFields = this.querySelectorAll("[data-store-get]");
 		this.storeListenFields = this.querySelectorAll("[data-store-get][data-store-listen]");
 
-		if (storeGetFields.length > 0) {
-			this.updateStoreFields(storeGetFields);
+		if (this.storeGetFields.length > 0) {
+			this.updateStoreFields(this.storeGetFields);
 		}
 
 		if (this.storeKey) {
