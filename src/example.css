@@ -66,6 +66,10 @@ af-step af-error {
 	gap: 2em;
 }
 
+.text-sm {
+	font-size: 0.9em;
+}
+
 form {
 	margin-block: 1em;
 }

@@ -32,7 +32,7 @@ export default class ActionForm extends HTMLElement {
 
 	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
-	private storeWatchers: { el: HTMLElement; keys: string[] }[] = [];
+	private storeListenFields!: NodeListOf<FormField>;
 
 	constructor() {
 		super();
@@ -196,6 +196,18 @@ export default class ActionForm extends HTMLElement {
 							localStorage.setItem(this.storeKey, JSON.stringify(values));
 						}
 					}
+
+					// if target has data-store-set then save it to that
+					if (isField(field) && field.dataset.storeSet) {
+						const storeParts = field.dataset.storeSet.split(".");
+						const ls = localStorage.getItem(storeParts[0]) || "{}";
+						if (ls && storeParts.length > 1) {
+							const values = JSON.parse(ls);
+							values[storeParts[1]] = field.value;
+							localStorage.setItem(storeParts[0], JSON.stringify(values));
+						}
+						localStorage.setItem(field.dataset.storeSet, field.value);
+					}
 				}
 			});
 
@@ -249,14 +261,14 @@ export default class ActionForm extends HTMLElement {
 			window.addEventListener("storage", (event) => {
 				console.log("storage", event, event.key);
 
-				// This only works with StorageEvent as it requires matching key
-				const matchingKey = this.storeWatchers.filter((store) => store.keys[0] === event.key);
-				if (matchingKey.length > 0) {
-					matchingKey.forEach((store) => {
-						this.updateStoreField(store.el);
-					});
+				// Update store elements with data-store-listen but only for matching storeKey
+				if (this.storeListenFields) {
+					console.log("🚀 ~ ActionForm ~ window.addEventListener ~ this.storeListenFields:", this.storeListenFields);
+					const hasMatchingKey = Array.from(this.storeListenFields).filter((field) => isField(field) && field.dataset.storeGet?.split(".")[0] === event.key);
+					console.log("🚀 ~ ActionForm ~ window.addEventListener ~ hasMatchingKey:", hasMatchingKey);
+					hasMatchingKey.forEach((field) => this.updateStoreField(field));
 				}
-				if (this.hasAttribute("store-listener") && event.key === this.storeKey) {
+				if (this.hasAttribute("store-listen") && event.key === this.storeKey) {
 					this.restoreFieldValues();
 				}
 			});
@@ -289,6 +301,7 @@ export default class ActionForm extends HTMLElement {
 					delete values[key];
 				}
 			});
+			// set store with only persisted fields
 			localStorage.setItem(this.storeKey, JSON.stringify(values));
 		} else {
 			localStorage.removeItem(this.storeKey);
@@ -306,14 +319,11 @@ export default class ActionForm extends HTMLElement {
 
 	private updateStoreField(el: Element) {
 		if (isField(el)) {
-			const stored = el.dataset.storeLoad || el.dataset.storeWatch;
+			const stored = el.dataset.storeGet;
 			if (!stored) return;
 			// split stored by periods
 			const parts = stored.split(".");
 			// add the part[0] as key to otherLocalStores array unless it already exists
-			if (el.dataset.storeWatch && !this.storeWatchers.some((item) => item.keys[0] === parts[0])) {
-				this.storeWatchers.push({ el, keys: parts });
-			}
 			// get the value from local storage
 			const ls = localStorage.getItem(parts[0]);
 			if (ls) {
@@ -330,14 +340,17 @@ export default class ActionForm extends HTMLElement {
 	}
 
 	private enhanceElements() {
-		// find all elements with data-get-store stored values and set value
-		const dataStoreFields = this.querySelectorAll("[data-store-load],[data-store-watch]");
+		// find all elements with data-store-get and set value
+		const storeGetFields = this.querySelectorAll("[data-store-get]");
+		this.storeListenFields = this.querySelectorAll("[data-store-get][data-store-listen]");
 
-		if (dataStoreFields.length > 0) {
-			this.updateStoreFields(dataStoreFields);
+		if (storeGetFields.length > 0) {
+			this.updateStoreFields(storeGetFields);
 		}
 
-		this.restoreFieldValues();
+		if (this.storeKey) {
+			this.restoreFieldValues();
+		}
 
 		// find all watchers and create watcher array
 		const watchers = this.querySelectorAll("[data-if],[data-text]") as NodeListOf<HTMLElement>;

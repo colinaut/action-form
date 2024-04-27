@@ -11,7 +11,7 @@ Base wrapper. This wrapper enhances fieldsets with the ability to show and hide 
 * novalidate - sets novalidate on form.
 * auto-error - automatically adds af-error elements for fields that require validation, unless there is already a matching af-error. Also adds af-error and af-group-count for fieldsets with `data-group`.
 * store - Stores all field values in local storage and refills fields on reload. Local storage is cleared after 'reset' or a successful 'submit'. Local storage key is as `action-form-${id}` where id is either the value of `store="name"`, the id of the action-form, the id of the form, or a random string. This is held in this.storeKey property.
-* store-listener - adds a listener for the "storage" event so it will update field values to match the store if a the same form is updated in another open browser tab.
+* store-listen - adds a listener for the "storage" event so it will update field values to match the store if a the same form is updated in another open browser tab.
 * data-button.prev - text for previous buttons; defaults to "Prev"
 * data-button.next - text for next buttons; defaults to "Next"
 * data-button.submit - text for submit buttons; defaults to "Submit"
@@ -130,7 +130,9 @@ Simple element that displays all of the field names and values as a list.
 - [x] Ability to change next/prev button text when steps show or hide
 - [ ] Add a data-no-store attribute to stop localStorage from being added for a field
 - [x] Add a data-persist attribute to maintain a field from resetting.
-- [ ] Add a storage event listener to reload the value for the data-get-store attribute
+- [x] Change to data-store-get, data-store-set, and data-store-listen (and store-listen for action-form)
+- [ ] Revisit "af-step" event so it makes more sense
+- [x] Add a storage event listener to reload the value for the data-store-watch attribute
 - [ ] Sort out css variables and document them
 - [ ] Add show invalid to af-preview and/or a new component that displays invalid fields as a list
 - [ ] QA all of it
