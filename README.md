@@ -28,12 +28,18 @@ This element adds functionality to child elements based on special data attribut
 * data-get-store - grabs the value from a named localStorage. Useful mainly for hidden fields that are grabbing from some prior stored data.
 * data-group - used on fieldsets to check grouped fields to see how many are filled/checked. `data-group="1-3"` means a range from 1 to 3 checkboxes checked or 1-3 inputs filled. `data-group="1"` means minimum of 1 and no max. `data-group="-3"` means no min and max of 1. Default is "0-Infinity".
   * If `auto-error` is set then it will automatically add an `<af-error>` element and a hidden `<af-group-count>` element. Otherwise you will need to add both yourself for this to work correctly.
-* data-store-load - loads the value from a named localStorage in page load (see below)
-* data-store-watch - loads the value from a named localStorage on page load and updates when the "storage" event fires (see below)
+* data-store-get - loads the value from a named localStorage in page load (see below)
+  * data-store-listen - listens for "storage" events to reload values from key-value store. Must be paired with "data-store-get"
+* data-store-set - sets the value to a named localStorage
 
-### data-store-load & data-store-watch
+### data-store-get, data-store-listen, and data-store-set
 
-This is mainly useful for type="hidden" inputs where you need to add things like user ids or other values.
+The attributes data-store-get and data-store-listen are useful for type="hidden" inputs where you need to add things like user ids, tokens, or other values, which may be stored in localStorage. It's also useful for fields where you want a local saved value across multiple different forms. The latter can be paired with data-store-set. Both data-store-get and data-store-set require a value which is the key for the local storage. This also allows retrieving or saving as an object property.
+
+* `data-store-get="foo"` - returns localStorage.getItem("foo") as a string
+* `data-store-set="foo.bar"` - assumes that "foo" is an object and returns foo.bar as a string
+
+_Currently this only allows one level deep property access. I may update this in the future._
 
 ## `<af-error>`
 

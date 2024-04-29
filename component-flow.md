@@ -34,7 +34,7 @@
       3. If it doesn't find af-error it appends one to the fieldset.
       4. If the fieldset has `data-error="error text"` attribute then that is used for the textContent of the af-error.
       5. Searches for `<af-group-count>` and if it doesn't find it, appends one with display="none"
-5. Queries for fields with `data-get-store` attribute
+5. Queries for fields with `data-store-get` attribute
    1. updates the field with localStorage value; if it exists
 6. If action-form has `store` attribute, it updates all fields that have value in localStorage using this.storeKey as the key.
 7. Queries for fieldsets and af-steps which have `data-if` or `data-text` attribute
@@ -55,7 +55,9 @@
          2. `data-if-not-value` checks if value does not match (or does not have the value in the array in case of checkboxes)
          3. `data-if-regex` tests via regex
    3. If action-form has `store` attribute, it stores all field values in local storage using this.storeKey as the key.
+   4. If element has `data-store-set` attribute it stores that field value in local storage for the specified key
 9.  Adds listener for `reset` and `submit` which clears local storage for the form
+10. Adds listener for `storage` which updates fields if store-listen is enabled for the action-form or if a field has data-store-listen attribute
 
 ## `<af-error>`
 
