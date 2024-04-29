@@ -200,14 +200,14 @@ export default class ActionForm extends HTMLElement {
 
 					// if target has data-store-set then save it to that
 					if (isField(field) && field.dataset.storeSet) {
-						const storeParts = field.dataset.storeSet.split(".");
-						const ls = localStorage.getItem(storeParts[0]) || "{}";
-						if (ls && storeParts.length > 1) {
-							const values = JSON.parse(ls);
-							values[storeParts[1]] = field.value;
-							localStorage.setItem(storeParts[0], JSON.stringify(values));
+						const storeKeyParts = field.dataset.storeSet.split(".");
+						let newStore: string = field.value;
+						if (storeKeyParts.length > 1) {
+							// if there is parts then this is an object so we need to grab and update it
+							const currentStore = JSON.parse(localStorage.getItem(storeKeyParts[0]) || "{}");
+							newStore = JSON.stringify({ ...currentStore, [storeKeyParts[1]]: field.value });
 						}
-						localStorage.setItem(field.dataset.storeSet, field.value);
+						localStorage.setItem(storeKeyParts[0], newStore);
 					}
 				}
 			});
@@ -264,9 +264,9 @@ export default class ActionForm extends HTMLElement {
 
 				// Update store elements with data-store-listen but only for matching storeKey
 				if (this.storeListenFields) {
-					console.log("🚀 ~ ActionForm ~ window.addEventListener ~ this.storeListenFields:", this.storeListenFields);
+					// console.log("🚀 ~ ActionForm ~ window.addEventListener ~ this.storeListenFields:", this.storeListenFields);
 					const hasMatchingKey = Array.from(this.storeListenFields).filter((field) => isField(field) && field.dataset.storeGet?.split(".")[0] === event.key);
-					console.log("🚀 ~ ActionForm ~ window.addEventListener ~ hasMatchingKey:", hasMatchingKey);
+					// console.log("🚀 ~ ActionForm ~ window.addEventListener ~ hasMatchingKey:", hasMatchingKey);
 					hasMatchingKey.forEach((field) => this.updateStoreField(field));
 				}
 				if (this.hasAttribute("store-listen") && event.key === this.storeKey) {

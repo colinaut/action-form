@@ -49,7 +49,7 @@
 							</div>
 							<div class="flex gap-8">
 								<label>Nick Name: <input type="text" name="nick_name" data-store-set="nick-name" data-store-get="nick-name" /></label>
-								<label>Test: <input type="text" name="test" data-store-get="wrong.test" data-store-set="wrong.test" data-store-listen /></label>
+								<label>Test: <input type="text" name="test" data-store-get="af-store.test" data-store-set="af-store.test" data-store-listen /></label>
 							</div>
 							<div class="my-4">
 								Full Name: <span data-text="first-name" data-if="first-name"></span> <em data-text="nick_name"></em> <span data-text="lastName"></span>
@@ -170,13 +170,13 @@
 				document.addEventListener("DOMContentLoaded", () => {
 					const button = document.querySelector("#lsButton");
 					const data = {
-						test: "hello world",
+						test: "hello small world",
 					};
 					// add localStorage for key "wrong"
 					button.addEventListener("click", () => {
-						localStorage.setItem("wrong", JSON.stringify(data));
+						localStorage.setItem("af-store", JSON.stringify(data));
 						const storageEvent = new StorageEvent("storage", {
-							key: "wrong",
+							key: "af-store",
 						});
 						window.dispatchEvent(storageEvent);
 					});
