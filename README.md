@@ -147,7 +147,7 @@ Simple element that displays all of the field names and values as a list.
 - [ ] Add show invalid to af-preview and/or a new component that displays invalid fields as a list
 - [ ] Add multiple error messages based on the error type. For example, "required" if blank and then "max 25" if over when a number input is max="25"
 - [ ] FIX: When a fieldset is hidden/shown it disabled fields. This should trigger watchers for those fields.
-- [ ] Allow data-persist to work without data-store
+- [x] Allow data-persist to work without data-store
 - [ ] Move data-store-get to it's own action-store component
 - [ ] QA all of it
 - [ ] Clean up and DRY code

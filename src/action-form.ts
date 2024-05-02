@@ -28,7 +28,7 @@ export default class ActionForm extends HTMLElement {
 	public stepIndex: number = 0; // current step
 
 	public storeKey: string = this.hasAttribute("store") ? `action-form-${this.getAttribute("store") || this.id || this.form.id || randomId()}` : "";
-	private persistedFields: string[] = [];
+	private persistedFields: FormField[] = [];
 
 	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
 
@@ -218,8 +218,11 @@ export default class ActionForm extends HTMLElement {
 			resetBtns.forEach((resetBtn) => {
 				resetBtn.addEventListener("click", (event) => {
 					event.preventDefault();
-					event.stopPropagation();
+					this.persistedFields.forEach((persistField) => (isField(persistField) ? (persistField.dataset.persist = persistField.value) : null));
 					this.form.reset();
+					this.persistedFields.forEach((persistField) =>
+						isField(persistField) && typeof persistField.dataset.persist === "string" ? (persistField.value = persistField.dataset.persist) : null
+					);
 					this.restoreForm();
 				});
 			});
@@ -279,8 +282,8 @@ export default class ActionForm extends HTMLElement {
 	private restoreForm() {
 		// Remove store except for persisted fields
 		this.resetStore();
+		// update fields that use data-store-get attribute
 		this.updateStoreFields(this.storeGetFields);
-		this.restoreFieldValues();
 		// Find all invalid af-errors and hide them
 		const invalidErrors = this.querySelectorAll("af-error[invalid]") as NodeListOf<ActionFormError>;
 		invalidErrors.forEach((error) => {
@@ -299,7 +302,7 @@ export default class ActionForm extends HTMLElement {
 		if (ls && this.persistedFields.length > 0) {
 			const values = JSON.parse(ls) as Record<string, string | string[]>;
 			Object.keys(values).forEach((key) => {
-				if (!this.persistedFields.includes(key)) {
+				if (this.persistedFields.every((field) => field.name !== key)) {
 					delete values[key];
 				}
 			});
@@ -373,8 +376,7 @@ export default class ActionForm extends HTMLElement {
 		this.checkWatchers();
 
 		// check for persisted fields
-		const persistedFields = this.querySelectorAll("[data-persist]");
-		this.persistedFields = Array.from(persistedFields).map((el) => (isField(el) ? el.name : ""));
+		this.persistedFields = Array.from(this.querySelectorAll("[data-persist]")).filter((el) => isField(el)) as FormField[];
 	}
 
 	private restoreFieldValues() {
