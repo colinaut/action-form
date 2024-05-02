@@ -66,7 +66,7 @@ export default class ActionForm extends HTMLElement {
 				if (typeof customEvent.detail?.step === "number") {
 					stepIndex = customEvent.detail.step;
 				} else if (customEvent.detail?.direction) {
-					console.log("step", customEvent.detail?.direction);
+					this.log("step", customEvent.detail?.direction);
 
 					stepIndex = stepIndex + customEvent.detail?.direction;
 				}
@@ -117,7 +117,7 @@ export default class ActionForm extends HTMLElement {
 						error.setAttribute("for", id);
 						// add af-error after field
 						field.after(error);
-						console.log(`Added Error Message for ${field.tagName.toLowerCase()}[${field.name}] #${id}`);
+						this.log(`Added Error Message for ${field.tagName.toLowerCase()}[${field.name}] #${id}`);
 					}
 				});
 				const fieldsetGroups = this.querySelectorAll("fieldset[data-group]") as NodeListOf<HTMLFieldSetElement>;
@@ -164,7 +164,7 @@ export default class ActionForm extends HTMLElement {
 							const afError = errorMsg as ActionFormError;
 							const valid = field.checkValidity();
 							afError.showError(!valid);
-							// console.log("target", target, errorId, valid);
+							// this.log("target", target, errorId, valid);
 						}
 					}
 
@@ -243,7 +243,7 @@ export default class ActionForm extends HTMLElement {
 							this.dispatchEvent(new CustomEvent<ActionFormStepEvent>("af-step", { detail: { step: Number(parentStep.dataset.index) } }));
 						}
 
-						console.log("invalidField", invalidField);
+						this.log("invalidField", invalidField);
 						if (invalidField.matches("af-group-count")) {
 							const otherField = invalidField.closest("fieldset")?.querySelector("input, select, textarea") as FormField | null;
 							otherField?.focus();
@@ -260,13 +260,13 @@ export default class ActionForm extends HTMLElement {
 
 			// Listen for storage events to update the form data-store-watch elements and the main action-table store
 			window.addEventListener("storage", (event) => {
-				console.log("storage", event, event.key);
+				this.log("storage", event, event.key);
 
 				// Update store elements with data-store-listen but only for matching storeKey
 				if (this.storeListenFields) {
-					// console.log("🚀 ~ ActionForm ~ window.addEventListener ~ this.storeListenFields:", this.storeListenFields);
+					// this.log("🚀 ~ ActionForm ~ window.addEventListener ~ this.storeListenFields:", this.storeListenFields);
 					const hasMatchingKey = Array.from(this.storeListenFields).filter((field) => isField(field) && field.dataset.storeGet?.split(".")[0] === event.key);
-					// console.log("🚀 ~ ActionForm ~ window.addEventListener ~ hasMatchingKey:", hasMatchingKey);
+					// this.log("🚀 ~ ActionForm ~ window.addEventListener ~ hasMatchingKey:", hasMatchingKey);
 					hasMatchingKey.forEach((field) => this.updateStoreField(field));
 				}
 				if (this.hasAttribute("store-listen") && event.key === this.storeKey) {
@@ -404,7 +404,7 @@ export default class ActionForm extends HTMLElement {
 	/*               Method to check data-if and data-text watchers               */
 	/* -------------------------------------------------------------------------- */
 	public checkWatchers(watchers = this.watchers) {
-		console.log("checkWatchers", watchers);
+		this.log("checkWatchers", watchers);
 		// Get FormData for watchers
 		const form = this.querySelector("form");
 		if (!form || watchers.length === 0) return;
@@ -412,7 +412,7 @@ export default class ActionForm extends HTMLElement {
 		// Loop through watchers
 		watchers.forEach((watcher) => {
 			const values = formData.getAll(watcher.name);
-			// console.log("watchers values", values, watcher);
+			// this.log("watchers values", values, watcher);
 
 			// Update textContent
 			if (watcher.text) {
@@ -434,7 +434,7 @@ export default class ActionForm extends HTMLElement {
 				if (watcher.notValue && values.length !== 0 && valid) {
 					valid = values.every((value) => value !== watcher.notValue);
 				}
-				// console.log("watcher", watcher.name, valid);
+				// this.log("watcher", watcher.name, valid);
 				this.show(watcher.el, valid);
 				// if this is af-step then trigger event to update progress bar and step buttons text since there is a change in the number of steps
 				if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
@@ -453,12 +453,18 @@ export default class ActionForm extends HTMLElement {
 		el.dispatchEvent(new Event("change", { bubbles: true }));
 	}
 
+	// eslint-disable-next-line
+	private log(...args: any[]): void {
+		// eslint-disable-next-line no-console
+		if (this.hasAttribute("debug")) console.log(...args);
+	}
+
 	// public connectedCallback(): void {
-	// 	console.log("connected");
+	// 	this.log("connected");
 	// }
 
 	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-	// 	console.log("changed", name, oldValue, newValue);
+	// 	this.log("changed", name, oldValue, newValue);
 	// }
 }
 customElements.define("action-form", ActionForm);

@@ -43,7 +43,7 @@ export default class ActionFormError extends HTMLElement {
 		// get field ID from attribute
 		if (this.target) {
 			const el = this.target;
-			console.log(`watching ${el.tagName.toLowerCase()} ${el.id}`);
+			// console.log(`watching ${el.tagName.toLowerCase()} ${el.id}`);
 
 			// Make id and add aria-describedby attribute to the target element
 			this.addAria(el);

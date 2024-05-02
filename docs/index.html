@@ -24,7 +24,7 @@
 			<action-form novalidate auto-error store="example">
 				<button type="button" onclick="this.closest('action-form')?.classList.toggle('no-steps')">Toogle Steps</button>
 				<p><span class="required">*</span> Required</p>
-				<form>
+				<form method="POST" action="https://jsonplaceholder.typicode.com/posts">
 					<input type="hidden" name="token" data-store-get="lilRedAuthToken" />
 					<input type="hidden" name="sort" data-store-get="action-table-big-table.sort" />
 

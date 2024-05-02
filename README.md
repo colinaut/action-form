@@ -139,8 +139,16 @@ Simple element that displays all of the field names and values as a list.
 - [x] Change to data-store-get, data-store-set, and data-store-listen (and store-listen for action-form)
 - [ ] Revisit "af-step" event so it makes more sense
 - [x] Add a storage event listener to reload the value for the data-store-watch attribute
+- [ ] Fix issue with loading single string from data-store-get
+- [ ] Add some sort of preview-title for the form field that uses for the af-preview
+- [ ] Figure out how to fix store with multiple fields with the same name; this occurs when using data-if to show different versions of the some fields
+- [ ] Add ability to use the label for the af-preview
 - [ ] Sort out css variables and document them
 - [ ] Add show invalid to af-preview and/or a new component that displays invalid fields as a list
+- [ ] Add multiple error messages based on the error type. For example, "required" if blank and then "max 25" if over when a number input is max="25"
+- [ ] FIX: When a fieldset is hidden/shown it disabled fields. This should trigger watchers for those fields.
+- [ ] Allow data-persist to work without data-store
+- [ ] Move data-store-get to it's own action-store component
 - [ ] QA all of it
 - [ ] Clean up and DRY code
 - [ ] QA Again
