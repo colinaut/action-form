@@ -31,6 +31,9 @@ export default class ActionForm extends HTMLElement {
 	/* ----------------------------- Reactive steps ----------------------------- */
 	public steps = stepSignals(this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>);
 
+	// export for use by others
+	public createEffect = createEffect;
+
 	constructor() {
 		super();
 

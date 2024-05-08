@@ -39,10 +39,11 @@ export function formSignals(form: HTMLFormElement) {
 	}
 
 	return {
-		set,
 		get,
+		set,
 		getForm,
 		setForm,
+		getValues,
 		formDataObject,
 	};
 }
