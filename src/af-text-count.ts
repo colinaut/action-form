@@ -13,5 +13,3 @@ export default class ActionFormTextCount extends HTMLElement {
 		}
 	}
 }
-
-customElements.define("af-text-count", ActionFormTextCount);

@@ -50,5 +50,3 @@ export default class ActionFormPreview extends HTMLElement {
 		}
 	}
 }
-
-customElements.define("af-preview", ActionFormPreview);

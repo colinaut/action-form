@@ -1,4 +1,3 @@
-import ActionFormGroupCount from "./af-group-count";
 export default class ActionFormFieldGroup extends HTMLElement {
 	private readonly shadow = this.attachShadow({ mode: "open" });
 	private internals: ElementInternals = this.attachInternals();
@@ -63,7 +62,3 @@ export default class ActionFormFieldGroup extends HTMLElement {
 		this.shadow.innerHTML = `<slot></slot>`;
 	}
 }
-
-customElements.define("af-field-group", ActionFormFieldGroup);
-
-customElements.define("af-group-count", ActionFormGroupCount);

@@ -1,6 +1,13 @@
-import type ActionFormStep from "./af-step";
+// Child components
+// all child elements are defined at the bottom
+import ActionFormStep from "./af-step";
+import ActionFormProgress from "./af-progress";
 import ActionFormError from "./af-error";
 import ActionFormFieldGroup from "./af-field-group";
+import ActionFormFormGroupCount from "./af-field-group-count"; // alias for ActionFormFieldGroupCount
+import ActionFormPreview from "./af-preview";
+import ActionFormTextCount from "./af-text-count";
+// other imports
 import type { HTMLFormField } from "./types";
 import { formSignals } from "./reactiveFormData";
 import { randomId, isField, isFieldOrGroup } from "./helpers";
@@ -404,7 +411,14 @@ export default class ActionForm extends HTMLElement {
 	// 	this.log("changed", name, oldValue, newValue);
 	// }
 }
+
 customElements.define("action-form", ActionForm);
 
 // Define imported elements that are required by this component
 customElements.define("af-error", ActionFormError);
+customElements.define("af-step", ActionFormStep);
+customElements.define("af-progress", ActionFormProgress);
+customElements.define("af-field-group", ActionFormFieldGroup);
+customElements.define("af-field-group-count", ActionFormFormGroupCount);
+customElements.define("af-text-count", ActionFormTextCount);
+customElements.define("af-preview", ActionFormPreview);

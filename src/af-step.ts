@@ -1,5 +1,4 @@
 import type ActionForm from "./action-form";
-import ActionFormProgress from "./af-progress";
 import { createEffect } from "./signals";
 
 export default class ActionFormStep extends HTMLElement {
@@ -130,6 +129,4 @@ export default class ActionFormStep extends HTMLElement {
 	}
 }
 
-customElements.define("af-step", ActionFormStep);
 // define progress element here as it is required for step navigation
-customElements.define("af-progress", ActionFormProgress);
