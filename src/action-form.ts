@@ -19,7 +19,7 @@ export default class ActionForm extends HTMLElement {
 
 	/* ----------------------------- Create storeKey ---------------------------- */
 	// Store key is based on the store attribute or if not defined then ids or random values
-	public storeKey: string = this.hasAttribute("store") ? this.getAttribute("store") || `action-form-${this.id || this.form.id || randomId()}` : "";
+	public store: string | null = this.getAttribute("store");
 
 	/* -------- Persisted fields are ones that are maintained thru reset -------- */
 	private persistedFields: HTMLFormField[] = [];
@@ -53,7 +53,7 @@ export default class ActionForm extends HTMLElement {
 			this.persistedFields = Array.from(this.querySelectorAll("[data-persist]")).filter((el) => isField(el)) as HTMLFormField[];
 
 			/* ----------------- Restore form values if store is enabled ---------------- */
-			if (this.storeKey) {
+			if (this.store) {
 				this.restoreFieldValues();
 			}
 
@@ -61,7 +61,7 @@ export default class ActionForm extends HTMLElement {
 			window.addEventListener("storage", (event) => {
 				this.log("storage", event, event.key);
 
-				if (this.hasAttribute("store-listen") && event.key === this.storeKey) {
+				if (this.hasAttribute("store-listen") && event.key === this.store) {
 					this.restoreFieldValues();
 				}
 			});
@@ -168,7 +168,7 @@ export default class ActionForm extends HTMLElement {
 						this.data.setForm();
 					}
 					// 3. Store the data if store is set
-					if (this.storeKey) localStorage.setItem(this.storeKey, JSON.stringify(this.data.formDataObject()));
+					if (this.store) localStorage.setItem(this.store, JSON.stringify(this.data.formDataObject()));
 				}
 			});
 
@@ -336,8 +336,9 @@ export default class ActionForm extends HTMLElement {
 	}
 
 	private resetStore() {
+		if (!this.store) return;
 		// Remove store except for persisted fields
-		const ls = localStorage.getItem(this.storeKey);
+		const ls = localStorage.getItem(this.store);
 		// If there are persisted field then maintain them
 		if (ls && this.persistedFields.length > 0) {
 			const values = JSON.parse(ls) as Record<string, string | string[]>;
@@ -347,14 +348,15 @@ export default class ActionForm extends HTMLElement {
 				}
 			});
 			// set store with only persisted fields
-			localStorage.setItem(this.storeKey, JSON.stringify(values));
+			localStorage.setItem(this.store, JSON.stringify(values));
 		} else {
-			localStorage.removeItem(this.storeKey);
+			localStorage.removeItem(this.store);
 		}
 	}
 
 	private restoreFieldValues() {
-		const ls = localStorage.getItem(this.storeKey);
+		if (!this.store) return;
+		const ls = localStorage.getItem(this.store);
 		if (!ls || ls === "undefined") return;
 		const values = JSON.parse(ls) as Record<string, string | string[]>;
 		if (typeof values !== "object") return;
