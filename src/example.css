@@ -14,15 +14,14 @@ af-fieldset {
 	margin-bottom: 12px;
 	padding: 10px;
 }
-.js af-step {
-	display: none;
-}
-.js af-step.active {
-	display: grid;
-}
+
 af-step {
 	--display: grid;
+	display: none;
 	gap: 0.5em;
+}
+af-step.active {
+	display: var(--display);
 }
 af-step af-error {
 	margin-block-start: -0.2em;

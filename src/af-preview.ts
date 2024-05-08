@@ -1,3 +1,5 @@
+import ActionForm from "./action-form";
+import { createEffect } from "./signals";
 function convertToTitleCase(str: string): string {
 	return str
 		.replace(/[-_](.)/g, function (match) {
@@ -8,57 +10,44 @@ function convertToTitleCase(str: string): string {
 			return match.toUpperCase();
 		});
 }
+
 export default class ActionFormPreview extends HTMLElement {
-	private form: HTMLFormElement | null;
+	private actionForm!: ActionForm;
 
-	constructor() {
-		super();
-
-		const forId = this.getAttribute("for");
-		this.form = forId ? (document.getElementById(forId) as HTMLFormElement | null) : (this.closest("form") as HTMLFormElement | null);
-		if (!this.form) return;
-
-		this.render();
-		const eventType = this.getAttribute("event-type") || "change";
-		this.form.addEventListener(eventType, () => {
-			this.render();
-		});
+	connectedCallback() {
+		const actionForm = this.closest("action-form");
+		if (actionForm && actionForm instanceof ActionForm) {
+			this.actionForm = actionForm;
+			const form = actionForm.querySelector("form");
+			if (!form) return;
+			createEffect(() => {
+				this.render(this.actionForm.data.getForm());
+			});
+		}
 	}
 
 	get ignore(): string[] {
 		return this.getAttribute("ignore")?.split(",") || [];
 	}
 
-	getFormData() {
-		if (!this.form) return;
-		const formData = new FormData(this.form);
+	render(data: Record<string, FormDataEntryValue[]> | FormDataEntryValue[] | null) {
+		// console.log("af-preview render", data);
 
-		const keys = [...new Set(Array.from(formData.keys()))];
-
-		return keys
-			.filter((key) => !this.ignore.includes(key) && formData.getAll(key).some((value) => value !== ""))
-			.map((key) => {
-				const values = formData.getAll(key);
-				const stringValues = values.filter((value) => typeof value === "string") as string[];
-				return {
-					key,
-					value: stringValues,
-				};
-			});
-		// const values = Array.from(formData.values());
-		// return values;
-	}
-
-	render() {
-		const data = this.getFormData();
-
-		const valuesToText = (values: string[]) => {
-			return values.length === 1 ? values[0] : values.map((value) => `<span>${value}</span>`).join(", ");
+		const valuesToText = (values: FormDataEntryValue[]) => {
+			return values
+				.map((value) => {
+					if (typeof value === "string") return value;
+					return "FILE";
+				})
+				.toString();
 		};
 
-		this.innerHTML = `<ul>${data
-			?.map((item) => `<li><strong>${this.hasAttribute("title-case") ? convertToTitleCase(item.key) : item.key}</strong>: ${valuesToText(item.value)}</li>`)
-			.join("")}</ul>`;
+		if (data && !Array.isArray(data)) {
+			this.innerHTML = `<ul>${Object.entries(data)
+				.filter(([key]) => !this.ignore.includes(key))
+				.map(([key, values]) => `<li><strong>${this.hasAttribute("title-case") ? convertToTitleCase(key) : key}</strong>: ${valuesToText(values)}</li>`)
+				.join("")}</ul>`;
+		}
 	}
 }
 

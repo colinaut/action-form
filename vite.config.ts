@@ -24,9 +24,8 @@ export default defineConfig(({ mode }) => {
 					index: resolve(__dirname, "src/main.ts"),
 					"action-form": resolve(__dirname, "src/action-form.ts"),
 					"af-step": resolve(__dirname, "src/af-step.ts"),
-					"af-error": resolve(__dirname, "src/af-error.ts"),
 					"af-text-count": resolve(__dirname, "src/af-text-count.ts"),
-					"af-group-count": resolve(__dirname, "src/af-group-count.ts"),
+					"af-field-group": resolve(__dirname, "src/af-field-group.ts"),
 					"af-preview": resolve(__dirname, "src/af-preview.ts"),
 				},
 				output: [

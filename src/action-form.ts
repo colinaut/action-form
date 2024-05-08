@@ -1,43 +1,31 @@
 import type ActionFormStep from "./af-step";
-import type ActionFormError from "./af-error";
-import type ActionFormGroupCount from "./af-group-count";
-import type { ActionFormStepEvent } from "./types";
-
-type FormField = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-
-function isField(el: Element): el is FormField {
-	return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement;
-}
-
-function randomId(): string {
-	return Math.random().toString(36).substring(2);
-}
-
-function IsJsonObject(str: string) {
-	try {
-		const json = JSON.parse(str);
-		return !!json && typeof json === "object";
-	} catch (e) {
-		return false;
-	}
-}
+import ActionFormError from "./af-error";
+import ActionFormFieldGroup from "./af-field-group";
+import type { HTMLFormField } from "./types";
+import { formSignals } from "./reactiveFormData";
+import { randomId, isField, isFieldOrGroup } from "./helpers";
+import { stepSignals } from "./reactiveStepData";
+import { createEffect } from "./signals";
 
 export default class ActionForm extends HTMLElement {
 	public form = (this.querySelector("form") as HTMLFormElement) || null;
-	public steps = this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>;
-	public stepIndex: number = 0; // current step
 
-	public storeKey: string = this.hasAttribute("store") ? `action-form-${this.getAttribute("store") || this.id || this.form.id || randomId()}` : "";
-	private persistedFields: FormField[] = [];
+	/* ----------------------------- Create storeKey ---------------------------- */
+	// Store key is based on the store attribute or if not defined then ids or random values
+	public storeKey: string = this.hasAttribute("store") ? this.getAttribute("store") || `action-form-${this.id || this.form.id || randomId()}` : "";
 
-	private watchers: { el: HTMLElement; if: boolean; text: boolean; name: string; value?: string; notValue?: string; regex?: RegExp }[] = [];
+	/* -------- Persisted fields are ones that are maintained thru reset -------- */
+	private persistedFields: HTMLFormField[] = [];
 
-	private storeGetFields!: NodeListOf<FormField>;
-	private storeListenFields!: NodeListOf<FormField>;
+	/* --------------------------- Reactive form data --------------------------- */
+	// used for error triggers and data-if and data-text
+	public data = formSignals(this.form);
+
+	/* ----------------------------- Reactive steps ----------------------------- */
+	public steps = stepSignals(this.querySelectorAll("af-step") as NodeListOf<ActionFormStep>);
 
 	constructor() {
 		super();
-		document.documentElement.classList.add("js");
 
 		const form = this.form;
 		if (form) {
@@ -50,249 +38,294 @@ export default class ActionForm extends HTMLElement {
 				form.setAttribute("novalidate", "");
 			}
 
-			this.steps.forEach((step, i) => {
-				step.dataset.index = String(i);
-				if (i === 0) {
-					step.classList.add("first", "active");
-				}
-				if (i === this.steps.length - 1) {
-					step.classList.add("last");
+			/* -------------------------------------------------------------------------- */
+			/*                                Local Storage                               */
+			/* -------------------------------------------------------------------------- */
+
+			/* --------------------- Make array of persisted fields --------------------- */
+			this.persistedFields = Array.from(this.querySelectorAll("[data-persist]")).filter((el) => isField(el)) as HTMLFormField[];
+
+			/* ----------------- Restore form values if store is enabled ---------------- */
+			if (this.storeKey) {
+				this.restoreFieldValues();
+			}
+
+			/* ------------------- Listen for storage events to update ------------------ */
+			window.addEventListener("storage", (event) => {
+				this.log("storage", event, event.key);
+
+				if (this.hasAttribute("store-listen") && event.key === this.storeKey) {
+					this.restoreFieldValues();
 				}
 			});
 
-			this.addEventListener("af-step", (event) => {
-				const customEvent = event as CustomEvent<ActionFormStepEvent>;
-				let stepIndex = this.stepIndex;
-				if (typeof customEvent.detail?.step === "number") {
-					stepIndex = customEvent.detail.step;
-				} else if (customEvent.detail?.direction) {
-					this.log("step", customEvent.detail?.direction);
+			/* -------------------------------------------------------------------------- */
+			/*                               Set up af-steps                              */
+			/* -------------------------------------------------------------------------- */
 
-					stepIndex = stepIndex + customEvent.detail?.direction;
-				}
-				// make sure stepIndex is within bounds
-				stepIndex = Math.max(0, Math.min(stepIndex, this.steps.length - 1));
-				// set this.stepIndex
-				this.stepIndex = stepIndex;
-				// set active based on index
-				let shownIndex = 0;
+			/* --------- create effect to set the active step and the step index -------- */
 
-				Array.from(this.steps).forEach((step) => {
-					// Set data-index Based on visibility of the step
-					if (step.style.display !== "none") {
-						step.dataset.index = String(shownIndex);
-						shownIndex++;
-					} else {
-						step.dataset.index = "";
-					}
-					// set active based on index
-
-					if (shownIndex - 1 === stepIndex) {
+			createEffect(() => {
+				this.log("🫨 create effect ~ action-form: step activation");
+				const currentStep = this.steps.currentStep();
+				this.steps.all.forEach((step) => {
+					if (step === currentStep) {
 						step.classList.add("active");
-						this.stepIndex = stepIndex;
 					} else {
 						step.classList.remove("active");
 					}
 				});
 			});
 
+			/* -------------------------------------------------------------------------- */
+			/*              Add ids as needed to all fieldsets and fields                 */
+			/* -------------------------------------------------------------------------- */
+
+			// Create array of all fieldGroups and fields that require validation
+			const fieldGroups = Array.from(this.querySelectorAll("af-field-group")) as Array<ActionFormFieldGroup>;
+			const validationFields = Array.from(this.querySelectorAll("[required],[pattern],[type=phone],[type=email],[type=url],[minlength],[maxlength]")) as Array<HTMLFormField>;
+
+			[...fieldGroups, ...validationFields].forEach((el) => {
+				if (!el.id) {
+					el.id = randomId(`${el.tagName.toLowerCase()}${el.name ? `-${el.name}` : ""}`);
+				}
+			});
+
+			/* -------------------------------------------------------------------------- */
+			/*      If auto-error, add af-error to all fields that require validation     */
+			/* -------------------------------------------------------------------------- */
+
 			// Find all fields that require validation error messages
 			if (this.hasAttribute("auto-error")) {
-				const validationFields = this.querySelectorAll("[required],[pattern],[type=phone],[type=email],[type=url]") as NodeListOf<FormField>;
 				validationFields.forEach((field) => {
-					let id = field.id || "";
+					// ignore if field has aria-describedby attribute as that means it already has an error message
+					if (field.hasAttribute("aria-describedby")) return;
+
 					// Check if there is an af-error attribute for the field, either by id or withing parent label
-					const errorById = form.querySelector(`af-error[for="${id}"]`);
+					const errorById = form.querySelector(`af-error[for="${field.id}"]`);
 					const errorByProximity = field.closest("label")?.querySelector(`af-error`);
 					if (!errorById && !errorByProximity) {
-						// if not then make one
-						const error = document.createElement("af-error");
-						// Use data-error for content
-						error.textContent = field.dataset.error || "";
-						// If there is no id attribute on field then make one just to make things easier
-						if (!id) {
-							id = `${field.name || field.tagName.toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`;
-							field.setAttribute("id", id);
-						}
-						error.setAttribute("for", id);
-						// add af-error after field
-						field.after(error);
-						this.log(`Added Error Message for ${field.tagName.toLowerCase()}[${field.name}] #${id}`);
+						field.after(this.createAfError(field));
+						// NOTE: the af-error component will add it's own id and the aria-describedby attribute
+						this.log(`Added Error Message for ${field.id}`);
 					}
 				});
-				const fieldsetGroups = this.querySelectorAll("fieldset[data-group]") as NodeListOf<HTMLFieldSetElement>;
+				// Find all fieldsets with data-group that don't have an aria-describedby
+				fieldGroups.forEach((fieldGroup) => {
+					// ignore if fieldset has aria-describedby attribute as that means it already has an error message
+					if (fieldGroup.hasAttribute("aria-describedby")) return;
 
-				fieldsetGroups.forEach((fieldset) => {
-					let id = fieldset.id || "";
-					const errorById = fieldset.querySelector(`af-error[for="${id}"]`);
-					if (!errorById) {
-						if (!id) {
-							id = `${fieldset.name || "fieldset"}-${Math.random().toString(36).substring(2, 9)}`;
-							fieldset.setAttribute("id", id);
-						}
-						const error = document.createElement("af-error");
-
-						error.setAttribute("for", id);
-						error.textContent = fieldset.dataset.error || "";
-						fieldset.append(error);
-					}
-					const groupCount = fieldset.querySelector(`af-group-count`) as ActionFormGroupCount | null;
-					if (!groupCount) {
-						const groupCount = document.createElement("af-group-count");
-						groupCount.style.display = "none";
-						fieldset.append(groupCount);
+					// search for any matching af-error messages
+					const afError = fieldGroup.querySelector(`af-error[for="${fieldGroup.id}"]`);
+					// if no error message found, create one
+					if (!afError) {
+						fieldGroup.append(this.createAfError(fieldGroup));
+						this.log(`Added Error Message for ${fieldGroup.id}`);
 					}
 				});
 			}
 
-			this.enhanceElements();
-
 			/* -------------------------------------------------------------------------- */
-			/*                                Add Listeners                               */
+			/*                      Reactive form state management                        */
 			/* -------------------------------------------------------------------------- */
 
-			this.addEventListener("change", (event) => {
-				const target = event.target;
-				if (target instanceof HTMLElement && target.matches("input, textarea, select, af-group-count")) {
-					const field = target as FormField | ActionFormGroupCount;
+			/* --- Set up reactive form state management with all field names as keys --- */
 
-					// if target has an error message, show/hide it
-					const errorId = field.getAttribute("aria-describedby");
-					if (errorId) {
-						const errorMsg = document.getElementById(errorId);
-						if (errorMsg?.matches("af-error")) {
-							const afError = errorMsg as ActionFormError;
-							const valid = field.checkValidity();
-							afError.showError(!valid);
-							// this.log("target", target, errorId, valid);
-						}
-					}
+			// 1. Create keys from names of all field elements
+			const keys = new Set(
+				Array.from(form.elements)
+					.map((el) => {
+						// @ts-expect-error checking for name
+						return el.name || "";
+					})
+					.filter((name) => name)
+			);
 
-					// check if field has a name match in the watcher array
-					const watchers = this.watchers.filter((w) => w.name === field.name);
-					if (watchers.length > 0) {
-						this.checkWatchers(watchers);
-					}
+			// 2. Set up data with all field element names
+			keys.forEach((key) => {
+				this.data.set(key);
+			});
 
-					// if store attribute is set then store the values in local storage
-					if (this.storeKey) {
-						const ls = localStorage.getItem(this.storeKey) || "{}";
-						if (ls && field.name) {
-							const values = JSON.parse(ls);
-							// if element is a checkbox or radio than store as array of checked values
-							if (field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type)) {
-								// create temporary array
-								const tempArray = values[field.name] instanceof Array ? values[field.name] : [];
-								// update array based on checked value
-								if (field.checked) {
-									tempArray.push(field.value);
-								} else {
-									tempArray.splice(tempArray.indexOf(field.value), 1);
-								}
-								values[field.name] = tempArray;
-							} else {
-								values[field.name] = field.value;
-							}
-							// if
-							localStorage.setItem(this.storeKey, JSON.stringify(values));
-						}
-					}
+			/* -------------- Change event listener which triggers data.set ------------- */
 
-					// if target has data-store-set then save it to that
-					if (isField(field) && field.dataset.storeSet) {
-						const storeKeyParts = field.dataset.storeSet.split(".");
-						let newStore: string = field.value;
-						if (storeKeyParts.length > 1) {
-							// if there is parts then this is an object so we need to grab and update it
-							const currentStore = JSON.parse(localStorage.getItem(storeKeyParts[0]) || "{}");
-							newStore = JSON.stringify({ ...currentStore, [storeKeyParts[1]]: field.value });
-						}
-						localStorage.setItem(storeKeyParts[0], newStore);
+			form.addEventListener("change", (e) => {
+				// trigger any events mapped to the form
+				const target = e.target;
+				if (target instanceof HTMLElement) {
+					// @ts-expect-error this is an if on purpose
+					if (target.name) {
+						// @ts-expect-error checking for name
+						// 1. trigger any events mapped to name of the field
+						this.data.set(target.name);
+						// 2. trigger any general events (mapped to the form element)
+						this.data.setForm();
 					}
+					// 3. Store the data if store is set
+					if (this.storeKey) localStorage.setItem(this.storeKey, JSON.stringify(this.data.formDataObject()));
 				}
 			});
 
-			// Override reset button. We need to reset the form and restore the form state in that order.
-			const resetBtns = this.querySelectorAll("button[type=reset]");
+			/* -------------------------------------------------------------------------- */
+			/*    Add effect to all fields and af-field-group to check toggle errors      */
+			/* -------------------------------------------------------------------------- */
 
-			resetBtns.forEach((resetBtn) => {
+			[...validationFields, ...fieldGroups].forEach((el) => {
+				// create effect to check all fields that require validation to toggle errors
+				createEffect(() => {
+					this.log("🫨 create effect ~ action-form: error checking");
+					this.data.get(el.name);
+					this.toggleError(el);
+				});
+			});
+
+			/* -------------------------------------------------------------------------- */
+			/*                           Enhance normal elements                          */
+			/* -------------------------------------------------------------------------- */
+			/* ---------------------- Set up data-if and data-text ---------------------- */
+			const enhancedElements = this.querySelectorAll("[data-if],[data-text]");
+
+			enhancedElements.forEach((el) => {
+				if (el instanceof HTMLElement) {
+					const dataIf = el.dataset.if;
+					const dataText = el.dataset.text;
+					// 1. create effect for data-if and data-text
+					createEffect(() => {
+						this.log("🫨 create effect: action-form: enhance elements");
+						if (dataIf) {
+							const fieldValues = this.data.get(dataIf);
+							if (fieldValues) {
+								const value = el.dataset.ifValue;
+								const notValue = el.dataset.ifNotValue;
+								const regexStr = el.dataset.ifRegex;
+								const regex: RegExp | undefined = regexStr ? new RegExp(regexStr) : undefined;
+								if (value || notValue || regex) {
+									// matches checks if any of the values are equal to the ifValue or if it matches via regex to the ifRegex if none of the values equal the notValue
+									const matches =
+										fieldValues.some((d) => typeof d === "string" && ((value && d === value) || (regex && regex.test(d)))) &&
+										fieldValues.every((d) => typeof d === "string" && (!notValue || d !== notValue));
+									// this.log("matches", watch, value, matches, data);
+									this.show(el, matches);
+								} else {
+									// if there is no ifValue, ifNotValue or ifRegex then just show the element as long as there is at least some value
+									this.show(el, !!fieldValues.some((d) => !!d));
+								}
+							}
+						}
+						if (dataText) {
+							const fieldValues = this.data.get(dataText);
+							if (fieldValues) {
+								el.textContent = fieldValues?.toString();
+							}
+						}
+					});
+				}
+			});
+
+			/* -------------------------------------------------------------------------- */
+			/*                            Override reset button                           */
+			/* -------------------------------------------------------------------------- */
+
+			const resetButtons = this.querySelectorAll("button[type=reset]");
+			// There is a specific order to resetting that needs done so as to not reset persisted fields
+			resetButtons.forEach((resetBtn) => {
 				resetBtn.addEventListener("click", (event) => {
 					event.preventDefault();
+					// store the persisted fields values (works with out localStorage being enabled)
 					this.persistedFields.forEach((persistField) => (isField(persistField) ? (persistField.dataset.persist = persistField.value) : null));
+					// reset the form
 					this.form.reset();
+					// restore the persisted fields
 					this.persistedFields.forEach((persistField) =>
 						isField(persistField) && typeof persistField.dataset.persist === "string" ? (persistField.value = persistField.dataset.persist) : null
 					);
+					// restore the form to initial state; resetting store to only persisted fields and setting step to 0
 					this.restoreForm();
 				});
 			});
 
+			/* -------------------------------------------------------------------------- */
+			/*                       Validate form before submitting                      */
+			/* -------------------------------------------------------------------------- */
 			this.addEventListener("submit", (e) => {
 				// Validate form before submitting
 				const formValid = form.checkValidity();
 				if (!formValid) {
 					e.preventDefault();
-					console.error("Form validation failed");
-					// find first invalid field or invalid af-group-count
-					const invalidField = form.querySelector("input:invalid, select:invalid, textarea:invalid, af-group-count[validity=false]") as
-						| FormField
-						| ActionFormGroupCount
-						| null;
-					if (invalidField) {
-						const parentStep = invalidField.closest("af-step") as null | ActionFormStep;
-						// check if that field is a child of an af-step element
-						if (parentStep) {
-							// move to that step
-							this.dispatchEvent(new CustomEvent<ActionFormStepEvent>("af-step", { detail: { step: Number(parentStep.dataset.index) } }));
-						}
-
-						this.log("invalidField", invalidField);
-						if (invalidField.matches("af-group-count")) {
-							const otherField = invalidField.closest("fieldset")?.querySelector("input, select, textarea") as FormField | null;
-							otherField?.focus();
+					const invalidField = this.form.querySelector(":invalid:not(fieldset)");
+					// if there is an invalid field, focus on it and highlight the error by triggering the change event
+					if (invalidField && invalidField instanceof HTMLElement) {
+						// find parent af-step element
+						const parentStep = invalidField.closest("af-step");
+						// find index of parent step
+						// const stepIndex: number = 0;
+						const stepIndex = this.steps.getVisible().findIndex((step) => step === parentStep);
+						// set step index
+						if (stepIndex !== -1) {
+							// got to step index
+							this.steps.set(stepIndex);
+							// trigger next which will find error
+							this.steps.next();
 						} else {
-							invalidField.focus();
+							throw new Error(`Invalid field: ${invalidField.id}`);
 						}
-						invalidField.dispatchEvent(new Event("change", { bubbles: true }));
 					}
 				} else {
 					// If form is valid then erase the stored values except for persisted fields
-					this.resetStore();
-				}
-			});
-
-			// Listen for storage events to update the form data-store-watch elements and the main action-table store
-			window.addEventListener("storage", (event) => {
-				this.log("storage", event, event.key);
-
-				// Update store elements with data-store-listen but only for matching storeKey
-				if (this.storeListenFields) {
-					// this.log("🚀 ~ ActionForm ~ window.addEventListener ~ this.storeListenFields:", this.storeListenFields);
-					const hasMatchingKey = Array.from(this.storeListenFields).filter((field) => isField(field) && field.dataset.storeGet?.split(".")[0] === event.key);
-					// this.log("🚀 ~ ActionForm ~ window.addEventListener ~ hasMatchingKey:", hasMatchingKey);
-					hasMatchingKey.forEach((field) => this.updateStoreField(field));
-				}
-				if (this.hasAttribute("store-listen") && event.key === this.storeKey) {
-					this.restoreFieldValues();
+					this.restoreForm();
 				}
 			});
 		}
 	}
 
+	private createAfError(el: ActionFormFieldGroup | HTMLFormField): ActionFormError {
+		const afError = document.createElement("af-error") as ActionFormError;
+		afError.setAttribute("for", el.id);
+		afError.textContent = el.dataset.error || "";
+		if (el.dataset.errorPattern) {
+			const pattern = document.createElement("span");
+			pattern.setAttribute("slot", "pattern");
+			pattern.textContent = el.dataset.errorPattern;
+			afError.append(pattern);
+		}
+		return afError;
+	}
+
+	private toggleError(el: HTMLFormField | ActionFormFieldGroup) {
+		const errorMsg = document.getElementById(el.getAttribute("aria-describedby") || "");
+		if (errorMsg && typeof el.checkValidity === "function") {
+			const valid = el.checkValidity();
+			this.log("errorMsg.id, valid", errorMsg.id, valid);
+			if (valid) {
+				this.resetError(el, errorMsg);
+			} else {
+				errorMsg.style.visibility = "visible";
+				el.setAttribute("aria-invalid", "true");
+				errorMsg.dataset.invalid = el.value === "" ? "required" : "pattern";
+			}
+		}
+	}
+
+	private resetError(el: HTMLFormField | ActionFormFieldGroup, errorMsg: HTMLElement) {
+		el.removeAttribute("aria-invalid");
+		errorMsg.style.visibility = "hidden";
+		errorMsg.removeAttribute("data-invalid");
+	}
+
 	private restoreForm() {
 		// Remove store except for persisted fields
 		this.resetStore();
-		// update fields that use data-store-get attribute
-		this.updateStoreFields(this.storeGetFields);
-		// Find all invalid af-errors and hide them
-		const invalidErrors = this.querySelectorAll("af-error[invalid]") as NodeListOf<ActionFormError>;
-		invalidErrors.forEach((error) => {
-			error.showError(false);
+
+		// Reset all elements and their error messages
+		const erroredElements = this.querySelectorAll("[aria-invalid]");
+		erroredElements.forEach((el) => {
+			if (isFieldOrGroup(el)) {
+				const errorMsg = document.getElementById(el.getAttribute("aria-describedby") || "");
+				if (errorMsg) this.resetError(el, errorMsg);
+			}
 		});
 
-		this.checkWatchers();
 		// Move back to step 0
-		this.dispatchEvent(new CustomEvent("af-step", { detail: { step: 0 } }));
+		// this.step.set(0);
 	}
 
 	private resetStore() {
@@ -313,75 +346,9 @@ export default class ActionForm extends HTMLElement {
 		}
 	}
 
-	/* -------------------------------------------------------------------------- */
-	/*                Method to update fields using data-get-store                */
-	/* -------------------------------------------------------------------------- */
-	private updateStoreFields(elements: NodeListOf<Element>) {
-		elements.forEach((el) => {
-			this.updateStoreField(el);
-		});
-	}
-
-	private updateStoreField(el: Element) {
-		if (isField(el)) {
-			const stored = el.dataset.storeGet;
-			if (!stored) return;
-			// split stored by periods
-			const parts = stored.split(".");
-			// add the part[0] as key to otherLocalStores array unless it already exists
-			// get the value from local storage
-			const ls = localStorage.getItem(parts[0]);
-			if (ls) {
-				if (IsJsonObject(ls) && parts.length > 1) {
-					const value = JSON.parse(ls)[parts[1]];
-					if (value) {
-						el.value = String(value);
-					}
-				} else {
-					el.value = ls;
-				}
-			}
-		}
-	}
-
-	private enhanceElements() {
-		// find all elements with data-store-get and set value
-		this.storeGetFields = this.querySelectorAll("[data-store-get]");
-		this.storeListenFields = this.querySelectorAll("[data-store-get][data-store-listen]");
-
-		if (this.storeGetFields.length > 0) {
-			this.updateStoreFields(this.storeGetFields);
-		}
-
-		if (this.storeKey) {
-			this.restoreFieldValues();
-		}
-
-		// find all watchers and create watcher array
-		const watchers = this.querySelectorAll("[data-if],[data-text]") as NodeListOf<HTMLElement>;
-
-		watchers.forEach((el) => {
-			const watch = el.dataset.if || el.dataset.text;
-			const value = el.dataset.ifValue;
-			const notValue = el.dataset.ifNotValue;
-			const regexStr = el.dataset.ifRegex;
-			// if neither watch nor value is set, assume that any value is valid. RegExp /./ tests for any value
-			const regex: RegExp | undefined = regexStr ? new RegExp(regexStr) : undefined;
-			if (watch) {
-				this.watchers.push({ name: watch, if: !!el.dataset.if, text: !!el.dataset.text, value, notValue, regex, el: el });
-			}
-		});
-
-		// set Watchers from the start
-		this.checkWatchers();
-
-		// check for persisted fields
-		this.persistedFields = Array.from(this.querySelectorAll("[data-persist]")).filter((el) => isField(el)) as FormField[];
-	}
-
 	private restoreFieldValues() {
 		const ls = localStorage.getItem(this.storeKey);
-		if (!ls) return;
+		if (!ls || ls === "undefined") return;
 		const values = JSON.parse(ls) as Record<string, string | string[]>;
 		if (typeof values !== "object") return;
 		// Cycle through fields based on name
@@ -402,49 +369,8 @@ export default class ActionForm extends HTMLElement {
 		});
 	}
 
-	/* -------------------------------------------------------------------------- */
-	/*               Method to check data-if and data-text watchers               */
-	/* -------------------------------------------------------------------------- */
-	public checkWatchers(watchers = this.watchers) {
-		this.log("checkWatchers", watchers);
-		// Get FormData for watchers
-		const form = this.querySelector("form");
-		if (!form || watchers.length === 0) return;
-		const formData = new FormData(form);
-		// Loop through watchers
-		watchers.forEach((watcher) => {
-			const values = formData.getAll(watcher.name);
-			// this.log("watchers values", values, watcher);
-
-			// Update textContent
-			if (watcher.text) {
-				watcher.el.textContent = values.join(", ");
-			}
-
-			// Update display
-			if (watcher.if) {
-				let valid = values.some((value) => {
-					// typeof value === "string" is to ignore formData files
-					if (typeof value === "string" && (watcher.value || watcher.regex)) {
-						// if is is a string (rather than a File) there is a value or regex to check then check for that
-						return value === watcher.value || (watcher.regex && watcher.regex.test(value));
-					}
-					// if value has no value return false; otherwise true
-					return !!value;
-				});
-				// if valid and there is a notValue then check for that as well
-				if (watcher.notValue && values.length !== 0 && valid) {
-					valid = values.every((value) => value !== watcher.notValue);
-				}
-				// this.log("watcher", watcher.name, valid);
-				this.show(watcher.el, valid);
-				// if this is af-step then trigger event to update progress bar and step buttons text since there is a change in the number of steps
-				if (watcher.el.matches("af-step")) this.dispatchEvent(new CustomEvent("af-step"));
-			}
-		});
-	}
-
 	private show(el: HTMLElement, show: boolean): void {
+		// this.log("show", el, show);
 		if (show) {
 			el.style.display = "";
 			el.removeAttribute("disabled");
@@ -453,6 +379,15 @@ export default class ActionForm extends HTMLElement {
 			el.setAttribute("disabled", "");
 		}
 		el.dispatchEvent(new Event("change", { bubbles: true }));
+		if (el.matches("af-step")) this.steps.updateSteps();
+		if (el.matches("fieldset")) {
+			// if this is a fieldset, set all named events so that errors, data-if and data-text events can be updated
+			const fields = el.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+			fields.forEach((field) => {
+				// console.log("show notify", field.name);
+				this.data.set(field.name);
+			});
+		}
 	}
 
 	// eslint-disable-next-line
@@ -470,3 +405,6 @@ export default class ActionForm extends HTMLElement {
 	// }
 }
 customElements.define("action-form", ActionForm);
+
+// Define imported elements that are required by this component
+customElements.define("af-error", ActionFormError);

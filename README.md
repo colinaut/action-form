@@ -136,19 +136,20 @@ Simple element that displays all of the field names and values as a list.
 - [x] Ability to change next/prev button text when steps show or hide
 - [ ] Add a data-no-store attribute to stop localStorage from being added for a field
 - [x] Add a data-persist attribute to maintain a field from resetting.
-- [x] Change to data-store-get, data-store-set, and data-store-listen (and store-listen for action-form)
 - [ ] Revisit "af-step" event so it makes more sense
 - [x] Add a storage event listener to reload the value for the data-store-watch attribute
-- [ ] Fix issue with loading single string from data-store-get
 - [ ] Add some sort of preview-title for the form field that uses for the af-preview
 - [ ] Figure out how to fix store with multiple fields with the same name; this occurs when using data-if to show different versions of the some fields
 - [ ] Add ability to use the label for the af-preview
 - [ ] Sort out css variables and document them
 - [ ] Add show invalid to af-preview and/or a new component that displays invalid fields as a list
 - [ ] Add multiple error messages based on the error type. For example, "required" if blank and then "max 25" if over when a number input is max="25"
-- [ ] FIX: When a fieldset is hidden/shown it disabled fields. This should trigger watchers for those fields.
+- [x] FIX: When a fieldset is hidden/shown it disabled fields. This should trigger watchers for those fields.
 - [x] Allow data-persist to work without data-store
-- [ ] Move data-store-get to it's own action-store component
+- [x] Move data-store-get to it's own action-store component
+- [ ] Review how auto-error is implemented for af-group-count as it is complicated and might be a better way to handle this
+- [ ] Add ability for some data-if or data-text to update via "input" event type
+- [ ] Clean up this To Do list
 - [ ] QA all of it
 - [ ] Clean up and DRY code
 - [ ] QA Again

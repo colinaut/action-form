@@ -1,13 +1,14 @@
-af-error {
+/* af-error {
 	visibility: hidden;
 }
 
 af-error[invalid] {
 	visibility: visible;
-}
+} */
 
 af-error {
 	color: var(--error-text, red);
+	visibility: hidden;
 }
 
 af-step {

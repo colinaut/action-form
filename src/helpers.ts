@@ -1,55 +1,18 @@
-type MakeAttributesArray = {
-	attr: string;
-	type?: "string" | "number" | "boolean";
-	defaultValue?: string | number | boolean;
-}[];
+import type { HTMLFormField } from "./types";
+import ActionFormFieldGroup from "./af-field-group";
 
-export function makeAttributes(target: HTMLElement, attributes: MakeAttributesArray) {
-	attributes.forEach((attribute) => {
-		makeAttribute(target, attribute.attr, attribute.type, attribute.defaultValue);
-	});
+export function randomId(prefix = ""): string {
+	return `${prefix ? prefix + "-" : ""}${Math.random().toString(36).substring(2, 9)}`;
 }
 
-export function makeAttribute(target: HTMLElement, attr: string, type: "string" | "number" | "boolean" = "string", defaultValue?: string | number | boolean) {
-	const attrKebab = attr.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+export function isField(el: Element | null | undefined): el is HTMLFormField {
+	return !!el && (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement);
+}
 
-	// Add getter and setter
-	Object.defineProperty(target, attr, {
-		get() {
-			if (type === "string") {
-				return this.getAttribute(attrKebab) || "";
-			} else if (type === "number") {
-				// eslint-disable-next-line no-case-declarations
-				const value = this.getAttribute(attrKebab);
-				if (value) {
-					return Number(value);
-				} else {
-					return null;
-				}
-			} else if (type === "boolean") {
-				return this.hasAttribute(attrKebab);
-			}
-		},
-		set(value) {
-			if (type === "number") {
-				if (typeof value === "number") {
-					value = String(value);
-				} else {
-					value = null;
-				}
-			}
-			if (type === "boolean") {
-				value = value ? "" : null;
-			}
-			if (value === null) {
-				this.removeAttribute(attrKebab);
-				return;
-			}
-			this.setAttribute(attrKebab, String(value));
-		},
-	});
+export function isFieldOrGroup(el: Element | null | undefined): el is HTMLFormField | ActionFormFieldGroup {
+	return !!el && (isField(el) || el instanceof ActionFormFieldGroup);
+}
 
-	// Add default value if attribute is not already defined
-	// @ts-expect-error: "This is a custom element so it should work"
-	if (target[attr] === null && defaultValue !== undefined) target[attr] = defaultValue;
+export function isHTMLFormElement(el: Element | null | undefined): el is HTMLFormField | HTMLFieldSetElement {
+	return !!el && (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement || el instanceof HTMLFieldSetElement);
 }

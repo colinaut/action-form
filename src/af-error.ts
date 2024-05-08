@@ -1,61 +1,57 @@
-type HTMLFormElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLFieldSetElement;
-
-function isHTMLFormElement(el: Element): el is HTMLFormElement {
-	return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement || el instanceof HTMLFieldSetElement;
-}
+import { randomId, isFieldOrGroup } from "./helpers";
 
 export default class ActionFormError extends HTMLElement {
 	public target: HTMLFormElement | null = null;
+	private readonly shadow = this.attachShadow({ mode: "open" });
 
 	constructor() {
 		super();
-
-		const targetId = this.getAttribute("for") || "";
-		const target = document.getElementById(targetId) || this.closest("label")?.querySelector(`input, select, textarea`);
-		this.target = target && isHTMLFormElement(target) ? target : null;
 	}
 
-	// TODO: get this working for fieldsets again!!!!
-	public showError(invalid: boolean = true): void {
-		const el = this.target;
-		if (!el) return;
-		// console.log("🚀 ~ file: af-error.ts:ActionFormError.showError ~ el", el);
+	private addAria(target: HTMLElement) {
+		// skip if target is not a form element or if it already has a matching aria-describedby
+		if (isFieldOrGroup(target)) {
+			// get id of this af-error element either from the aria-describedby attribute or from itself or make one
+			const id = target.getAttribute("aria-describedby") || this.getAttribute("id") || randomId(target.id);
 
-		if (invalid) {
-			this.setAttribute("invalid", "");
-			el.setAttribute("aria-invalid", "true");
-		} else {
-			this.removeAttribute("invalid");
-			el.removeAttribute("aria-invalid");
+			// set the id on this element and the aria-describedby
+			this.setAttribute("id", id);
+			target.setAttribute("aria-describedby", id);
 		}
 	}
-
-	// TODO: QA aria is done right
-	private addAria = (target: HTMLElement) => {
-		if (!isHTMLFormElement(target)) return;
-		const id = this.getAttribute("id") || `${target.id || target.name || target.tagName.toLowerCase()}-${Math.random().toString(36).substring(2, 9)}`;
-		this.setAttribute("id", id);
-		target.setAttribute("aria-describedby", id);
-		return id;
-	};
 
 	public connectedCallback(): void {
+		// hide by default
+		this.style.visibility = "hidden";
+		// get target from attribute
+		const targetId = this.getAttribute("for") || "";
+		const target = targetId ? document.getElementById(targetId) : this.closest("label")?.querySelector(`input, select, textarea`);
 		// get field ID from attribute
-		if (this.target) {
-			const el = this.target;
-			// console.log(`watching ${el.tagName.toLowerCase()} ${el.id}`);
-
+		if (isFieldOrGroup(target)) {
 			// Make id and add aria-describedby attribute to the target element
-			this.addAria(el);
-		}
-		// Add "Required" text is there is no text
-		if (!this.textContent) {
-			this.textContent = "Required";
+			this.addAria(target);
+			// render the element
+			this.render();
 		}
 	}
 
-	// public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-	// 	console.log("changed", name, oldValue, newValue);
-	// }
+	static get observedAttributes() {
+		return ["data-invalid"];
+	}
+
+	public attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
+		// console.log("changed", name, oldValue, newValue);
+		if (name === "data-invalid" && (newValue === "pattern" || newValue === "required")) {
+			// rerender based on pattern or required
+			this.render(newValue);
+		}
+	}
+
+	public render(part: "pattern" | "required" = "required") {
+		const parts = {
+			required: `<slot>Required</slot>`,
+			pattern: `<slot name="pattern">Not filled in properly</slot>`,
+		};
+		this.shadow.innerHTML = parts[part];
+	}
 }
-customElements.define("af-error", ActionFormError);

@@ -1,43 +1,36 @@
 import type ActionForm from "./action-form";
+import { createEffect } from "./signals";
 export default class ActionFormProgress extends HTMLElement {
 	private shadow: ShadowRoot;
+
+	private actionForm!: ActionForm;
+
 	constructor() {
 		super();
 		this.shadow = this.attachShadow({ mode: "open" });
 
-		if (!this.actionForm?.steps) return;
+		const actionForm = this.closest("action-form") as ActionForm | null;
+		if (actionForm && actionForm.steps.all.length > 0) {
+			this.actionForm = actionForm;
+			this.shadow.addEventListener("click", (e) => {
+				const target = e.target;
+				if (this.actionForm && target instanceof HTMLButtonElement && target.matches(".step") && !target.disabled) {
+					const step = Number(target.dataset.index || 0);
+					actionForm.steps.set(step);
+				}
+			});
 
-		this.actionForm.addEventListener("af-step", () => {
-			this.render();
-		});
-
-		this.render();
-
-		this.shadow.addEventListener("click", (e) => {
-			const target = e.target;
-			if (target instanceof HTMLButtonElement && target.matches(".step") && !target.disabled) {
-				const step = Number(target.dataset.index || 0);
-				// dispatch event to action-form which handles show/hide of steps
-
-				this.dispatchEvent(new CustomEvent("af-step", { bubbles: true, composed: true, detail: { step } }));
-				this.render();
-			}
-		});
+			/* ---- rerender when step is changed or when steps are added or removed ---- */
+			createEffect(() => {
+				const stepsLength = actionForm.steps.stepsLength();
+				const stepIndex = actionForm.steps.stepIndex();
+				console.log("🫨 create effect: af-progress: rerender", stepsLength, stepIndex);
+				this.render(stepsLength, stepIndex);
+			});
+		}
 	}
 
-	private actionForm = this.closest("action-form") as ActionForm | null;
-
-	get stepIndex(): number {
-		return this.actionForm?.stepIndex || 0;
-	}
-
-	private render() {
-		if (!this.actionForm?.steps) return;
-
-		const stepsLength = Array.from(this.actionForm.steps).filter((step) => !(step.style.display === "none")).length;
-		const stepIndex = this.actionForm?.stepIndex || 0;
-		// const stepIndex = this.actionForm?.stepIndex || 0;
-
+	private render(stepsLength: number, stepIndex: number) {
 		const progressPercentage = (stepIndex / (stepsLength - 1)) * 100;
 
 		// TODO: simplify this
@@ -117,8 +110,7 @@ export default class ActionFormProgress extends HTMLElement {
         <div class="bg" part="bg"></div>
         <div class="progress" part="progress" style="width: ${progressPercentage}%;"></div>
         <nav part="nav">
-        ${Array.from(this.actionForm?.steps)
-			.filter((step) => !(step.style.display === "none"))
+        ${Array.from(this.actionForm.steps.getVisible())
 			.map((step, index) => {
 				const active = index === stepIndex ? "active" : "";
 				const valid = step.valid ? "valid" : "";
@@ -133,4 +125,3 @@ export default class ActionFormProgress extends HTMLElement {
         `;
 	}
 }
-customElements.define("af-progress", ActionFormProgress);
