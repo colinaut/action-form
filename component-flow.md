@@ -1,5 +1,7 @@
 # Component Architecture and Flow
 
+// TODO: rewrite this now that it have changed
+
 ## `<action-form>`
 
 ### Properties
