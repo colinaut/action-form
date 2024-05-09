@@ -1,8 +1,9 @@
+import { randomId } from "./helpers";
 export default class ActionFormFieldGroup extends HTMLElement {
 	private readonly shadow = this.attachShadow({ mode: "open" });
 	private internals: ElementInternals = this.attachInternals();
 	static formAssociated = true;
-	public name: string = this.getAttribute("name") || "";
+	public name: string = this.getAttribute("name") || randomId("af-field-group");
 
 	get min(): number {
 		return Number(this.getAttribute("min") || 0);
@@ -12,17 +13,13 @@ export default class ActionFormFieldGroup extends HTMLElement {
 		return Number(this.getAttribute("max") || Infinity);
 	}
 
-	get value(): number {
+	get value(): string {
 		let values = [];
 		const fields = this.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 		values = Array.from(fields).filter((field) =>
 			field instanceof HTMLInputElement && ["checkbox", "radio"].includes(field.type) ? field.checked : field.checkValidity() && field.value
 		);
-		return values.length;
-	}
-
-	set value(value: number) {
-		this.setAttribute("value", String(value));
+		return String(values.length);
 	}
 
 	constructor() {
@@ -46,7 +43,9 @@ export default class ActionFormFieldGroup extends HTMLElement {
 	}
 
 	public checkValidity(): boolean {
-		const validity = this.value >= this.min && this.value <= this.max;
+		this.setAttribute("value", this.value);
+		const value = Number(this.value);
+		const validity = value >= this.min && value <= this.max;
 		this.setValidity(validity);
 		return validity;
 	}

@@ -8,9 +8,9 @@ import ActionFormFormGroupCount from "./af-field-group-count"; // alias for Acti
 import ActionFormPreview from "./af-preview";
 import ActionFormTextCount from "./af-text-count";
 // other imports
-import type { HTMLFormField } from "./types";
+import type { HTMLFormField, HTMLFormFieldOrGroup } from "./types";
 import { formSignals } from "./reactiveFormData";
-import { randomId, isField, isFieldOrGroup } from "./helpers";
+import { randomId, isField, isFieldOrGroup, getValueBasedOnType } from "./helpers";
 import { stepSignals } from "./reactiveStepData";
 import { createEffect } from "./signals";
 
@@ -300,17 +300,27 @@ export default class ActionForm extends HTMLElement {
 		return afError;
 	}
 
-	private toggleError(el: HTMLFormField | ActionFormFieldGroup) {
+	private toggleError(el: HTMLFormFieldOrGroup) {
+		// 1. find error message by id in aria-describedby
+		// this should work regardless if af-error is added manually or automatically.
+		// It can also work for other manually added errors as long as the id corresponds to an element
 		const errorMsg = document.getElementById(el.getAttribute("aria-describedby") || "");
+		// 2. if the error is there and the el has checkValidity function (any form field or custom field element with the function)
 		if (errorMsg && typeof el.checkValidity === "function") {
+			// 3. check the validity of the element
 			const valid = el.checkValidity();
 			this.log("errorMsg.id, valid", errorMsg.id, valid);
 			if (valid) {
+				// 3a. if valid reset the error message to hidden and remove aria-invalid on the field
 				this.resetError(el, errorMsg);
 			} else {
+				// 3b. otherwise activate the error message and set aria-invalid to true on the field
 				errorMsg.style.visibility = "visible";
 				el.setAttribute("aria-invalid", "true");
-				errorMsg.dataset.invalid = el.value === "" ? "required" : "pattern";
+				// 3c. if the element has no value then assume the error is that it is required.
+				// Otherwise set data-invalid to pattern as it is invalid due to pattern match
+				// data-invalid tells the element which error message to show
+				errorMsg.dataset.invalid = getValueBasedOnType(el) === "" ? "required" : "pattern";
 			}
 		}
 	}
@@ -369,7 +379,7 @@ export default class ActionForm extends HTMLElement {
 			fields.forEach((el) => {
 				if (isField(el) && !el.matches("[type=hidden]")) {
 					// if this is a checkbox or radio button
-					if (el instanceof HTMLInputElement && ["checkbox", "radio"].includes(el.type) && values[key] instanceof Array) {
+					if (el instanceof HTMLInputElement && ["checkbox", "radio"].includes(el.type)) {
 						// set checked based on value in array
 						el.checked = values[key].includes(el.value);
 					} else {
@@ -393,11 +403,11 @@ export default class ActionForm extends HTMLElement {
 		el.dispatchEvent(new Event("change", { bubbles: true }));
 		if (el.matches("af-step")) this.steps.updateSteps();
 		if (el.matches("fieldset")) {
-			// if this is a fieldset, set all named events so that errors, data-if and data-text events can be updated
-			const fields = el.querySelectorAll("input, select, textarea") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+			// if this is a fieldset, find all child fields to trigger effects (error handling, data-if, data-text)
+			const fields = el.querySelectorAll("input, select, textarea, af-field-group") as NodeListOf<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 			fields.forEach((field) => {
-				// console.log("show notify", field.name);
-				this.data.set(field.name);
+				// only trigger effects if it has a value
+				if (this.data.getValues(field.name).some((value) => value)) this.data.set(field.name);
 			});
 		}
 	}

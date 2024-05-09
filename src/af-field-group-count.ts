@@ -9,13 +9,10 @@ export default class ActionFormFormGroupCount extends HTMLElement {
 		this.afFieldGroup?.addEventListener("change", () => this.render());
 	}
 	get value() {
-		if (this.afFieldGroup) {
-			return this.afFieldGroup.value;
-		}
-		return 0;
+		return this.afFieldGroup?.value || "0";
 	}
 
 	render() {
-		this.innerHTML = `${this.value.toString()}`;
+		this.innerHTML = this.value;
 	}
 }

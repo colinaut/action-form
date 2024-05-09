@@ -137,7 +137,8 @@
 							<label>Add another comment step? <input type="checkbox" name="comments-add" /> Yes</label>
 							<fieldset data-if="add-required" disabled>
 								<label>This is required <input type="checkbox" name="required-thing" id="required-thing" required /> Check Me! </label>
-								<af-error for="required-thing">Required</af-error>
+								<af-error for="required-thing"></af-error>
+								<label>Must write the word bunny: <input name="required-text" type="text" pattern="bunny" required /></label>
 							</fieldset>
 							<div data-if="required-thing">You checked it!</div>
 						</fieldset>
