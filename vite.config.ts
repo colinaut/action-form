@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => {
 				output: [
 					{
 						entryFileNames: `[name].js`,
-						assetFileNames: `assets/[name].[ext]`,
+						assetFileNames: `action-form.[ext]`,
 						dir: "dist",
 					},
 				],

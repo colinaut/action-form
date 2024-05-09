@@ -17,7 +17,7 @@
 			"import": "./dist/index.js"
 		},
 		"./dist/index.js": "./dist/index.js",
-		"./dist/action-form.css": "./dist/action-table.css",
+		"./dist/action-form.css": "./dist/action-form.css",
 		"./dist/action-form.js": "./dist/action-form.js"
 	},
 	"publishConfig": {
