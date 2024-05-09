@@ -18,11 +18,7 @@
 		},
 		"./dist/index.js": "./dist/index.js",
 		"./dist/action-form.css": "./dist/action-table.css",
-		"./dist/action-form.js": "./dist/action-form.js",
-		"./dist/action-fieldset.js": "./dist/action-fieldset.js",
-		"./dist/error-msg.js": "./dist/error-msg.js",
-		"./dist/form-progress.js": "./dist/form-progress.js",
-		"./dist/form-step.js": "./dist/form-step.js"
+		"./dist/action-form.js": "./dist/action-form.js"
 	},
 	"publishConfig": {
 		"access": "public"
