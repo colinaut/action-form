@@ -199,7 +199,7 @@ export default class ActionForm extends HTMLElement {
 
 					// 1. create effect for data-if and data-text
 					createEffect(() => {
-						this.log("🫨 create effect: action-form: enhance elements");
+						this.log(`🫨 create effect: action-form: enhance elements — ${dataIf ? `dataIf: ${dataIf}` : ""} ${dataText ? `dataText: ${dataText}` : ""}`);
 						if (dataIf) {
 							const fieldValues = this.data.get(dataIf);
 							if (fieldValues) {
