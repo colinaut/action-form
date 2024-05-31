@@ -58,8 +58,9 @@ export default class ActionFormStep extends HTMLElement {
 			this.addEventListener("click", (e) => {
 				const target = e.target;
 				if (target instanceof HTMLButtonElement) {
-					if (target.dataset.direction === "next" || target.dataset.direction === "prev") {
-						this.step(target.dataset.direction);
+					const direction = target.dataset.direction || "next";
+					if (direction === "next" || direction === "prev") {
+						actionForm.steps[direction]();
 					}
 				}
 			});
@@ -75,11 +76,6 @@ export default class ActionFormStep extends HTMLElement {
 		// this.actionForm?.step.subscribe(() => {
 		// 	this.setButtonTexts();
 		// });
-	}
-
-	public step(direction: "next" | "prev" = "next") {
-		// If button is next check if any elements are invalid before moving to next step
-		this.actionForm?.steps[direction]();
 	}
 
 	public connectedCallback(): void {
