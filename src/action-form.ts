@@ -142,7 +142,7 @@ export default class ActionForm extends HTMLElement {
 
 			// 1. Create keys from names of all field elements
 			const keys = new Set(
-				[...fieldGroups, ...validationFields]
+				[...fieldGroups, ...Array.from(form.elements)]
 					.map((el) => {
 						return el.getAttribute("name") || "";
 					})
@@ -196,6 +196,7 @@ export default class ActionForm extends HTMLElement {
 				if (el instanceof HTMLElement) {
 					const dataIf = el.dataset.if;
 					const dataText = el.dataset.text;
+
 					// 1. create effect for data-if and data-text
 					createEffect(() => {
 						this.log("🫨 create effect: action-form: enhance elements");
@@ -307,7 +308,7 @@ export default class ActionForm extends HTMLElement {
 		if (errorMsg && typeof el.checkValidity === "function") {
 			// 3. check the validity of the element
 			const valid = el.checkValidity();
-			this.log("errorMsg.id, valid", errorMsg.id, valid);
+			// this.log("errorMsg.id, valid", errorMsg.id, valid);
 			if (valid) {
 				// 3a. if valid reset the error message to hidden and remove aria-invalid on the field
 				this.resetError(el, errorMsg);
