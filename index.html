@@ -80,7 +80,7 @@
 						</fieldset>
 					</af-step>
 					<af-step data-title="Favorite Animals" id="favorite-animal">
-						<af-field-group min="1" max="3" data-error-pattern="1-3 Animals is required" id="favorite-animal" name="favorite-animal">
+						<af-field-group min="1" max="3" data-error-pattern="1-3 Animals is required" id="animals" name="favorite-animal">
 							<fieldset class="grid grid-cols-4">
 								<legend>Favorite Animals</legend>
 								<div class="instructions col-span-full flex justify-between items-center">
@@ -96,7 +96,7 @@
 								<label><input type="checkbox" name="animal" value="snake" /> Snake </label>
 								<label><input type="checkbox" name="animal" value="other" /> Other </label>
 								<div data-if="animal" data-if-not-value="bunny" data-if-value="snake" class="col-span-full"><em>Snake? Why not bunny?!?</em></div>
-								<af-error class="col-span-full" for="favorite-animal"><span slot="pattern">1-3 Animals is required</span></af-error>
+								<af-error class="col-span-full" for="animals"><span slot="pattern">1-3 Animals is required</span></af-error>
 							</fieldset>
 						</af-field-group>
 						<fieldset class="col-span-full" data-if="animal" data-if-value="other" disabled>

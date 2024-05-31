@@ -33,6 +33,10 @@ export default class ActionFormFieldGroup extends HTMLElement {
 			this.checkValidity();
 			this.dispatchEvent(new Event("change", { bubbles: true, composed: true }));
 		});
+
+		this.closest("form")?.addEventListener("formdata", (event) => {
+			event.formData.append(this.name, this.value);
+		});
 	}
 
 	public focus() {

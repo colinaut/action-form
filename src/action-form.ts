@@ -76,7 +76,6 @@ export default class ActionForm extends HTMLElement {
 			/* --------- create effect to set the active step and the step index -------- */
 
 			createEffect(() => {
-				this.log("🫨 create effect ~ action-form: step activation");
 				const currentStep = this.steps.currentStep();
 				this.steps.all.forEach((step) => {
 					if (step === currentStep) {
@@ -143,10 +142,9 @@ export default class ActionForm extends HTMLElement {
 
 			// 1. Create keys from names of all field elements
 			const keys = new Set(
-				Array.from(form.elements)
+				[...fieldGroups, ...validationFields]
 					.map((el) => {
-						// @ts-expect-error checking for name
-						return el.name || "";
+						return el.getAttribute("name") || "";
 					})
 					.filter((name) => name)
 			);
@@ -182,8 +180,8 @@ export default class ActionForm extends HTMLElement {
 			[...validationFields, ...fieldGroups].forEach((el) => {
 				// create effect to check all fields that require validation to toggle errors
 				createEffect(() => {
-					this.log("🫨 create effect ~ action-form: error checking");
-					this.data.get(el.name);
+					const name = el.getAttribute("name");
+					if (name) this.data.get(name);
 					this.toggleError(el);
 				});
 			});

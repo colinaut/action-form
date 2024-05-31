@@ -26,6 +26,7 @@ export default class ActionFormError extends HTMLElement {
 		// get target from attribute
 		const targetId = this.getAttribute("for") || "";
 		const target = targetId ? document.getElementById(targetId) : this.closest("label")?.querySelector(`input, select, textarea`);
+
 		// get field ID from attribute
 		if (isFieldOrGroup(target)) {
 			// Make id and add aria-describedby attribute to the target element
