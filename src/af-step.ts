@@ -2,10 +2,6 @@ import type ActionForm from "./action-form";
 import { createEffect } from "./signals";
 
 export default class ActionFormStep extends HTMLElement {
-	private shadow!: ShadowRoot | null;
-	// this.this works if component uses Declarative Shadow DOM or not
-	private DOM!: this | ShadowRoot;
-
 	private actionForm!: ActionForm;
 
 	// Reflected Attributes
@@ -49,20 +45,17 @@ export default class ActionFormStep extends HTMLElement {
 		super();
 
 		const actionForm = this.closest("action-form") as ActionForm | null;
-		if (actionForm && actionForm.steps.all.length > 0) {
+		if (actionForm) {
 			this.actionForm = actionForm;
-			const internals = this.attachInternals();
-			this.shadow = internals.shadowRoot;
-			this.DOM = this.shadow || this;
 
 			// update validity and completed when change event is fired
-			this.DOM.addEventListener("change", () => {
+			this.addEventListener("change", () => {
 				// console.log("af-step change isValid", event.target, this.isValid);
 				this.valid = this.isValid;
 			});
 
 			// trigger next or prev step
-			this.DOM.addEventListener("click", (e) => {
+			this.addEventListener("click", (e) => {
 				const target = e.target;
 				if (target instanceof HTMLButtonElement) {
 					if (target.dataset.direction === "next" || target.dataset.direction === "prev") {
@@ -93,35 +86,29 @@ export default class ActionFormStep extends HTMLElement {
 		// console.log("connected");
 		this.valid = this.isValid;
 
-		// check for footer
-		const footer = this.DOM.querySelector("slot[name=footer]") || this.DOM.querySelector("[slot=footer]");
-
-		// add footer if it doesn't exist
-		if (!footer) {
-			const nav = document.createElement("nav");
-			nav.classList.add("af-step-nav");
-			nav.setAttribute("part", "step-nav");
-			nav.setAttribute("aria-label", "Step Navigation");
-			const stepButton = (direction: "next" | "prev" = "next") => {
-				const title = this.getStepTitle(direction);
-				if (title) {
-					return `<button type="button" class="af-step-${direction}" data-direction="${direction}" part="step-btn ${direction}">${title}</button>`;
-				} else if (direction === "next") {
-					// no title = last step
-					return `<button type="submit" part="submit">${this.submit}</button>`;
-				} else {
-					// no title = first step
-					return `<span></span>`;
-				}
-			};
-			nav.innerHTML = `${stepButton("prev")}${stepButton("next")}`;
-			this.DOM.appendChild(nav);
-		}
+		// add footer
+		const nav = document.createElement("nav");
+		nav.classList.add("af-step-nav");
+		nav.setAttribute("part", "step-nav");
+		nav.setAttribute("aria-label", "Step Navigation");
+		const stepButton = (direction: "next" | "prev" = "next") => {
+			const title = this.getStepTitle(direction);
+			if (title) {
+				return `<button type="button" class="af-step-${direction}" data-direction="${direction}" part="step-btn ${direction}">${title}</button>`;
+			} else if (direction === "next") {
+				// direction next and no title = last step
+				return `<button type="submit" part="submit">${this.submit}</button>`;
+			} else {
+				// no title = first step
+				return `<span></span>`;
+			}
+		};
+		nav.innerHTML = `${stepButton("prev")}${stepButton("next")}`;
+		this.appendChild(nav);
 	}
 
 	private setButtonTexts() {
-		const queryBtns = this.DOM.querySelectorAll("button[data-direction]") as NodeListOf<HTMLButtonElement>;
-		queryBtns.forEach((btn) => {
+		(this.querySelectorAll(".af-step-nav button[data-direction]") as NodeListOf<HTMLButtonElement>).forEach((btn) => {
 			if (btn.dataset.direction === "next" || btn.dataset.direction === "prev") {
 				btn.textContent = this.getStepTitle(btn.dataset.direction);
 			}

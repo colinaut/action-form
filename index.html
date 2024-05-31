@@ -23,17 +23,6 @@
 					<input type="hidden" name="token" value="12345" />
 					<af-progress enable-all></af-progress>
 					<af-step data-title="Your Name" next="Phone Numbers" id="names">
-						<template shadowrootmode="open">
-							<style>
-								:host {
-									display: none;
-								}
-								:host([active]) {
-									display: var(--display, block);
-								}
-							</style>
-							<slot></slot>
-						</template>
 						<fieldset name="names">
 							<legend>Your Name</legend>
 							<div class="flex gap-8">
@@ -64,18 +53,6 @@
 						</af-field-group>
 					</af-step>
 					<af-step data-title="Contact Us" id="contact-us">
-						<template shadowrootmode="open">
-							<style>
-								:host {
-									display: none;
-								}
-								:host([active]) {
-									display: var(--display, block);
-								}
-							</style>
-							<slot></slot>
-						</template>
-						<div slot="header">Contact Us</div>
 						<fieldset>
 							<label>Email: <input type="email" name="email" id="email" required /></label>
 							<af-error for="email"><span slot="pattern">Email address is required</span></af-error>
